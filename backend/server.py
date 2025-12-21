@@ -189,22 +189,26 @@ async def login(request: LoginRequest, response: Response):
     token = generate_auth_token()
     valid_tokens.add(token)
     
-    # Set HTTP-only cookie
+    # Set HTTP-only cookie (for same-origin requests)
     response.set_cookie(
         key=AUTH_COOKIE_NAME,
         value=token,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
-        samesite="lax",
+        secure=True,
+        samesite="none",
         max_age=AUTH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60,
         path="/"
     )
     
-    return {"message": "Login successful"}
+    # Also return token in response for cross-origin scenarios
+    return {"message": "Login successful", "token": token}
 
 @api_router.get("/auth/check")
 async def check_auth(request: Request):
     auth_token = request.cookies.get(AUTH_COOKIE_NAME)
+    if not auth_token:
+        auth_token = request.headers.get(AUTH_HEADER_NAME)
+    
     if auth_token and auth_token in valid_tokens:
         return {"authenticated": True}
     return {"authenticated": False}
@@ -212,6 +216,9 @@ async def check_auth(request: Request):
 @api_router.post("/auth/logout")
 async def logout(request: Request, response: Response):
     auth_token = request.cookies.get(AUTH_COOKIE_NAME)
+    if not auth_token:
+        auth_token = request.headers.get(AUTH_HEADER_NAME)
+    
     if auth_token and auth_token in valid_tokens:
         valid_tokens.discard(auth_token)
     

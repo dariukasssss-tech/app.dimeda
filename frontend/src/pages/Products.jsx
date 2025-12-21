@@ -215,7 +215,7 @@ const Products = () => {
               {!editProduct && (
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <p className="text-sm text-blue-800">
-                    <strong>Auto-Schedule:</strong> Annual maintenance will be automatically scheduled for years 2026-2030 (January 15th each year).
+                    <strong>Auto-Schedule:</strong> Annual maintenance will be automatically scheduled starting 12 months after registration date, then yearly for 5 years.
                   </p>
                 </div>
               )}

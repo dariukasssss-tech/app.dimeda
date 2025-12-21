@@ -269,7 +269,7 @@ const Export = () => {
         service.description.substring(0, 40) + (service.description.length > 40 ? "..." : "")
       ]);
 
-      doc.autoTable({
+      autoTable(doc, {
         startY: yPos,
         head: [["Type", "Technician", "Date", "Description"]],
         body: serviceRows,

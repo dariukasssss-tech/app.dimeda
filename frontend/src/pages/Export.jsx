@@ -81,8 +81,12 @@ const Export = () => {
   const handleExport = async (dataType) => {
     setLoading((prev) => ({ ...prev, [dataType]: true }));
     try {
+      const token = getAuthToken();
       const response = await fetch(`${API}/export/csv?data_type=${dataType}`, {
-        credentials: 'include'
+        credentials: 'include',
+        headers: {
+          'X-Auth-Token': token || ''
+        }
       });
       
       if (!response.ok) {

@@ -87,6 +87,31 @@ class IssueUpdate(BaseModel):
     status: Optional[str] = None
     resolution: Optional[str] = None
 
+# Scheduled Maintenance Models
+class ScheduledMaintenanceBase(BaseModel):
+    product_id: str
+    scheduled_date: str  # ISO date string
+    maintenance_type: str  # routine, inspection, calibration
+    technician_name: Optional[str] = None
+    notes: Optional[str] = None
+
+class ScheduledMaintenanceCreate(ScheduledMaintenanceBase):
+    pass
+
+class ScheduledMaintenance(ScheduledMaintenanceBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    status: str = "scheduled"  # scheduled, completed, cancelled
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    completed_at: Optional[str] = None
+
+class ScheduledMaintenanceUpdate(BaseModel):
+    scheduled_date: Optional[str] = None
+    maintenance_type: Optional[str] = None
+    technician_name: Optional[str] = None
+    notes: Optional[str] = None
+    status: Optional[str] = None
+
 # ============ PRODUCT ENDPOINTS ============
 
 @api_router.get("/")

@@ -185,15 +185,46 @@ const MaintenanceCalendar = () => {
     : maintenanceItems.filter((item) => getProductCity(item.product_id) === cityFilter);
 
   const maintenanceTypeColors = {
-    routine: "bg-blue-500",
+    routine: "bg-emerald-500",      // Green for yearly maintenance
     inspection: "bg-emerald-500",
-    calibration: "bg-purple-500",
+    calibration: "bg-emerald-500",
+    issue_inspection: "bg-orange-500",  // Orange for 12h issue tasks
+    issue_replacement: "bg-orange-500", // Orange for 12h replacement
+    issue_service: "bg-red-500",        // Red for 24h service tasks
+  };
+
+  // Get color based on task type, priority and status
+  const getTaskColor = (item) => {
+    if (item.status === "completed") return "bg-slate-800 text-white";  // Black/dark for finished
+    if (item.status === "in_progress") return "bg-blue-500 text-white"; // Blue for in progress
+    
+    // For scheduled items
+    if (item.source === "auto_yearly" || item.maintenance_type === "routine") {
+      return "bg-emerald-100 text-emerald-800"; // Green for yearly maintenance
+    }
+    if (item.priority === "12h") {
+      return "bg-orange-100 text-orange-800"; // Orange for 12h
+    }
+    if (item.priority === "24h") {
+      return "bg-red-100 text-red-800"; // Red for 24h
+    }
+    return "bg-blue-100 text-blue-800"; // Default blue
+  };
+
+  const getTaskBorderColor = (item) => {
+    if (item.status === "completed") return "border-slate-800";
+    if (item.status === "in_progress") return "border-blue-500";
+    if (item.source === "auto_yearly" || item.maintenance_type === "routine") return "border-emerald-500";
+    if (item.priority === "12h") return "border-orange-500";
+    if (item.priority === "24h") return "border-red-500";
+    return "border-blue-500";
   };
 
   const statusColors = {
     scheduled: "bg-amber-100 text-amber-800 border-amber-200",
-    completed: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    cancelled: "bg-slate-100 text-slate-600 border-slate-200",
+    in_progress: "bg-blue-100 text-blue-800 border-blue-200",
+    completed: "bg-slate-100 text-slate-800 border-slate-300",
+    cancelled: "bg-slate-100 text-slate-500 border-slate-200",
   };
 
   // Generate calendar days

@@ -521,7 +521,7 @@ async def export_csv(data_type: str = "services"):
             raise HTTPException(status_code=404, detail="No products found")
         
         output = io.StringIO()
-        writer = csv.DictWriter(output, fieldnames=["id", "serial_number", "model_name", "location", "notes", "registration_date", "status"])
+        writer = csv.DictWriter(output, fieldnames=["id", "serial_number", "model_name", "city", "location_detail", "notes", "registration_date", "status"])
         writer.writeheader()
         for record in records:
             writer.writerow(record)

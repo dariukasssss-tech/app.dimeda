@@ -226,7 +226,7 @@ const MaintenanceCalendar = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Card data-testid="stat-upcoming">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -265,13 +265,32 @@ const MaintenanceCalendar = () => {
               <div>
                 <p className="text-sm font-medium text-slate-500">This Month</p>
                 <p className="text-3xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                  {maintenanceItems.filter(m => m.status === "scheduled").length}
+                  {filteredMaintenance.filter(m => m.status === "scheduled").length}
                 </p>
               </div>
               <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center">
                 <CalendarDays className="text-white" size={24} />
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* City Filter */}
+        <Card data-testid="city-filter-card">
+          <CardContent className="pt-6">
+            <p className="text-sm font-medium text-slate-500 mb-2">Filter by City</p>
+            <Select value={cityFilter} onValueChange={setCityFilter}>
+              <SelectTrigger data-testid="calendar-city-filter">
+                <Building2 size={16} className="mr-2" />
+                <SelectValue placeholder="All cities" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Cities</SelectItem>
+                {CITIES.map((city) => (
+                  <SelectItem key={city} value={city}>{city}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </CardContent>
         </Card>
       </div>

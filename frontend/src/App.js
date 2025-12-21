@@ -44,11 +44,13 @@ const Navigation = () => {
           {/* Logo */}
           <div className="flex items-center">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#0066CC] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">D</span>
-              </div>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_842f69d6-21b8-4f70-96b2-758e2fcffc47/artifacts/3rpmm3ao_Dimeda_logo-01.png" 
+                alt="Dimeda Logo" 
+                className="h-10 w-auto"
+              />
               <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>Dimeda Service Pro</h1>
+                <h1 className="text-lg font-bold text-[#0066CC]" style={{ fontFamily: 'Manrope, sans-serif' }}>Dimeda Service Pro</h1>
                 <p className="text-xs text-slate-500">Medirol Vivera Monobloc</p>
               </div>
             </div>

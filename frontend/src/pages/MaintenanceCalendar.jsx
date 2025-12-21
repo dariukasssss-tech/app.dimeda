@@ -169,8 +169,18 @@ const MaintenanceCalendar = () => {
 
   const getMaintenanceForDate = (date) => {
     const dateStr = format(date, "yyyy-MM-dd");
-    return maintenanceItems.filter((item) => item.scheduled_date.startsWith(dateStr));
+    return filteredMaintenance.filter((item) => item.scheduled_date.startsWith(dateStr));
   };
+
+  // Filter maintenance by city
+  const getProductCity = (productId) => {
+    const product = products.find((p) => p.id === productId);
+    return product?.city || "";
+  };
+
+  const filteredMaintenance = cityFilter === "all"
+    ? maintenanceItems
+    : maintenanceItems.filter((item) => getProductCity(item.product_id) === cityFilter);
 
   const maintenanceTypeColors = {
     routine: "bg-blue-500",

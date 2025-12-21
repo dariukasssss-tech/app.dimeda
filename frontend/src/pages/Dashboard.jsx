@@ -189,7 +189,7 @@ const Dashboard = () => {
         {/* Open Issues */}
         <Card data-testid="open-issues-card">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg" style={{ fontFamily: 'Manrope, sans-serif' }}>Open Issues</CardTitle>
+            <CardTitle className="text-lg" style={{ fontFamily: 'Manrope, sans-serif' }}>All Issues</CardTitle>
             <Button
               variant="ghost"
               size="sm"
@@ -201,7 +201,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             {openIssues.length === 0 ? (
-              <p className="text-slate-500 text-center py-8">No open issues</p>
+              <p className="text-slate-500 text-center py-8">No issues reported</p>
             ) : (
               <div className="space-y-3">
                 {openIssues.map((issue) => (
@@ -210,9 +210,18 @@ const Dashboard = () => {
                     className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
                     data-testid={`issue-item-${issue.id}`}
                   >
-                    <div>
-                      <p className="font-medium text-slate-900">{issue.title}</p>
-                      <p className="text-sm text-slate-500">{issue.issue_type}</p>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-slate-900">{issue.title}</p>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          issue.status === "open" ? "bg-amber-100 text-amber-800" :
+                          issue.status === "in_progress" ? "bg-blue-100 text-blue-800" :
+                          "bg-emerald-100 text-emerald-800"
+                        }`}>
+                          {issue.status.replace("_", " ")}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-500">S/N: {issue.product_serial || "Unknown"} • {issue.issue_type}</p>
                     </div>
                     <span className={`status-badge severity-${issue.severity}`}>
                       {issue.severity}

@@ -397,6 +397,156 @@ class DimedasServiceProAPITester:
         
         return success
 
+    # ============ SCHEDULED MAINTENANCE TESTS ============
+    
+    def test_create_scheduled_maintenance(self):
+        """Test creating scheduled maintenance"""
+        if not self.test_product_id:
+            print("❌ Skipping - No test product ID available")
+            return False
+            
+        from datetime import datetime, timedelta
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        maintenance_data = {
+            "product_id": self.test_product_id,
+            "scheduled_date": tomorrow,
+            "maintenance_type": "routine",
+            "technician_name": "John Smith",
+            "notes": "Regular maintenance check"
+        }
+        
+        success, response = self.run_test(
+            "Create Scheduled Maintenance",
+            "POST",
+            "scheduled-maintenance",
+            200,
+            data=maintenance_data
+        )
+        
+        if success and 'id' in response:
+            self.test_maintenance_id = response['id']
+            print(f"   Created scheduled maintenance with ID: {self.test_maintenance_id}")
+        
+        return success
+
+    def test_get_scheduled_maintenance(self):
+        """Test getting all scheduled maintenance"""
+        success, response = self.run_test(
+            "Get All Scheduled Maintenance",
+            "GET",
+            "scheduled-maintenance",
+            200
+        )
+        
+        if success:
+            print(f"   Found {len(response)} scheduled maintenance items")
+        
+        return success
+
+    def test_get_scheduled_maintenance_by_month(self):
+        """Test getting scheduled maintenance by month"""
+        from datetime import datetime
+        current_year = datetime.now().year
+        current_month = datetime.now().month
+        
+        success, response = self.run_test(
+            "Get Scheduled Maintenance by Month",
+            "GET",
+            f"scheduled-maintenance?year={current_year}&month={current_month}",
+            200
+        )
+        
+        if success:
+            print(f"   Found {len(response)} items for {current_year}-{current_month:02d}")
+        
+        return success
+
+    def test_get_scheduled_maintenance_by_id(self):
+        """Test getting scheduled maintenance by ID"""
+        if not hasattr(self, 'test_maintenance_id') or not self.test_maintenance_id:
+            print("❌ Skipping - No test maintenance ID available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Scheduled Maintenance by ID",
+            "GET",
+            f"scheduled-maintenance/{self.test_maintenance_id}",
+            200
+        )
+        
+        return success
+
+    def test_update_scheduled_maintenance(self):
+        """Test updating scheduled maintenance"""
+        if not hasattr(self, 'test_maintenance_id') or not self.test_maintenance_id:
+            print("❌ Skipping - No test maintenance ID available")
+            return False
+            
+        update_data = {
+            "technician_name": "Jane Doe",
+            "notes": "Updated maintenance notes"
+        }
+        
+        success, response = self.run_test(
+            "Update Scheduled Maintenance",
+            "PUT",
+            f"scheduled-maintenance/{self.test_maintenance_id}",
+            200,
+            data=update_data
+        )
+        
+        return success
+
+    def test_mark_maintenance_completed(self):
+        """Test marking maintenance as completed"""
+        if not hasattr(self, 'test_maintenance_id') or not self.test_maintenance_id:
+            print("❌ Skipping - No test maintenance ID available")
+            return False
+            
+        update_data = {
+            "status": "completed"
+        }
+        
+        success, response = self.run_test(
+            "Mark Maintenance Completed",
+            "PUT",
+            f"scheduled-maintenance/{self.test_maintenance_id}",
+            200,
+            data=update_data
+        )
+        
+        return success
+
+    def test_get_upcoming_maintenance_count(self):
+        """Test getting upcoming maintenance count"""
+        success, response = self.run_test(
+            "Get Upcoming Maintenance Count",
+            "GET",
+            "scheduled-maintenance/upcoming/count",
+            200
+        )
+        
+        if success:
+            print(f"   Upcoming: {response.get('upcoming', 0)}, Overdue: {response.get('overdue', 0)}")
+        
+        return success
+
+    def test_delete_scheduled_maintenance(self):
+        """Test deleting scheduled maintenance"""
+        if not hasattr(self, 'test_maintenance_id') or not self.test_maintenance_id:
+            print("❌ Skipping - No test maintenance ID available")
+            return False
+            
+        success, response = self.run_test(
+            "Delete Scheduled Maintenance",
+            "DELETE",
+            f"scheduled-maintenance/{self.test_maintenance_id}",
+            200
+        )
+        
+        return success
+
 def main():
     print("🚀 Starting Dimeda Service Pro API Tests")
     print("=" * 50)

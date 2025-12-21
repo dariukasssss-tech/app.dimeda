@@ -19,14 +19,22 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [statsRes, servicesRes, issuesRes] = await Promise.all([
+      const [statsRes, servicesRes, issuesRes, productsRes] = await Promise.all([
         axios.get(`${API}/stats`),
         axios.get(`${API}/services`),
-        axios.get(`${API}/issues?status=open`),
+        axios.get(`${API}/issues`),
+        axios.get(`${API}/products`),
       ]);
       setStats(statsRes.data);
       setRecentServices(servicesRes.data.slice(0, 5));
-      setOpenIssues(issuesRes.data.slice(0, 5));
+      
+      // Add product serial to issues
+      const products = productsRes.data;
+      const issuesWithSerial = issuesRes.data.map(issue => ({
+        ...issue,
+        product_serial: products.find(p => p.id === issue.product_id)?.serial_number || "Unknown"
+      }));
+      setOpenIssues(issuesWithSerial.slice(0, 8));
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {

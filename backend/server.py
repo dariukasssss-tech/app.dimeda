@@ -108,7 +108,7 @@ class ScheduledMaintenanceCreate(ScheduledMaintenanceBase):
 class ScheduledMaintenance(ScheduledMaintenanceBase):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    status: str = "scheduled"  # scheduled, completed, cancelled
+    status: str = "scheduled"  # scheduled, in_progress, completed, cancelled
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     completed_at: Optional[str] = None
 
@@ -118,6 +118,7 @@ class ScheduledMaintenanceUpdate(BaseModel):
     technician_name: Optional[str] = None
     notes: Optional[str] = None
     status: Optional[str] = None
+    priority: Optional[str] = None
 
 # ============ PRODUCT ENDPOINTS ============
 

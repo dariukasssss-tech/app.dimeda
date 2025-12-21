@@ -20,8 +20,25 @@ import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X, Cal
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
 
-// Configure axios to send credentials
+// Auth token storage key
+const AUTH_TOKEN_KEY = "dimeda_auth_token";
+
+// Configure axios defaults
 axios.defaults.withCredentials = true;
+
+// Add auth token to all requests
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  if (token) {
+    config.headers["X-Auth-Token"] = token;
+  }
+  return config;
+});
+
+// Export auth helper functions
+export const getAuthToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
+export const setAuthToken = (token) => localStorage.setItem(AUTH_TOKEN_KEY, token);
+export const clearAuthToken = () => localStorage.removeItem(AUTH_TOKEN_KEY);
 
 // Navigation Component
 const Navigation = ({ onLogout }) => {
@@ -43,13 +60,13 @@ const Navigation = ({ onLogout }) => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
-      toast.success("Logged out successfully");
-      onLogout();
+      await axios.post(`${API}/auth/logout`, {});
     } catch (error) {
       console.error("Logout error:", error);
-      onLogout();
     }
+    clearAuthToken();
+    toast.success("Logged out successfully");
+    onLogout();
   };
 
   return (
@@ -181,21 +198,34 @@ function App() {
   }, []);
 
   const checkAuth = async () => {
+    const token = getAuthToken();
+    if (!token) {
+      setIsAuthenticated(false);
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.get(`${API}/auth/check`, { withCredentials: true });
+      const response = await axios.get(`${API}/auth/check`);
       setIsAuthenticated(response.data.authenticated);
+      if (!response.data.authenticated) {
+        clearAuthToken();
+      }
     } catch (error) {
       setIsAuthenticated(false);
+      clearAuthToken();
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (token) => {
+    setAuthToken(token);
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
+    clearAuthToken();
     setIsAuthenticated(false);
   };
 

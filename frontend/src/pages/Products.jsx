@@ -144,7 +144,7 @@ const Products = () => {
   };
 
   const resetForm = () => {
-    setFormData({ serial_number: "", model_name: "Vivera Monobloc", city: "", location_detail: "", notes: "" });
+    setFormData({ serial_number: "", model_name: "", city: "", location_detail: "", notes: "" });
     setSelectedDate(new Date());
   };
 

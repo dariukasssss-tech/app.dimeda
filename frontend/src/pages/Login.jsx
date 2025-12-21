@@ -17,9 +17,9 @@ const Login = ({ onLoginSuccess }) => {
     setLoading(true);
     
     try {
-      await axios.post(`${API}/auth/login`, { password }, { withCredentials: true });
+      const response = await axios.post(`${API}/auth/login`, { password });
       toast.success("Login successful!");
-      onLoginSuccess();
+      onLoginSuccess(response.data.token);
     } catch (error) {
       toast.error(error.response?.data?.detail || "Invalid password");
     } finally {

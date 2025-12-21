@@ -28,6 +28,44 @@ db = client[os.environ['DB_NAME']]
 # Create the main app
 app = FastAPI(title="Dimeda Service Pro API")
 
+# Auth configuration
+APP_ACCESS_PASSWORD = os.environ.get('APP_ACCESS_PASSWORD', '')
+AUTH_COOKIE_NAME = "dimeda_auth"
+AUTH_TOKEN_EXPIRY_DAYS = 7
+
+def generate_auth_token():
+    """Generate a secure auth token"""
+    return secrets.token_urlsafe(32)
+
+def hash_password(password: str) -> str:
+    """Hash password for comparison"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+# Store valid tokens (in production, use Redis or database)
+valid_tokens = set()
+
+# Auth Middleware
+class AuthMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        # Skip auth for login endpoint and CORS preflight
+        if request.url.path in ["/api/auth/login", "/api/auth/check", "/api/auth/logout"]:
+            return await call_next(request)
+        
+        if request.method == "OPTIONS":
+            return await call_next(request)
+        
+        # Check if it's an API route that needs protection
+        if request.url.path.startswith("/api"):
+            auth_token = request.cookies.get(AUTH_COOKIE_NAME)
+            
+            if not auth_token or auth_token not in valid_tokens:
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Unauthorized. Please login."}
+                )
+        
+        return await call_next(request)
+
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 

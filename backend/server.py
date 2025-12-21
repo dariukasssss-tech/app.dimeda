@@ -30,11 +30,15 @@ api_router = APIRouter(prefix="/api")
 
 # ============ MODELS ============
 
+# Valid cities for product location
+VALID_CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"]
+
 # Product Models
 class ProductBase(BaseModel):
     serial_number: str
     model_name: str = "Vivera Monobloc"
-    location: Optional[str] = None
+    city: str  # One of the 5 cities
+    location_detail: Optional[str] = None  # Hospital name, ward, etc.
     notes: Optional[str] = None
 
 class ProductCreate(ProductBase):

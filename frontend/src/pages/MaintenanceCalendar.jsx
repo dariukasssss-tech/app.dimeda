@@ -326,6 +326,35 @@ const MaintenanceCalendar = () => {
         </Card>
       </div>
 
+      {/* Calendar Legend */}
+      <Card>
+        <CardContent className="pt-4 pb-4">
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <span className="font-medium text-slate-600">Legend:</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded bg-emerald-500"></div>
+              <span className="text-slate-600">Yearly Maintenance</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded bg-orange-500"></div>
+              <span className="text-slate-600">Issue - 12h</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded bg-red-500"></div>
+              <span className="text-slate-600">Issue - 24h</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded bg-blue-500"></div>
+              <span className="text-slate-600">In Progress</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded bg-slate-800"></div>
+              <span className="text-slate-600">Completed</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Calendar */}
       <Card data-testid="maintenance-calendar">
         <CardHeader className="pb-2">

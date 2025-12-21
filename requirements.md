@@ -29,6 +29,14 @@ Build a service and maintenance app for Medirol Vivera Monobloc powered stretche
    - CSV export for products, services, and issues
    - One-click download
 
+5. **Maintenance Calendar** (NEW)
+   - Auto-schedule 5 years of annual maintenance (2026-2030) when product is registered
+   - Monthly calendar view with scheduled maintenance
+   - City-based grouping: Vilnius, Kaunas, Klaipėda, Šiauliai, Panevėžys
+   - Filter by city
+   - Status tracking: Scheduled → Completed/Cancelled
+   - Overdue tracking
+
 ### Technical Architecture
 - **Frontend**: React + Tailwind CSS + Shadcn/UI
 - **Backend**: FastAPI + Motor (async MongoDB)

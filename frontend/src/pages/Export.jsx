@@ -82,6 +82,49 @@ const Export = () => {
     }
   };
 
+  // Parse inspection items from "Other" type issue descriptions
+  const parseInspectionItemsFromIssues = (issues) => {
+    const failedVisualItems = new Set();
+    const failedFunctionalityItems = new Set();
+    
+    // Filter for "other" type issues
+    const otherIssues = issues.filter(issue => issue.issue_type === "other");
+    
+    otherIssues.forEach(issue => {
+      const description = issue.description || "";
+      
+      // Parse Visual Inspection Issues
+      const visualMatch = description.match(/Visual Inspection Issues:\n([\s\S]*?)(?=\n\nFunctionality|$|\n\nAdditional)/);
+      if (visualMatch) {
+        const items = visualMatch[1].split("\n- ").filter(item => item.trim());
+        items.forEach(item => {
+          // Find matching item in VISUAL_INSPECTION
+          VISUAL_INSPECTION.forEach((checkItem, idx) => {
+            if (item.trim() === checkItem || item.trim().startsWith(checkItem.substring(0, 20))) {
+              failedVisualItems.add(idx);
+            }
+          });
+        });
+      }
+      
+      // Parse Functionality Inspection Issues
+      const functionalityMatch = description.match(/Functionality Inspection Issues:\n([\s\S]*?)(?=\n\nAdditional|$)/);
+      if (functionalityMatch) {
+        const items = functionalityMatch[1].split("\n- ").filter(item => item.trim());
+        items.forEach(item => {
+          // Find matching item in FUNCTIONALITY_INSPECTION
+          FUNCTIONALITY_INSPECTION.forEach((checkItem, idx) => {
+            if (item.trim() === checkItem || item.trim().startsWith(checkItem.substring(0, 20))) {
+              failedFunctionalityItems.add(idx);
+            }
+          });
+        });
+      }
+    });
+    
+    return { failedVisualItems, failedFunctionalityItems };
+  };
+
   const fetchProductData = async (productId) => {
     setReportLoading(true);
     try {
@@ -91,12 +134,38 @@ const Export = () => {
         axios.get(`${API}/services?product_id=${productId}`),
         axios.get(`${API}/scheduled-maintenance?product_id=${productId}`),
       ]);
+      
+      const issues = issuesRes.data;
+      
+      // Parse and apply inspection failures from "Other" type issues
+      const { failedVisualItems, failedFunctionalityItems } = parseInspectionItemsFromIssues(issues);
+      
+      // Reset all checks to true first
+      const newVisualChecks = VISUAL_INSPECTION.reduce((acc, _, idx) => ({ ...acc, [idx]: true }), {});
+      const newFunctionalityChecks = FUNCTIONALITY_INSPECTION.reduce((acc, _, idx) => ({ ...acc, [idx]: true }), {});
+      
+      // Unmark (set to false) the failed items from "Other" type issues
+      failedVisualItems.forEach(idx => {
+        newVisualChecks[idx] = false;
+      });
+      failedFunctionalityItems.forEach(idx => {
+        newFunctionalityChecks[idx] = false;
+      });
+      
+      setVisualChecks(newVisualChecks);
+      setFunctionalityChecks(newFunctionalityChecks);
+      
       setProductData({
         product: productRes.data,
-        issues: issuesRes.data,
+        issues: issues,
         services: servicesRes.data,
         maintenance: maintenanceRes.data,
       });
+      
+      // Show notification if any items were auto-unmarked
+      if (failedVisualItems.size > 0 || failedFunctionalityItems.size > 0) {
+        toast.info(`${failedVisualItems.size + failedFunctionalityItems.size} inspection item(s) unmarked based on "Other" type issues`);
+      }
     } catch (error) {
       toast.error("Failed to fetch product data");
     } finally {

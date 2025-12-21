@@ -87,8 +87,10 @@ const Export = () => {
     const failedVisualItems = new Set();
     const failedFunctionalityItems = new Set();
     
-    // Filter for "other" type issues
-    const otherIssues = issues.filter(issue => issue.issue_type === "other");
+    // Filter for "other" type issues that are NOT resolved
+    const otherIssues = issues.filter(issue => 
+      issue.issue_type === "other" && issue.status !== "resolved"
+    );
     
     otherIssues.forEach(issue => {
       const description = issue.description || "";

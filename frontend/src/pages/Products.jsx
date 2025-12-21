@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -22,6 +24,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -34,8 +42,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { toast } from "sonner";
-import { Plus, Search, Package, MapPin, Calendar as CalendarIcon, Trash2, Edit, Building2 } from "lucide-react";
+import { 
+  Plus, Search, Package, MapPin, Calendar as CalendarIcon, Trash2, Edit, Building2, 
+  Eye, AlertTriangle, Wrench, Clock, CheckCircle, XCircle, ChevronRight
+} from "lucide-react";
 import { format, addYears } from "date-fns";
 
 const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
@@ -46,6 +63,10 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [cityFilter, setCityFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [detailSheetOpen, setDetailSheetOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productDetails, setProductDetails] = useState({ issues: [], services: [], maintenance: [] });
+  const [detailsLoading, setDetailsLoading] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [formData, setFormData] = useState({
@@ -69,6 +90,32 @@ const Products = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchProductDetails = async (product) => {
+    setDetailsLoading(true);
+    try {
+      const [issuesRes, servicesRes, maintenanceRes] = await Promise.all([
+        axios.get(`${API}/issues?product_id=${product.id}`),
+        axios.get(`${API}/services?product_id=${product.id}`),
+        axios.get(`${API}/scheduled-maintenance?product_id=${product.id}`),
+      ]);
+      setProductDetails({
+        issues: issuesRes.data,
+        services: servicesRes.data,
+        maintenance: maintenanceRes.data,
+      });
+    } catch (error) {
+      toast.error("Failed to fetch product details");
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  const handleViewDetails = (product) => {
+    setSelectedProduct(product);
+    setDetailSheetOpen(true);
+    fetchProductDetails(product);
   };
 
   const handleSubmit = async (e) => {
@@ -109,7 +156,6 @@ const Products = () => {
       location_detail: product.location_detail || "",
       notes: product.notes || "",
     });
-    // Parse the registration date
     if (product.registration_date) {
       setSelectedDate(new Date(product.registration_date));
     } else {
@@ -137,19 +183,39 @@ const Products = () => {
     return matchesSearch && matchesCity;
   });
 
-  // Group products by city for stats
   const productsByCity = CITIES.reduce((acc, city) => {
     acc[city] = products.filter((p) => p.city === city).length;
     return acc;
   }, {});
 
-  // Calculate maintenance preview dates
   const getMaintenanceDates = () => {
     const dates = [];
     for (let i = 1; i <= 5; i++) {
       dates.push(format(addYears(selectedDate, i), "MMM d, yyyy"));
     }
     return dates;
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "open": return "bg-amber-100 text-amber-800";
+      case "in_progress": return "bg-blue-100 text-blue-800";
+      case "resolved": return "bg-emerald-100 text-emerald-800";
+      case "completed": return "bg-slate-100 text-slate-800";
+      case "scheduled": return "bg-amber-100 text-amber-800";
+      case "cancelled": return "bg-slate-100 text-slate-500";
+      default: return "bg-slate-100 text-slate-600";
+    }
+  };
+
+  const getSeverityColor = (severity) => {
+    switch (severity) {
+      case "critical": return "bg-red-100 text-red-800";
+      case "high": return "bg-orange-100 text-orange-800";
+      case "medium": return "bg-amber-100 text-amber-800";
+      case "low": return "bg-slate-100 text-slate-600";
+      default: return "bg-slate-100 text-slate-600";
+    }
   };
 
   return (
@@ -223,7 +289,6 @@ const Products = () => {
                 </Select>
               </div>
               
-              {/* Registration Date */}
               <div>
                 <Label>Registration Date *</Label>
                 <Popover>
@@ -271,7 +336,6 @@ const Products = () => {
                 />
               </div>
               
-              {/* Maintenance Schedule Preview */}
               <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
                 <p className="text-sm font-medium text-emerald-800 mb-2">
                   <CalendarIcon size={14} className="inline mr-1" />
@@ -425,7 +489,16 @@ const Products = () => {
                           </span>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewDetails(product)}
+                              className="text-[#0066CC]"
+                              data-testid={`view-product-${product.id}`}
+                            >
+                              <Eye size={16} />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="sm"
@@ -454,6 +527,215 @@ const Products = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Product Detail Sheet */}
+      <Sheet open={detailSheetOpen} onOpenChange={setDetailSheetOpen}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto" data-testid="product-detail-sheet">
+          {selectedProduct && (
+            <>
+              <SheetHeader>
+                <SheetTitle style={{ fontFamily: 'Manrope, sans-serif' }} className="flex items-center gap-2">
+                  <Package className="text-[#0066CC]" size={24} />
+                  {selectedProduct.serial_number}
+                </SheetTitle>
+              </SheetHeader>
+              
+              <div className="mt-6 space-y-6">
+                {/* Product Info */}
+                <Card>
+                  <CardContent className="pt-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-slate-500">Model</span>
+                        <p className="font-medium">{selectedProduct.model_name}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">City</span>
+                        <p className="font-medium flex items-center gap-1">
+                          <Building2 size={14} className="text-[#0066CC]" />
+                          {selectedProduct.city}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Location</span>
+                        <p className="font-medium">{selectedProduct.location_detail || "-"}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Registered</span>
+                        <p className="font-medium">{format(new Date(selectedProduct.registration_date), "PPP")}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {detailsLoading ? (
+                  <div className="text-center py-8 text-slate-500">Loading details...</div>
+                ) : (
+                  <Tabs defaultValue="issues" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="issues" className="flex items-center gap-1">
+                        <AlertTriangle size={14} />
+                        Issues ({productDetails.issues.length})
+                      </TabsTrigger>
+                      <TabsTrigger value="services" className="flex items-center gap-1">
+                        <Wrench size={14} />
+                        Services ({productDetails.services.length})
+                      </TabsTrigger>
+                      <TabsTrigger value="maintenance" className="flex items-center gap-1">
+                        <CalendarIcon size={14} />
+                        Maintenance ({productDetails.maintenance.length})
+                      </TabsTrigger>
+                    </TabsList>
+
+                    {/* Issues Tab */}
+                    <TabsContent value="issues" className="mt-4">
+                      {productDetails.issues.length === 0 ? (
+                        <div className="text-center py-8 text-slate-500">
+                          <AlertTriangle className="mx-auto text-slate-300 mb-2" size={32} />
+                          No issues reported for this product
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {productDetails.issues.map((issue) => (
+                            <Card key={issue.id} className="border-l-4" style={{ borderLeftColor: issue.status === "resolved" ? "#10B981" : issue.status === "in_progress" ? "#3B82F6" : "#F59E0B" }}>
+                              <CardContent className="pt-4">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <h4 className="font-medium">{issue.title}</h4>
+                                      <Badge className={getStatusColor(issue.status)}>
+                                        {issue.status.replace("_", " ")}
+                                      </Badge>
+                                      <Badge className={getSeverityColor(issue.severity)}>
+                                        {issue.severity}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-sm text-slate-500 mt-1">{issue.issue_type}</p>
+                                    <p className="text-sm text-slate-600 mt-2">{issue.description}</p>
+                                    {issue.resolution && (
+                                      <div className="mt-2 p-2 bg-emerald-50 rounded text-sm text-emerald-800">
+                                        <strong>Resolution:</strong> {issue.resolution}
+                                      </div>
+                                    )}
+                                    <p className="text-xs text-slate-400 mt-2">
+                                      Reported: {new Date(issue.created_at).toLocaleString()}
+                                      {issue.resolved_at && ` • Resolved: ${new Date(issue.resolved_at).toLocaleString()}`}
+                                    </p>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    {/* Services Tab */}
+                    <TabsContent value="services" className="mt-4">
+                      {productDetails.services.length === 0 ? (
+                        <div className="text-center py-8 text-slate-500">
+                          <Wrench className="mx-auto text-slate-300 mb-2" size={32} />
+                          No service records for this product
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {productDetails.services.map((service) => (
+                            <Card key={service.id}>
+                              <CardContent className="pt-4">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <Badge variant="outline" className="capitalize">{service.service_type}</Badge>
+                                      <span className="text-sm text-slate-500">
+                                        {new Date(service.service_date).toLocaleDateString()}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm text-slate-600 mt-2">{service.description}</p>
+                                    {service.issues_found && (
+                                      <div className="mt-2 p-2 bg-amber-50 rounded text-sm text-amber-800">
+                                        <strong>Issues Found:</strong> {service.issues_found}
+                                      </div>
+                                    )}
+                                    <p className="text-xs text-slate-400 mt-2">
+                                      Technician: {service.technician_name}
+                                    </p>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    {/* Maintenance Tab */}
+                    <TabsContent value="maintenance" className="mt-4">
+                      {productDetails.maintenance.length === 0 ? (
+                        <div className="text-center py-8 text-slate-500">
+                          <CalendarIcon className="mx-auto text-slate-300 mb-2" size={32} />
+                          No scheduled maintenance
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {productDetails.maintenance.map((maint) => (
+                            <Card 
+                              key={maint.id} 
+                              className="border-l-4"
+                              style={{ 
+                                borderLeftColor: 
+                                  maint.status === "completed" ? "#1F2937" :
+                                  maint.status === "in_progress" ? "#3B82F6" :
+                                  maint.source === "auto_yearly" ? "#10B981" :
+                                  maint.priority === "12h" ? "#F97316" :
+                                  maint.priority === "24h" ? "#EF4444" : "#3B82F6"
+                              }}
+                            >
+                              <CardContent className="pt-4">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="font-medium capitalize">{maint.maintenance_type.replace("_", " ")}</span>
+                                      <Badge className={getStatusColor(maint.status)}>
+                                        {maint.status}
+                                      </Badge>
+                                      {maint.source === "auto_yearly" && (
+                                        <Badge className="bg-emerald-100 text-emerald-800">Yearly</Badge>
+                                      )}
+                                      {maint.source === "issue" && (
+                                        <Badge className="bg-amber-100 text-amber-800">From Issue</Badge>
+                                      )}
+                                      {maint.priority && (
+                                        <Badge className={maint.priority === "12h" ? "bg-orange-100 text-orange-800" : "bg-red-100 text-red-800"}>
+                                          {maint.priority}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-slate-500 mt-1">
+                                      Scheduled: {new Date(maint.scheduled_date).toLocaleString()}
+                                    </p>
+                                    {maint.notes && (
+                                      <p className="text-sm text-slate-600 mt-2">{maint.notes}</p>
+                                    )}
+                                    {maint.technician_name && (
+                                      <p className="text-xs text-slate-400 mt-2">
+                                        Technician: {maint.technician_name}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </TabsContent>
+                  </Tabs>
+                )}
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

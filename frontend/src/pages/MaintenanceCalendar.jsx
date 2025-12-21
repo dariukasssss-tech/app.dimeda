@@ -440,25 +440,42 @@ const MaintenanceCalendar = () => {
               {filteredMaintenance.map((item) => (
                 <div
                   key={item.id}
-                  className={`flex items-center justify-between p-4 rounded-lg border ${statusColors[item.status]}`}
+                  className={`flex items-center justify-between p-4 rounded-lg border-l-4 bg-white border ${getTaskBorderColor(item)}`}
                   data-testid={`list-item-${item.id}`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-2 h-12 rounded-full ${maintenanceTypeColors[item.maintenance_type] || "bg-slate-400"}`} />
+                    <div className={`w-3 h-12 rounded-full ${
+                      item.status === "completed" ? "bg-slate-800" :
+                      item.status === "in_progress" ? "bg-blue-500" :
+                      item.source === "auto_yearly" || item.maintenance_type === "routine" ? "bg-emerald-500" :
+                      item.priority === "12h" ? "bg-orange-500" :
+                      item.priority === "24h" ? "bg-red-500" : "bg-blue-500"
+                    }`} />
                     <div>
                       <p className="font-medium text-slate-900">
                         S/N: {getProductSerial(item.product_id)}
                       </p>
                       <p className="text-sm text-slate-600 capitalize">
-                        {item.maintenance_type} • {format(parseISO(item.scheduled_date), "MMM d, yyyy")}
+                        {item.maintenance_type.replace("_", " ")} • {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge variant="outline" className="text-xs">
                           <Building2 size={10} className="mr-1" />
                           {getProductCity(item.product_id)}
                         </Badge>
+                        {item.priority && (
+                          <Badge className={`text-xs ${item.priority === "12h" ? "bg-orange-100 text-orange-800" : "bg-red-100 text-red-800"}`}>
+                            {item.priority}
+                          </Badge>
+                        )}
+                        {item.source === "auto_yearly" && (
+                          <Badge className="text-xs bg-emerald-100 text-emerald-800">Yearly</Badge>
+                        )}
+                        {item.source === "issue" && (
+                          <Badge className="text-xs bg-amber-100 text-amber-800">From Issue</Badge>
+                        )}
                         {item.technician_name && (
-                          <span className="text-xs text-slate-500">Technician: {item.technician_name}</span>
+                          <span className="text-xs text-slate-500">Tech: {item.technician_name}</span>
                         )}
                       </div>
                     </div>

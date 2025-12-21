@@ -254,6 +254,51 @@ async def create_issue(issue: IssueCreate):
     issue_obj = Issue(**issue.model_dump())
     doc = issue_obj.model_dump()
     await db.issues.insert_one(doc)
+    
+    # Auto-schedule maintenance based on issue type
+    now = datetime.now(timezone.utc)
+    
+    if issue.issue_type == "electrical":
+        # Electrical: replacement of spare unit in 12 hours
+        scheduled_time = now + timedelta(hours=12)
+        maintenance_obj = ScheduledMaintenance(
+            product_id=issue.product_id,
+            scheduled_date=scheduled_time.isoformat(),
+            maintenance_type="issue_replacement",
+            notes=f"Spare unit replacement - {issue.title}",
+            source="issue",
+            issue_id=issue_obj.id,
+            priority="12h"
+        )
+        await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
+    else:
+        # Mechanical/Cosmetic/Other: inspection in 12 hours, service in 24 hours
+        # Inspection in 12 hours
+        inspection_time = now + timedelta(hours=12)
+        inspection_obj = ScheduledMaintenance(
+            product_id=issue.product_id,
+            scheduled_date=inspection_time.isoformat(),
+            maintenance_type="issue_inspection",
+            notes=f"Inspection for issue - {issue.title}",
+            source="issue",
+            issue_id=issue_obj.id,
+            priority="12h"
+        )
+        await db.scheduled_maintenance.insert_one(inspection_obj.model_dump())
+        
+        # Service in 24 hours
+        service_time = now + timedelta(hours=24)
+        service_obj = ScheduledMaintenance(
+            product_id=issue.product_id,
+            scheduled_date=service_time.isoformat(),
+            maintenance_type="issue_service",
+            notes=f"Service for issue - {issue.title}",
+            source="issue",
+            issue_id=issue_obj.id,
+            priority="24h"
+        )
+        await db.scheduled_maintenance.insert_one(service_obj.model_dump())
+    
     return issue_obj
 
 @api_router.get("/issues", response_model=List[Issue])

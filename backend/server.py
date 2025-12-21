@@ -177,6 +177,10 @@ async def update_product(product_id: str, product: ProductCreate):
     if not existing:
         raise HTTPException(status_code=404, detail="Product not found")
     
+    # Validate city
+    if product.city not in VALID_CITIES:
+        raise HTTPException(status_code=400, detail=f"Invalid city. Must be one of: {', '.join(VALID_CITIES)}")
+    
     update_data = product.model_dump()
     await db.products.update_one({"id": product_id}, {"$set": update_data})
     updated = await db.products.find_one({"id": product_id}, {"_id": 0})

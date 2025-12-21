@@ -1,0 +1,118 @@
+{
+  "identity": {
+    "name": "Dimeda Service Pro",
+    "persona": "E1: The Anti-AI Designer",
+    "tone": "Clinical, Efficient, Trustworthy, High-Contrast",
+    "target_audience": "Field Technicians & Hospital Maintenance Staff"
+  },
+  "typography": {
+    "font_family_heading": "Manrope, sans-serif",
+    "font_family_body": "IBM Plex Sans, sans-serif",
+    "scale": {
+      "h1": "text-4xl font-bold tracking-tight",
+      "h2": "text-2xl font-semibold tracking-tight",
+      "h3": "text-xl font-medium",
+      "body": "text-base leading-relaxed",
+      "caption": "text-sm text-muted-foreground"
+    }
+  },
+  "colors": {
+    "primary": {
+      "name": "Dimeda Blue",
+      "hex": "#0066CC",
+      "tailwind": "bg-[#0066CC] text-white hover:bg-[#0052A3]"
+    },
+    "secondary": {
+      "name": "Medirol Orange",
+      "hex": "#FA4616",
+      "tailwind": "bg-[#FA4616] text-white hover:bg-[#D9380D]",
+      "usage": "Critical Actions, Warnings, High-Vis Accents"
+    },
+    "background": {
+      "light": "#F8FAFC",
+      "dark": "#0F172A",
+      "card": "#FFFFFF"
+    },
+    "neutral": {
+      "slate": "#64748B",
+      "border": "#E2E8F0"
+    },
+    "status": {
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "error": "#EF4444"
+    }
+  },
+  "layout_strategy": {
+    "dashboard": {
+      "type": "Control Room Grid",
+      "structure": "grid-cols-1 md:grid-cols-3 gap-4",
+      "rules": [
+        "Dense information density",
+        "No wasted whitespace in data cards",
+        "Status indicators must be instantly scannable"
+      ]
+    },
+    "service_wizard": {
+      "type": "Focused Step Flow",
+      "structure": "max-w-2xl mx-auto",
+      "rules": [
+        "One major action per screen",
+        "Large touch targets (min 48px) for gloved usage",
+        "Always show progress indicator"
+      ]
+    }
+  },
+  "components": {
+    "buttons": {
+      "style": "rounded-md font-medium transition-all active:scale-95",
+      "primary": "bg-[#0066CC] text-white shadow-sm hover:shadow-md",
+      "secondary": "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50",
+      "destructive": "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+    },
+    "cards": {
+      "style": "bg-white border border-slate-200 shadow-sm rounded-lg overflow-hidden",
+      "hover": "hover:border-[#0066CC]/50 transition-colors"
+    },
+    "inputs": {
+      "style": "h-12 bg-slate-50 border-slate-200 focus:border-[#0066CC] focus:ring-1 focus:ring-[#0066CC]"
+    }
+  },
+  "image_assets": {
+    "product_hero": {
+      "url": "https://www.medirol.cz/wp-content/uploads/2025/09/vivera-monobloc-hero-6-1024x1024.png",
+      "alt": "Medirol Vivera Monobloc Hero"
+    },
+    "product_mobile": {
+      "url": "https://www.medirol.cz/wp-content/uploads/2023/05/M301-hero-mobile-3.png",
+      "alt": "Medirol Vivera Monobloc Mobile View"
+    },
+    "gallery": [
+      "https://www.medirol.cz/wp-content/uploads/2025/09/M302-01.png",
+      "https://www.medirol.cz/wp-content/uploads/2025/09/M302-02.png",
+      "https://www.medirol.cz/wp-content/uploads/2025/09/M302-03.png"
+    ],
+    "icons": {
+      "weight_capacity": "https://www.medirol.cz/wp-content/uploads/2021/04/icon-weight.png",
+      "battery": "https://www.medirol.cz/wp-content/uploads/2021/06/battery-icon.png",
+      "height": "https://www.medirol.cz/wp-content/uploads/2021/06/height-icon.png"
+    },
+    "placeholders": {
+      "technician": "https://images.unsplash.com/photo-1661175099624-c9b9c2318e15?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODB8MHwxfHNlYXJjaHwxfHx0ZWNobmljaWFuJTIwcmVwYWlyaW5nJTIwbWVkaWNhbCUyMGVxdWlwbWVudHxlbnwwfHx8fDE3NjYzMjY2MTN8MA&ixlib=rb-4.1.0&q=85",
+      "hospital_corridor": "https://images.unsplash.com/photo-1764345676856-eaf84d541dc9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDN8MHwxfHNlYXJjaHwzfHxtZWRpY2FsJTIwc3RyZXRjaGVyJTIwaG9zcGl0YWx8ZW58MHx8fHwxNzY2MzI2NjExfDA&ixlib=rb-4.1.0&q=85"
+    }
+  },
+  "universal_guidelines": [
+    "Use 'Manrope' for all headings to give a technical, precision feel.",
+    "Use 'IBM Plex Sans' for body text for maximum legibility.",
+    "Primary Action Color is #0066CC (Dimeda Blue).",
+    "Critical/Warning Color is #FA4616 (Medirol Orange).",
+    "Always include a 'Scan Serial Number' button in the main navigation or dashboard.",
+    "Forms must be broken into small steps (Wizard pattern) to avoid overwhelming technicians.",
+    "Use the specific Medirol product images provided in 'image_assets' to ensure authenticity.",
+    "All interactive elements must have `data-testid` attributes.",
+    "Do not use gradients for backgrounds; use subtle noise or flat colors for a clinical look.",
+    "Ensure high contrast (WCAG AA) for all text, especially in the 'Dark Mode' variant."
+  ],
+  "instructions_to_main_agent": "You are building the frontend for the Dimeda Service App. Use the provided JSON data to style your components. Focus on the 'Service Wizard' and 'Dashboard' views. Use the real product images for the 'Product Details' section. Implement a 'Dark Mode' toggle as technicians may work in low-light environments."
+}

@@ -370,7 +370,7 @@ const Products = () => {
                   type="submit" 
                   className="bg-[#0066CC] hover:bg-[#0052A3]" 
                   data-testid="submit-product-btn"
-                  disabled={!formData.serial_number || !formData.city}
+                  disabled={!formData.serial_number || !formData.city || !formData.model_name}
                 >
                   {editProduct ? "Update" : "Register"}
                 </Button>

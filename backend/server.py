@@ -122,6 +122,10 @@ class ScheduledMaintenanceUpdate(BaseModel):
 async def root():
     return {"message": "Dimeda Service Pro API", "version": "1.0.0"}
 
+@api_router.get("/cities")
+async def get_cities():
+    return {"cities": VALID_CITIES}
+
 @api_router.post("/products", response_model=Product)
 async def create_product(product: ProductCreate):
     # Validate city

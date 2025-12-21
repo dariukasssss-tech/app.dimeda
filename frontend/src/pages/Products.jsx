@@ -7,6 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -22,18 +29,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Search, Package, MapPin, Calendar, Trash2, Edit } from "lucide-react";
+import { Plus, Search, Package, MapPin, Calendar, Trash2, Edit, Building2 } from "lucide-react";
+
+const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [cityFilter, setCityFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [formData, setFormData] = useState({
     serial_number: "",
     model_name: "Vivera Monobloc",
-    location: "",
+    city: "",
+    location_detail: "",
     notes: "",
   });
 
@@ -60,11 +71,11 @@ const Products = () => {
         toast.success("Product updated successfully");
       } else {
         await axios.post(`${API}/products`, formData);
-        toast.success("Product registered successfully");
+        toast.success("Product registered! Annual maintenance scheduled for 2026-2030.");
       }
       setDialogOpen(false);
       setEditProduct(null);
-      setFormData({ serial_number: "", model_name: "Vivera Monobloc", location: "", notes: "" });
+      setFormData({ serial_number: "", model_name: "Vivera Monobloc", city: "", location_detail: "", notes: "" });
       fetchProducts();
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to save product");
@@ -76,14 +87,15 @@ const Products = () => {
     setFormData({
       serial_number: product.serial_number,
       model_name: product.model_name,
-      location: product.location || "",
+      city: product.city || "",
+      location_detail: product.location_detail || "",
       notes: product.notes || "",
     });
     setDialogOpen(true);
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    if (!window.confirm("Are you sure you want to delete this product? This will also delete all scheduled maintenance for this unit.")) return;
     try {
       await axios.delete(`${API}/products/${id}`);
       toast.success("Product deleted successfully");
@@ -93,11 +105,19 @@ const Products = () => {
     }
   };
 
-  const filteredProducts = products.filter(
-    (p) =>
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch =
       p.serial_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.location?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      p.location_detail?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCity = cityFilter === "all" || p.city === cityFilter;
+    return matchesSearch && matchesCity;
+  });
+
+  // Group products by city for stats
+  const productsByCity = CITIES.reduce((acc, city) => {
+    acc[city] = products.filter((p) => p.city === city).length;
+    return acc;
+  }, {});
 
   return (
     <div className="space-y-6 animate-fade-in" data-testid="products-page">
@@ -107,13 +127,13 @@ const Products = () => {
           <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
             Products
           </h1>
-          <p className="text-slate-500 mt-1">Manage registered stretchers</p>
+          <p className="text-slate-500 mt-1">Manage registered stretchers ({products.length} total)</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);
           if (!open) {
             setEditProduct(null);
-            setFormData({ serial_number: "", model_name: "Vivera Monobloc", location: "", notes: "" });
+            setFormData({ serial_number: "", model_name: "Vivera Monobloc", city: "", location_detail: "", notes: "" });
           }
         }}>
           <DialogTrigger asChild>
@@ -152,13 +172,31 @@ const Products = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="location">Location</Label>
+                <Label>City *</Label>
+                <Select
+                  value={formData.city}
+                  onValueChange={(value) => setFormData({ ...formData, city: value })}
+                >
+                  <SelectTrigger className="mt-1" data-testid="select-city">
+                    <SelectValue placeholder="Select city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CITIES.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="location_detail">Location Detail</Label>
                 <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  id="location_detail"
+                  value={formData.location_detail}
+                  onChange={(e) => setFormData({ ...formData, location_detail: e.target.value })}
                   placeholder="e.g., Hospital ABC, Ward 3"
-                  data-testid="input-location"
+                  data-testid="input-location-detail"
                   className="mt-1"
                 />
               </div>
@@ -173,11 +211,25 @@ const Products = () => {
                   className="mt-1"
                 />
               </div>
+              
+              {!editProduct && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    <strong>Auto-Schedule:</strong> Annual maintenance will be automatically scheduled for years 2026-2030 (January 15th each year).
+                  </p>
+                </div>
+              )}
+              
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-[#0066CC] hover:bg-[#0052A3]" data-testid="submit-product-btn">
+                <Button 
+                  type="submit" 
+                  className="bg-[#0066CC] hover:bg-[#0052A3]" 
+                  data-testid="submit-product-btn"
+                  disabled={!formData.serial_number || !formData.city}
+                >
                   {editProduct ? "Update" : "Register"}
                 </Button>
               </div>
@@ -186,18 +238,53 @@ const Products = () => {
         </Dialog>
       </div>
 
-      {/* Search */}
+      {/* City Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {CITIES.map((city) => (
+          <Card 
+            key={city} 
+            className={`cursor-pointer transition-all ${cityFilter === city ? 'ring-2 ring-[#0066CC]' : ''}`}
+            onClick={() => setCityFilter(cityFilter === city ? "all" : city)}
+            data-testid={`city-stat-${city}`}
+          >
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-2">
+                <Building2 size={16} className="text-slate-400" />
+                <span className="text-sm font-medium text-slate-600">{city}</span>
+              </div>
+              <p className="text-2xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Manrope, sans-serif' }}>
+                {productsByCity[city]}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Search and Filter */}
       <Card>
         <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <Input
-              placeholder="Search by serial number or location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-              data-testid="search-products"
-            />
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <Input
+                placeholder="Search by serial number or location..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+                data-testid="search-products"
+              />
+            </div>
+            <Select value={cityFilter} onValueChange={setCityFilter}>
+              <SelectTrigger className="w-full sm:w-48" data-testid="filter-city">
+                <SelectValue placeholder="Filter by city" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Cities</SelectItem>
+                {CITIES.map((city) => (
+                  <SelectItem key={city} value={city}>{city}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -220,6 +307,7 @@ const Products = () => {
                   <TableRow>
                     <TableHead>Serial Number</TableHead>
                     <TableHead>Model</TableHead>
+                    <TableHead>City</TableHead>
                     <TableHead>Location</TableHead>
                     <TableHead>Registered</TableHead>
                     <TableHead>Status</TableHead>
@@ -232,10 +320,16 @@ const Products = () => {
                       <TableCell className="font-medium">{product.serial_number}</TableCell>
                       <TableCell>{product.model_name}</TableCell>
                       <TableCell>
-                        {product.location ? (
+                        <span className="flex items-center gap-1">
+                          <Building2 size={14} className="text-[#0066CC]" />
+                          {product.city}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {product.location_detail ? (
                           <span className="flex items-center gap-1">
                             <MapPin size={14} className="text-slate-400" />
-                            {product.location}
+                            {product.location_detail}
                           </span>
                         ) : (
                           <span className="text-slate-400">-</span>

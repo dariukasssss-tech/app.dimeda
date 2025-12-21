@@ -262,14 +262,22 @@ const Products = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="model_name">Model</Label>
-                <Input
-                  id="model_name"
+                <Label htmlFor="model_name">Model *</Label>
+                <Select
                   value={formData.model_name}
-                  onChange={(e) => setFormData({ ...formData, model_name: e.target.value })}
-                  data-testid="input-model-name"
-                  className="mt-1"
-                />
+                  onValueChange={(value) => setFormData({ ...formData, model_name: value })}
+                >
+                  <SelectTrigger className="mt-1" data-testid="select-model-name">
+                    <SelectValue placeholder="Select model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MODEL_OPTIONS.map((model) => (
+                      <SelectItem key={model} value={model}>
+                        {model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label>City *</Label>

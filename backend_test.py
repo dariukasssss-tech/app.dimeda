@@ -578,6 +578,15 @@ def main():
         tester.test_update_issue_status,
         tester.test_resolve_issue,
         
+        # Scheduled Maintenance tests
+        tester.test_create_scheduled_maintenance,
+        tester.test_get_scheduled_maintenance,
+        tester.test_get_scheduled_maintenance_by_month,
+        tester.test_get_scheduled_maintenance_by_id,
+        tester.test_update_scheduled_maintenance,
+        tester.test_mark_maintenance_completed,
+        tester.test_get_upcoming_maintenance_count,
+        
         # Statistics test
         tester.test_get_stats,
         
@@ -589,6 +598,7 @@ def main():
         # Cleanup tests
         tester.test_delete_service,
         tester.test_delete_issue,
+        tester.test_delete_scheduled_maintenance,
         tester.test_delete_product,
     ]
     

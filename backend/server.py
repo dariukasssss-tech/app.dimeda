@@ -124,6 +124,10 @@ async def root():
 
 @api_router.post("/products", response_model=Product)
 async def create_product(product: ProductCreate):
+    # Validate city
+    if product.city not in VALID_CITIES:
+        raise HTTPException(status_code=400, detail=f"Invalid city. Must be one of: {', '.join(VALID_CITIES)}")
+    
     # Check if serial number already exists
     existing = await db.products.find_one({"serial_number": product.serial_number}, {"_id": 0})
     if existing:
@@ -132,6 +136,20 @@ async def create_product(product: ProductCreate):
     product_obj = Product(**product.model_dump())
     doc = product_obj.model_dump()
     await db.products.insert_one(doc)
+    
+    # Auto-schedule annual maintenance for 5 years (2026-2030)
+    for year in range(2026, 2031):
+        # Schedule maintenance on the registration anniversary or Jan 15 of each year
+        scheduled_date = f"{year}-01-15"
+        maintenance_obj = ScheduledMaintenance(
+            product_id=product_obj.id,
+            scheduled_date=scheduled_date,
+            maintenance_type="routine",
+            technician_name=None,
+            notes=f"Annual maintenance - {product.city}"
+        )
+        await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
+    
     return product_obj
 
 @api_router.get("/products", response_model=List[Product])

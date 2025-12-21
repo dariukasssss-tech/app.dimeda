@@ -403,18 +403,18 @@ const MaintenanceCalendar = () => {
       <Card data-testid="maintenance-list">
         <CardHeader>
           <CardTitle style={{ fontFamily: 'Manrope, sans-serif' }}>
-            Scheduled for {format(currentMonth, "MMMM yyyy")}
+            Scheduled for {format(currentMonth, "MMMM yyyy")} {cityFilter !== "all" && `- ${cityFilter}`}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {maintenanceItems.length === 0 ? (
+          {filteredMaintenance.length === 0 ? (
             <div className="text-center py-8">
               <CalendarDays className="mx-auto text-slate-300" size={48} />
               <p className="text-slate-500 mt-4">No maintenance scheduled this month</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {maintenanceItems.map((item) => (
+              {filteredMaintenance.map((item) => (
                 <div
                   key={item.id}
                   className={`flex items-center justify-between p-4 rounded-lg border ${statusColors[item.status]}`}
@@ -429,9 +429,15 @@ const MaintenanceCalendar = () => {
                       <p className="text-sm text-slate-600 capitalize">
                         {item.maintenance_type} • {format(parseISO(item.scheduled_date), "MMM d, yyyy")}
                       </p>
-                      {item.technician_name && (
-                        <p className="text-xs text-slate-500">Technician: {item.technician_name}</p>
-                      )}
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs">
+                          <Building2 size={10} className="mr-1" />
+                          {getProductCity(item.product_id)}
+                        </Badge>
+                        {item.technician_name && (
+                          <span className="text-xs text-slate-500">Technician: {item.technician_name}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

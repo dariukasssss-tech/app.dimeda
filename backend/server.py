@@ -40,6 +40,7 @@ class ProductBase(BaseModel):
     city: str  # One of the 5 cities
     location_detail: Optional[str] = None  # Hospital name, ward, etc.
     notes: Optional[str] = None
+    registration_date: Optional[str] = None  # Custom registration date
 
 class ProductCreate(ProductBase):
     pass

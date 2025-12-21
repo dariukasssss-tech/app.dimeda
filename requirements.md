@@ -46,6 +46,6 @@ Build a service and maintenance app for Medirol Vivera Monobloc powered stretche
 1. Add QR code scanning for faster serial number input
 2. Add PDF report generation (individual product service history)
 3. Add technician management (pre-defined list of technicians)
-4. Add scheduled maintenance reminders
+4. Add email/notification reminders for upcoming maintenance
 5. Add offline mode for field technicians
 6. Multi-language support (English, Czech, Lithuanian)

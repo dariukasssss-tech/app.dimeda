@@ -179,6 +179,9 @@ const Export = () => {
       fetchProductData(productId);
     } else {
       setProductData(null);
+      // Reset all checks to default (true) when no product selected
+      setVisualChecks(VISUAL_INSPECTION.reduce((acc, _, idx) => ({ ...acc, [idx]: true }), {}));
+      setFunctionalityChecks(FUNCTIONALITY_INSPECTION.reduce((acc, _, idx) => ({ ...acc, [idx]: true }), {}));
     }
   };
 

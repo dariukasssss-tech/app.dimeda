@@ -643,6 +643,9 @@ async def get_upcoming_maintenance_count():
 # Include the router in the main app
 app.include_router(api_router)
 
+# Add Auth Middleware (before CORS)
+app.add_middleware(AuthMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,

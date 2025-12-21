@@ -406,9 +406,12 @@ const Issues = () => {
                         ))}
                       </div>
                     )}
-                    <p className="text-xs text-slate-400 mt-4">
-                      Reported: {new Date(issue.created_at).toLocaleString()}
-                    </p>
+                    <div className="flex items-center gap-4 mt-4 text-xs text-slate-400">
+                      <span>Registered: {new Date(issue.created_at).toLocaleString()}</span>
+                      {issue.resolved_at && (
+                        <span>Resolved: {new Date(issue.resolved_at).toLocaleString()}</span>
+                      )}
+                    </div>
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

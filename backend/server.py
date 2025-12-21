@@ -205,6 +205,40 @@ async def update_product(product_id: str, product: ProductCreate):
         raise HTTPException(status_code=400, detail=f"Invalid city. Must be one of: {', '.join(VALID_CITIES)}")
     
     update_data = product.model_dump()
+    
+    # Check if registration date changed
+    old_reg_date = existing.get("registration_date", "")[:10]
+    new_reg_date = (update_data.get("registration_date") or "")[:10]
+    
+    # If registration date is provided and different, recalculate yearly maintenance
+    if new_reg_date and new_reg_date != old_reg_date:
+        # Parse the new date
+        try:
+            reg_date = datetime.fromisoformat(update_data["registration_date"].replace("Z", "+00:00"))
+        except:
+            reg_date = datetime.strptime(update_data["registration_date"][:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        
+        # Delete existing auto_yearly maintenance for this product
+        await db.scheduled_maintenance.delete_many({
+            "product_id": product_id,
+            "source": "auto_yearly"
+        })
+        
+        # Recreate yearly maintenance based on new date
+        for year_offset in range(1, 6):
+            maintenance_date = reg_date + timedelta(days=365 * year_offset)
+            scheduled_date = maintenance_date.strftime("%Y-%m-%d")
+            maintenance_obj = ScheduledMaintenance(
+                product_id=product_id,
+                scheduled_date=scheduled_date,
+                maintenance_type="routine",
+                technician_name=None,
+                notes=f"Annual maintenance - {product.city}",
+                source="auto_yearly",
+                priority=None
+            )
+            await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
+    
     await db.products.update_one({"id": product_id}, {"$set": update_data})
     updated = await db.products.find_one({"id": product_id}, {"_id": 0})
     return updated

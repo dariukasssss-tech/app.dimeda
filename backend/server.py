@@ -168,6 +168,52 @@ class ScheduledMaintenanceUpdate(BaseModel):
 async def root():
     return {"message": "Dimeda Service Pro API", "version": "1.0.0"}
 
+# ============ AUTH ENDPOINTS ============
+
+class LoginRequest(BaseModel):
+    password: str
+
+@api_router.post("/auth/login")
+async def login(request: LoginRequest, response: Response):
+    if not APP_ACCESS_PASSWORD:
+        raise HTTPException(status_code=500, detail="Server password not configured")
+    
+    if request.password != APP_ACCESS_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid password")
+    
+    # Generate token and store it
+    token = generate_auth_token()
+    valid_tokens.add(token)
+    
+    # Set HTTP-only cookie
+    response.set_cookie(
+        key=AUTH_COOKIE_NAME,
+        value=token,
+        httponly=True,
+        secure=False,  # Set to True in production with HTTPS
+        samesite="lax",
+        max_age=AUTH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60,
+        path="/"
+    )
+    
+    return {"message": "Login successful"}
+
+@api_router.get("/auth/check")
+async def check_auth(request: Request):
+    auth_token = request.cookies.get(AUTH_COOKIE_NAME)
+    if auth_token and auth_token in valid_tokens:
+        return {"authenticated": True}
+    return {"authenticated": False}
+
+@api_router.post("/auth/logout")
+async def logout(request: Request, response: Response):
+    auth_token = request.cookies.get(AUTH_COOKIE_NAME)
+    if auth_token and auth_token in valid_tokens:
+        valid_tokens.discard(auth_token)
+    
+    response.delete_cookie(key=AUTH_COOKIE_NAME, path="/")
+    return {"message": "Logged out successfully"}
+
 @api_router.get("/cities")
 async def get_cities():
     return {"cities": VALID_CITIES}

@@ -136,7 +136,7 @@ const Export = () => {
     };
   };
 
-  const generatePDF = () => {
+  const generatePDF = async () => {
     if (!productData || !reporterName || !reporterSurname) {
       toast.error("Please fill in all required fields");
       return;
@@ -145,41 +145,56 @@ const Export = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
-    let yPos = 20;
+    const margin = 15;
+    let yPos = 15;
 
-    // Add logo (left corner)
-    // Since we can't load external images easily in jsPDF, we'll add text logo
+    // Load and add logo
+    try {
+      const logoImg = new Image();
+      logoImg.crossOrigin = "anonymous";
+      await new Promise((resolve, reject) => {
+        logoImg.onload = resolve;
+        logoImg.onerror = reject;
+        logoImg.src = "https://customer-assets.emergentagent.com/job_842f69d6-21b8-4f70-96b2-758e2fcffc47/artifacts/3rpmm3ao_Dimeda_logo-01.png";
+      });
+      doc.addImage(logoImg, "PNG", margin, yPos, 35, 12);
+    } catch (e) {
+      // Fallback to text if image fails
+      doc.setFontSize(14);
+      doc.setTextColor(0, 102, 204);
+      doc.setFont("helvetica", "bold");
+      doc.text("DIMEDA", margin, yPos + 8);
+    }
+
+    // Title (right side of logo)
     doc.setFontSize(16);
-    doc.setTextColor(0, 102, 204);
-    doc.setFont("helvetica", "bold");
-    doc.text("DIMEDA", margin, yPos);
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text("Service Pro", margin, yPos + 5);
-
-    // Title
-    yPos = 40;
-    doc.setFontSize(20);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "bold");
-    doc.text("Device Inspection Report", pageWidth / 2, yPos, { align: "center" });
-
-    // Report Date
-    yPos += 15;
-    doc.setFontSize(11);
+    doc.text("Device Inspection Report", pageWidth - margin, yPos + 6, { align: "right" });
+    
+    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.text(`Report Date: ${format(reportDate, "MMMM d, yyyy")}`, pageWidth / 2, yPos, { align: "center" });
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Report Date: ${format(reportDate, "MMMM d, yyyy")}`, pageWidth - margin, yPos + 12, { align: "right" });
 
-    // Product Information
-    yPos += 20;
-    doc.setFontSize(14);
+    yPos = 35;
+
+    // Horizontal line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 8;
+
+    // Two column layout: Product Info (left) | Conclusion (right)
+    const colWidth = (pageWidth - margin * 3) / 2;
+    
+    // LEFT COLUMN - Product Information
+    doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 102, 204);
     doc.text("Product Information", margin, yPos);
     
-    yPos += 10;
-    doc.setFontSize(10);
+    yPos += 6;
+    doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(0, 0, 0);
     
@@ -188,49 +203,66 @@ const Export = () => {
       ["Model:", productData.product.model_name],
       ["City:", productData.product.city],
       ["Location:", productData.product.location_detail || "-"],
-      ["Registration Date:", format(new Date(productData.product.registration_date), "MMMM d, yyyy")],
-      ["Status:", productData.product.status],
+      ["Registration:", format(new Date(productData.product.registration_date), "MMM d, yyyy")],
     ];
 
+    let leftY = yPos;
     productInfo.forEach(([label, value]) => {
       doc.setFont("helvetica", "bold");
-      doc.text(label, margin, yPos);
+      doc.text(label, margin, leftY);
       doc.setFont("helvetica", "normal");
-      doc.text(value, margin + 45, yPos);
-      yPos += 7;
+      doc.text(String(value), margin + 28, leftY);
+      leftY += 5;
     });
 
-    // Issues Summary
-    yPos += 10;
-    doc.setFontSize(14);
+    // RIGHT COLUMN - Conclusion
+    const rightColX = margin + colWidth + margin;
+    const suitability = getDeviceSuitability();
+    
+    doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 102, 204);
-    doc.text("Issues Summary", margin, yPos);
+    doc.text("Conclusion", rightColX, yPos);
+    
+    let rightY = yPos + 8;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    
+    if (suitability.suitable) {
+      doc.setTextColor(0, 128, 0); // Green
+      doc.text("Device is suitable for use", rightColX, rightY);
+    } else {
+      doc.setTextColor(255, 0, 0); // Red
+      doc.text("Device is NOT suitable for use", rightColX, rightY);
+    }
 
-    yPos += 10;
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-
-    const openIssues = productData.issues.filter(i => i.status !== "resolved");
-    const resolvedIssues = productData.issues.filter(i => i.status === "resolved");
-
+    rightY += 6;
+    doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    doc.text(`Total Issues: ${productData.issues.length}`, margin, yPos);
+    doc.setTextColor(100, 100, 100);
+    doc.text(suitability.reason, rightColX, rightY);
+
+    yPos = Math.max(leftY, rightY) + 8;
+
+    // Horizontal line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 6;
-    doc.text(`Open Issues: ${openIssues.length}`, margin, yPos);
-    yPos += 6;
-    doc.text(`Resolved Issues: ${resolvedIssues.length}`, margin, yPos);
 
     // Issues Table
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 102, 204);
+    doc.text("Issues", margin, yPos);
+    yPos += 4;
+
     if (productData.issues.length > 0) {
-      yPos += 10;
-      
-      const issueRows = productData.issues.map(issue => [
-        issue.title,
+      const issueRows = productData.issues.slice(0, 8).map(issue => [
+        issue.title.substring(0, 25) + (issue.title.length > 25 ? "..." : ""),
         issue.issue_type,
         issue.severity,
         issue.status,
-        format(new Date(issue.created_at), "MM/dd/yyyy")
+        format(new Date(issue.created_at), "MM/dd/yy")
       ]);
 
       autoTable(doc, {
@@ -238,35 +270,33 @@ const Export = () => {
         head: [["Title", "Type", "Severity", "Status", "Date"]],
         body: issueRows,
         margin: { left: margin, right: margin },
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: [0, 102, 204] },
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [0, 102, 204], fontSize: 8 },
+        tableWidth: 'auto',
       });
 
-      yPos = doc.lastAutoTable.finalY + 15;
+      yPos = doc.lastAutoTable.finalY + 6;
     } else {
-      yPos += 15;
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(150, 150, 150);
+      doc.text("No issues reported", margin, yPos + 4);
+      yPos += 10;
     }
 
-    // Service History
-    doc.setFontSize(14);
+    // Services Table
+    doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 102, 204);
-    doc.text("Service History", margin, yPos);
-
-    yPos += 10;
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Total Service Records: ${productData.services.length}`, margin, yPos);
+    doc.text("Service Records", margin, yPos);
+    yPos += 4;
 
     if (productData.services.length > 0) {
-      yPos += 10;
-      
-      const serviceRows = productData.services.slice(0, 5).map(service => [
+      const serviceRows = productData.services.slice(0, 6).map(service => [
         service.service_type,
         service.technician_name,
-        format(new Date(service.service_date), "MM/dd/yyyy"),
-        service.description.substring(0, 40) + (service.description.length > 40 ? "..." : "")
+        format(new Date(service.service_date), "MM/dd/yy"),
+        service.description.substring(0, 35) + (service.description.length > 35 ? "..." : "")
       ]);
 
       autoTable(doc, {
@@ -274,73 +304,41 @@ const Export = () => {
         head: [["Type", "Technician", "Date", "Description"]],
         body: serviceRows,
         margin: { left: margin, right: margin },
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: [0, 102, 204] },
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [0, 102, 204], fontSize: 8 },
+        tableWidth: 'auto',
       });
 
-      yPos = doc.lastAutoTable.finalY + 15;
+      yPos = doc.lastAutoTable.finalY + 8;
     } else {
-      yPos += 15;
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(150, 150, 150);
+      doc.text("No service records", margin, yPos + 4);
+      yPos += 10;
     }
-
-    // Device Suitability - CONCLUSION
-    const suitability = getDeviceSuitability();
-    
-    // Check if we need a new page
-    if (yPos > pageHeight - 80) {
-      doc.addPage();
-      yPos = 20;
-    }
-
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(0, 102, 204);
-    doc.text("Conclusion", margin, yPos);
-
-    yPos += 15;
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    
-    if (suitability.suitable) {
-      doc.setTextColor(0, 128, 0); // Green
-      doc.text("Device is suitable for use", margin, yPos);
-    } else {
-      doc.setTextColor(255, 0, 0); // Red
-      doc.text("Device is NOT suitable for use", margin, yPos);
-    }
-
-    yPos += 8;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Reason: ${suitability.reason}`, margin, yPos);
 
     // Signature Section at the bottom
-    const signatureY = pageHeight - 40;
+    const signatureY = pageHeight - 25;
     
     doc.setDrawColor(200, 200, 200);
-    doc.line(margin, signatureY - 10, pageWidth - margin, signatureY - 10);
+    doc.line(margin, signatureY - 8, pageWidth - margin, signatureY - 8);
 
     // Name and Surname (left side)
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
     doc.text("Name:", margin, signatureY);
     doc.setFont("helvetica", "bold");
-    doc.text(`${reporterName} ${reporterSurname}`, margin + 15, signatureY);
+    doc.text(`${reporterName} ${reporterSurname}`, margin + 14, signatureY);
 
     doc.setFont("helvetica", "normal");
-    doc.text("Date:", margin, signatureY + 8);
-    doc.text(format(reportDate, "MM/dd/yyyy"), margin + 15, signatureY + 8);
+    doc.text("Date:", margin, signatureY + 6);
+    doc.text(format(reportDate, "MM/dd/yyyy"), margin + 14, signatureY + 6);
 
     // Signature (right side)
-    doc.text("Signature:", pageWidth - margin - 60, signatureY);
-    doc.line(pageWidth - margin - 45, signatureY + 2, pageWidth - margin, signatureY + 2);
-
-    // Footer
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text("Dimeda Service Pro - Medirol Vivera Monobloc", pageWidth / 2, pageHeight - 10, { align: "center" });
+    doc.text("Signature:", pageWidth - margin - 50, signatureY);
+    doc.line(pageWidth - margin - 38, signatureY + 2, pageWidth - margin, signatureY + 2);
 
     // Save PDF
     doc.save(`Device_Report_${productData.product.serial_number}_${format(reportDate, "yyyyMMdd")}.pdf`);

@@ -142,14 +142,25 @@ async def create_product(product: ProductCreate):
     if existing:
         raise HTTPException(status_code=400, detail="Product with this serial number already exists")
     
-    product_obj = Product(**product.model_dump())
+    # Use provided registration date or default to now
+    product_data = product.model_dump()
+    if product_data.get("registration_date"):
+        # Parse the provided date
+        try:
+            reg_date = datetime.fromisoformat(product_data["registration_date"].replace("Z", "+00:00"))
+        except:
+            reg_date = datetime.strptime(product_data["registration_date"][:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    else:
+        reg_date = datetime.now(timezone.utc)
+        product_data["registration_date"] = reg_date.isoformat()
+    
+    product_obj = Product(**product_data)
     doc = product_obj.model_dump()
     await db.products.insert_one(doc)
     
     # Auto-schedule yearly maintenance for 5 years (12 months after registration, then yearly)
-    registration_date = datetime.now(timezone.utc)
     for year_offset in range(1, 6):  # 1 to 5 years
-        maintenance_date = registration_date + timedelta(days=365 * year_offset)
+        maintenance_date = reg_date + timedelta(days=365 * year_offset)
         scheduled_date = maintenance_date.strftime("%Y-%m-%d")
         maintenance_obj = ScheduledMaintenance(
             product_id=product_obj.id,

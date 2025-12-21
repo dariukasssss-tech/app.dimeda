@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -19,10 +20,36 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "sonner";
-import { Download, FileSpreadsheet, Package, Wrench, AlertTriangle, FileText, CalendarIcon, CheckCircle, XCircle } from "lucide-react";
+import { Download, FileSpreadsheet, Package, Wrench, AlertTriangle, FileText, CalendarIcon, CheckCircle, XCircle, Eye, Settings } from "lucide-react";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+
+// Inspection checklist questions
+const VISUAL_INSPECTION = [
+  "All mechanical and screw connections are sealed",
+  "All welds are intact, without cracks or breaks",
+  "All components are in good order, not broken or bent",
+  "The mattress cover is not torn, has no cracks or holes",
+  "Belts not frayed or torn",
+  "Belt stitching is not loose or frayed",
+];
+
+const FUNCTIONALITY_INSPECTION = [
+  "Adjustable backrest or headrest works properly",
+  "Adjustable footrest or shank works properly",
+  "The stretchers are easy to manoeuvre and rotate 360°",
+  "The side rails work properly",
+  "The loading wheels turn freely",
+  "Wheel brakes work properly",
+  "The front swivel wheel lock works properly",
+  "All levers are intact and working properly",
+  "All fastening straps and buckles work properly",
+  "The monoblock can be easily loaded into and unloaded from the vehicle",
+  "The monoblock works properly in all height positions",
+  "Indicators working properly",
+  "The nut on the locking pin is properly tightened",
+];
 
 const Export = () => {
   const [loading, setLoading] = useState({});
@@ -33,6 +60,14 @@ const Export = () => {
   const [reportLoading, setReportLoading] = useState(false);
   const [reporterName, setReporterName] = useState("");
   const [reporterSurname, setReporterSurname] = useState("");
+  
+  // Inspection checklists - all default to true (Yes)
+  const [visualChecks, setVisualChecks] = useState(
+    VISUAL_INSPECTION.reduce((acc, _, idx) => ({ ...acc, [idx]: true }), {})
+  );
+  const [functionalityChecks, setFunctionalityChecks] = useState(
+    FUNCTIONALITY_INSPECTION.reduce((acc, _, idx) => ({ ...acc, [idx]: true }), {})
+  );
 
   useEffect(() => {
     fetchProducts();
@@ -159,14 +194,13 @@ const Export = () => {
       });
       doc.addImage(logoImg, "PNG", margin, yPos, 35, 12);
     } catch (e) {
-      // Fallback to text if image fails
       doc.setFontSize(14);
       doc.setTextColor(0, 102, 204);
       doc.setFont("helvetica", "bold");
       doc.text("DIMEDA", margin, yPos + 8);
     }
 
-    // Title (right side of logo)
+    // Title
     doc.setFontSize(16);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "bold");
@@ -178,23 +212,21 @@ const Export = () => {
     doc.text(`Report Date: ${format(reportDate, "MMMM d, yyyy")}`, pageWidth - margin, yPos + 12, { align: "right" });
 
     yPos = 35;
-
-    // Horizontal line
     doc.setDrawColor(200, 200, 200);
     doc.line(margin, yPos, pageWidth - margin, yPos);
-    yPos += 8;
+    yPos += 6;
 
     // Two column layout: Product Info (left) | Conclusion (right)
     const colWidth = (pageWidth - margin * 3) / 2;
     
     // LEFT COLUMN - Product Information
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 102, 204);
     doc.text("Product Information", margin, yPos);
     
-    yPos += 6;
-    doc.setFontSize(9);
+    yPos += 5;
+    doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(0, 0, 0);
     
@@ -211,54 +243,54 @@ const Export = () => {
       doc.setFont("helvetica", "bold");
       doc.text(label, margin, leftY);
       doc.setFont("helvetica", "normal");
-      doc.text(String(value), margin + 28, leftY);
-      leftY += 5;
+      doc.text(String(value), margin + 25, leftY);
+      leftY += 4;
     });
 
     // RIGHT COLUMN - Conclusion
     const rightColX = margin + colWidth + margin;
     const suitability = getDeviceSuitability();
     
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 102, 204);
     doc.text("Conclusion", rightColX, yPos);
     
-    let rightY = yPos + 8;
-    doc.setFontSize(12);
+    let rightY = yPos + 6;
+    doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     
     if (suitability.suitable) {
-      doc.setTextColor(0, 128, 0); // Green
+      doc.setTextColor(0, 128, 0);
       doc.text("Device is suitable for use", rightColX, rightY);
     } else {
-      doc.setTextColor(255, 0, 0); // Red
+      doc.setTextColor(255, 0, 0);
       doc.text("Device is NOT suitable for use", rightColX, rightY);
     }
 
-    rightY += 6;
-    doc.setFontSize(8);
+    rightY += 5;
+    doc.setFontSize(7);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 100, 100);
     doc.text(suitability.reason, rightColX, rightY);
 
-    yPos = Math.max(leftY, rightY) + 8;
+    yPos = Math.max(leftY, rightY) + 4;
 
     // Horizontal line
     doc.setDrawColor(200, 200, 200);
     doc.line(margin, yPos, pageWidth - margin, yPos);
-    yPos += 6;
+    yPos += 4;
 
     // Issues Table
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 102, 204);
     doc.text("Issues", margin, yPos);
-    yPos += 4;
+    yPos += 3;
 
     if (productData.issues.length > 0) {
-      const issueRows = productData.issues.slice(0, 8).map(issue => [
-        issue.title.substring(0, 25) + (issue.title.length > 25 ? "..." : ""),
+      const issueRows = productData.issues.slice(0, 5).map(issue => [
+        issue.title.substring(0, 20) + (issue.title.length > 20 ? "..." : ""),
         issue.issue_type,
         issue.severity,
         issue.status,
@@ -270,33 +302,107 @@ const Export = () => {
         head: [["Title", "Type", "Severity", "Status", "Date"]],
         body: issueRows,
         margin: { left: margin, right: margin },
-        styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: [0, 102, 204], fontSize: 8 },
-        tableWidth: 'auto',
+        styles: { fontSize: 7, cellPadding: 1.5 },
+        headStyles: { fillColor: [0, 102, 204], fontSize: 7 },
       });
 
-      yPos = doc.lastAutoTable.finalY + 6;
+      yPos = doc.lastAutoTable.finalY + 4;
     } else {
-      doc.setFontSize(8);
+      doc.setFontSize(7);
       doc.setFont("helvetica", "italic");
       doc.setTextColor(150, 150, 150);
-      doc.text("No issues reported", margin, yPos + 4);
-      yPos += 10;
+      doc.text("No issues reported", margin, yPos + 3);
+      yPos += 6;
     }
 
+    // INSPECTION CHECKLISTS
+    // Visual Inspection
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 102, 204);
+    doc.text("Visual Inspection", margin, yPos);
+    yPos += 3;
+
+    const visualRows = VISUAL_INSPECTION.map((question, idx) => [
+      question,
+      visualChecks[idx] ? "Yes" : "No"
+    ]);
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [["Check Item", "Status"]],
+      body: visualRows,
+      margin: { left: margin, right: margin },
+      styles: { fontSize: 7, cellPadding: 1.5 },
+      headStyles: { fillColor: [0, 102, 204], fontSize: 7 },
+      columnStyles: {
+        0: { cellWidth: 150 },
+        1: { cellWidth: 20, halign: 'center' }
+      },
+      didParseCell: function(data) {
+        if (data.section === 'body' && data.column.index === 1) {
+          if (data.cell.raw === 'No') {
+            data.cell.styles.textColor = [255, 0, 0];
+            data.cell.styles.fontStyle = 'bold';
+          } else {
+            data.cell.styles.textColor = [0, 128, 0];
+          }
+        }
+      }
+    });
+
+    yPos = doc.lastAutoTable.finalY + 4;
+
+    // Functionality Inspection
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 102, 204);
+    doc.text("Functionality Inspection", margin, yPos);
+    yPos += 3;
+
+    const functionalityRows = FUNCTIONALITY_INSPECTION.map((question, idx) => [
+      question,
+      functionalityChecks[idx] ? "Yes" : "No"
+    ]);
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [["Check Item", "Status"]],
+      body: functionalityRows,
+      margin: { left: margin, right: margin },
+      styles: { fontSize: 7, cellPadding: 1.5 },
+      headStyles: { fillColor: [0, 102, 204], fontSize: 7 },
+      columnStyles: {
+        0: { cellWidth: 150 },
+        1: { cellWidth: 20, halign: 'center' }
+      },
+      didParseCell: function(data) {
+        if (data.section === 'body' && data.column.index === 1) {
+          if (data.cell.raw === 'No') {
+            data.cell.styles.textColor = [255, 0, 0];
+            data.cell.styles.fontStyle = 'bold';
+          } else {
+            data.cell.styles.textColor = [0, 128, 0];
+          }
+        }
+      }
+    });
+
+    yPos = doc.lastAutoTable.finalY + 4;
+
     // Services Table
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 102, 204);
     doc.text("Service Records", margin, yPos);
-    yPos += 4;
+    yPos += 3;
 
     if (productData.services.length > 0) {
-      const serviceRows = productData.services.slice(0, 6).map(service => [
+      const serviceRows = productData.services.slice(0, 4).map(service => [
         service.service_type,
         service.technician_name,
         format(new Date(service.service_date), "MM/dd/yy"),
-        service.description.substring(0, 35) + (service.description.length > 35 ? "..." : "")
+        service.description.substring(0, 30) + (service.description.length > 30 ? "..." : "")
       ]);
 
       autoTable(doc, {
@@ -304,41 +410,38 @@ const Export = () => {
         head: [["Type", "Technician", "Date", "Description"]],
         body: serviceRows,
         margin: { left: margin, right: margin },
-        styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: [0, 102, 204], fontSize: 8 },
-        tableWidth: 'auto',
+        styles: { fontSize: 7, cellPadding: 1.5 },
+        headStyles: { fillColor: [0, 102, 204], fontSize: 7 },
       });
 
-      yPos = doc.lastAutoTable.finalY + 8;
+      yPos = doc.lastAutoTable.finalY + 4;
     } else {
-      doc.setFontSize(8);
+      doc.setFontSize(7);
       doc.setFont("helvetica", "italic");
       doc.setTextColor(150, 150, 150);
-      doc.text("No service records", margin, yPos + 4);
-      yPos += 10;
+      doc.text("No service records", margin, yPos + 3);
+      yPos += 6;
     }
 
-    // Signature Section at the bottom
-    const signatureY = pageHeight - 25;
+    // Signature Section
+    const signatureY = pageHeight - 20;
     
     doc.setDrawColor(200, 200, 200);
-    doc.line(margin, signatureY - 8, pageWidth - margin, signatureY - 8);
+    doc.line(margin, signatureY - 6, pageWidth - margin, signatureY - 6);
 
-    // Name and Surname (left side)
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
     doc.text("Name:", margin, signatureY);
     doc.setFont("helvetica", "bold");
-    doc.text(`${reporterName} ${reporterSurname}`, margin + 14, signatureY);
+    doc.text(`${reporterName} ${reporterSurname}`, margin + 12, signatureY);
 
     doc.setFont("helvetica", "normal");
-    doc.text("Date:", margin, signatureY + 6);
-    doc.text(format(reportDate, "MM/dd/yyyy"), margin + 14, signatureY + 6);
+    doc.text("Date:", margin, signatureY + 5);
+    doc.text(format(reportDate, "MM/dd/yyyy"), margin + 12, signatureY + 5);
 
-    // Signature (right side)
-    doc.text("Signature:", pageWidth - margin - 50, signatureY);
-    doc.line(pageWidth - margin - 38, signatureY + 2, pageWidth - margin, signatureY + 2);
+    doc.text("Signature:", pageWidth - margin - 45, signatureY);
+    doc.line(pageWidth - margin - 32, signatureY + 2, pageWidth - margin, signatureY + 2);
 
     // Save PDF
     doc.save(`Device_Report_${productData.product.serial_number}_${format(reportDate, "yyyyMMdd")}.pdf`);
@@ -370,6 +473,10 @@ const Export = () => {
   ];
 
   const suitability = productData ? getDeviceSuitability() : null;
+
+  // Count failed checks
+  const visualFailCount = Object.values(visualChecks).filter(v => !v).length;
+  const functionalityFailCount = Object.values(functionalityChecks).filter(v => !v).length;
 
   return (
     <div className="space-y-6 animate-fade-in" data-testid="export-page">
@@ -427,117 +534,175 @@ const Export = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Left Column - Form */}
-            <div className="space-y-4">
-              <div>
-                <Label>Select Product *</Label>
-                <Select value={selectedProduct || ""} onValueChange={handleProductSelect}>
-                  <SelectTrigger className="mt-1" data-testid="report-select-product">
-                    <SelectValue placeholder="Choose a product" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {products.map((product) => (
-                      <SelectItem key={product.id} value={product.id}>
-                        {product.serial_number} - {product.city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>Report Date *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full mt-1 justify-start text-left font-normal"
-                      data-testid="report-select-date"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {format(reportDate, "PPP")}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={reportDate}
-                      onSelect={(date) => date && setReportDate(date)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="reporterName">Name *</Label>
-                  <Input
-                    id="reporterName"
-                    value={reporterName}
-                    onChange={(e) => setReporterName(e.target.value)}
-                    placeholder="First name"
-                    data-testid="report-input-name"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="reporterSurname">Surname *</Label>
-                  <Input
-                    id="reporterSurname"
-                    value={reporterSurname}
-                    onChange={(e) => setReporterSurname(e.target.value)}
-                    placeholder="Last name"
-                    data-testid="report-input-surname"
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-
-              <Button
-                onClick={generatePDF}
-                disabled={!selectedProduct || !reporterName || !reporterSurname || reportLoading}
-                className="w-full bg-[#0066CC] hover:bg-[#0052A3]"
-                data-testid="generate-pdf-btn"
-              >
-                <FileText size={18} className="mr-2" />
-                Generate PDF Report
-              </Button>
+          {/* Basic Info Row */}
+          <div className="grid md:grid-cols-4 gap-4">
+            <div>
+              <Label>Select Product *</Label>
+              <Select value={selectedProduct || ""} onValueChange={handleProductSelect}>
+                <SelectTrigger className="mt-1" data-testid="report-select-product">
+                  <SelectValue placeholder="Choose a product" />
+                </SelectTrigger>
+                <SelectContent>
+                  {products.map((product) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.serial_number} - {product.city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* Right Column - Preview */}
+            <div>
+              <Label>Report Date *</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full mt-1 justify-start text-left font-normal"
+                    data-testid="report-select-date"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {format(reportDate, "MMM d, yyyy")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={reportDate}
+                    onSelect={(date) => date && setReportDate(date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div>
+              <Label htmlFor="reporterName">Name *</Label>
+              <Input
+                id="reporterName"
+                value={reporterName}
+                onChange={(e) => setReporterName(e.target.value)}
+                placeholder="First name"
+                data-testid="report-input-name"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="reporterSurname">Surname *</Label>
+              <Input
+                id="reporterSurname"
+                value={reporterSurname}
+                onChange={(e) => setReporterSurname(e.target.value)}
+                placeholder="Last name"
+                data-testid="report-input-surname"
+                className="mt-1"
+              />
+            </div>
+          </div>
+
+          {/* Inspection Checklists */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Visual Inspection */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Eye className="text-[#0066CC]" size={18} />
+                <h3 className="font-semibold text-slate-900">Visual Inspection</h3>
+                {visualFailCount > 0 && (
+                  <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                    {visualFailCount} failed
+                  </span>
+                )}
+              </div>
+              <div className="space-y-2 bg-slate-50 p-3 rounded-lg">
+                {VISUAL_INSPECTION.map((question, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <Checkbox
+                      id={`visual-${idx}`}
+                      checked={visualChecks[idx]}
+                      onCheckedChange={(checked) => 
+                        setVisualChecks(prev => ({ ...prev, [idx]: checked }))
+                      }
+                      className="mt-0.5"
+                    />
+                    <label 
+                      htmlFor={`visual-${idx}`} 
+                      className={`text-sm cursor-pointer ${!visualChecks[idx] ? 'text-red-600 font-medium' : 'text-slate-700'}`}
+                    >
+                      {question}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Functionality Inspection */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Settings className="text-[#0066CC]" size={18} />
+                <h3 className="font-semibold text-slate-900">Functionality Inspection</h3>
+                {functionalityFailCount > 0 && (
+                  <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                    {functionalityFailCount} failed
+                  </span>
+                )}
+              </div>
+              <div className="space-y-2 bg-slate-50 p-3 rounded-lg max-h-[300px] overflow-y-auto">
+                {FUNCTIONALITY_INSPECTION.map((question, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <Checkbox
+                      id={`functionality-${idx}`}
+                      checked={functionalityChecks[idx]}
+                      onCheckedChange={(checked) => 
+                        setFunctionalityChecks(prev => ({ ...prev, [idx]: checked }))
+                      }
+                      className="mt-0.5"
+                    />
+                    <label 
+                      htmlFor={`functionality-${idx}`} 
+                      className={`text-sm cursor-pointer ${!functionalityChecks[idx] ? 'text-red-600 font-medium' : 'text-slate-700'}`}
+                    >
+                      {question}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Preview and Generate */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Product Preview */}
             <div>
               {reportLoading ? (
                 <div className="h-full flex items-center justify-center text-slate-500">
                   Loading product data...
                 </div>
               ) : productData ? (
-                <div className="space-y-4">
-                  <div className="p-4 bg-slate-50 rounded-lg">
-                    <h4 className="font-semibold text-slate-900 mb-2">Product Summary</h4>
+                <div className="space-y-3">
+                  <div className="p-3 bg-slate-50 rounded-lg">
+                    <h4 className="font-semibold text-slate-900 text-sm mb-2">Product Summary</h4>
                     <div className="text-sm space-y-1">
                       <p><span className="text-slate-500">S/N:</span> {productData.product.serial_number}</p>
                       <p><span className="text-slate-500">Model:</span> {productData.product.model_name}</p>
                       <p><span className="text-slate-500">City:</span> {productData.product.city}</p>
-                      <p><span className="text-slate-500">Issues:</span> {productData.issues.length} total ({productData.issues.filter(i => i.status !== "resolved").length} open)</p>
+                      <p><span className="text-slate-500">Issues:</span> {productData.issues.length} total</p>
                       <p><span className="text-slate-500">Services:</span> {productData.services.length} records</p>
                     </div>
                   </div>
 
                   {/* Suitability Indicator */}
-                  <div className={`p-4 rounded-lg border-2 ${suitability.suitable ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+                  <div className={`p-3 rounded-lg border-2 ${suitability.suitable ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
                     <div className="flex items-center gap-2">
                       {suitability.suitable ? (
-                        <CheckCircle className="text-emerald-600" size={24} />
+                        <CheckCircle className="text-emerald-600" size={20} />
                       ) : (
-                        <XCircle className="text-red-600" size={24} />
+                        <XCircle className="text-red-600" size={20} />
                       )}
                       <div>
-                        <p className={`font-bold ${suitability.suitable ? 'text-emerald-700' : 'text-red-700'}`}>
+                        <p className={`font-bold text-sm ${suitability.suitable ? 'text-emerald-700' : 'text-red-700'}`}>
                           {suitability.suitable ? "Device is suitable for use" : "Device is NOT suitable for use"}
                         </p>
-                        <p className={`text-sm ${suitability.suitable ? 'text-emerald-600' : 'text-red-600'}`}>
+                        <p className={`text-xs ${suitability.suitable ? 'text-emerald-600' : 'text-red-600'}`}>
                           {suitability.reason}
                         </p>
                       </div>
@@ -545,13 +710,26 @@ const Export = () => {
                   </div>
                 </div>
               ) : (
-                <div className="h-full flex items-center justify-center text-slate-400 text-center p-8">
+                <div className="h-full flex items-center justify-center text-slate-400 text-center p-4">
                   <div>
-                    <Package className="mx-auto mb-2" size={32} />
-                    <p>Select a product to see the report preview</p>
+                    <Package className="mx-auto mb-2" size={28} />
+                    <p className="text-sm">Select a product to see preview</p>
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Generate Button */}
+            <div className="flex items-end">
+              <Button
+                onClick={generatePDF}
+                disabled={!selectedProduct || !reporterName || !reporterSurname || reportLoading}
+                className="w-full bg-[#0066CC] hover:bg-[#0052A3] h-12"
+                data-testid="generate-pdf-btn"
+              >
+                <FileText size={18} className="mr-2" />
+                Generate PDF Report
+              </Button>
             </div>
           </div>
         </CardContent>

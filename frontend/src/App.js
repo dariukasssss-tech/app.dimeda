@@ -125,6 +125,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/calendar" element={<MaintenanceCalendar />} />
             <Route path="/services" element={<Services />} />
             <Route path="/issues" element={<Issues />} />
             <Route path="/export" element={<Export />} />

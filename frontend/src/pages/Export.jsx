@@ -190,9 +190,9 @@ const Export = () => {
       await new Promise((resolve, reject) => {
         logoImg.onload = resolve;
         logoImg.onerror = reject;
-        logoImg.src = "https://customer-assets.emergentagent.com/job_842f69d6-21b8-4f70-96b2-758e2fcffc47/artifacts/by1yaubm_Dimeda_logo-01.png";
+        logoImg.src = "https://customer-assets.emergentagent.com/job_842f69d6-21b8-4f70-96b2-758e2fcffc47/artifacts/ey8xv2jb_Dimeda_logo-01.jpg";
       });
-      doc.addImage(logoImg, "PNG", margin, yPos, 35, 12);
+      doc.addImage(logoImg, "JPEG", margin, yPos, 35, 12);
     } catch (e) {
       doc.setFontSize(14);
       doc.setTextColor(0, 102, 204);

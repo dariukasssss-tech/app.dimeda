@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -26,8 +27,39 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { toast } from "sonner";
-import { Plus, AlertTriangle, Camera, X, MoreVertical, CheckCircle, Clock, Trash2 } from "lucide-react";
+import { Plus, AlertTriangle, Camera, X, MoreVertical, CheckCircle, Clock, Trash2, Eye, Settings, ChevronDown } from "lucide-react";
+
+// Inspection checklist items (same as in Export.jsx)
+const VISUAL_INSPECTION = [
+  "All mechanical and screw connections are sealed",
+  "All welds are intact, without cracks or breaks",
+  "All components are in good order, not broken or bent",
+  "The mattress cover is not torn, has no cracks or holes",
+  "Belts not frayed or torn",
+  "Belt stitching is not loose or frayed",
+];
+
+const FUNCTIONALITY_INSPECTION = [
+  "Adjustable backrest or headrest works properly",
+  "Adjustable footrest or shank works properly",
+  "The stretchers are easy to manoeuvre and rotate 360°",
+  "The side rails work properly",
+  "The loading wheels turn freely",
+  "Wheel brakes work properly",
+  "The front swivel wheel lock works properly",
+  "All levers are intact and working properly",
+  "All fastening straps and buckles work properly",
+  "The monoblock can be easily loaded into and unloaded from the vehicle",
+  "The monoblock works properly in all height positions",
+  "Indicators working properly",
+  "The nut on the locking pin is properly tightened",
+];
 
 const Issues = () => {
   const [issues, setIssues] = useState([]);
@@ -47,6 +79,12 @@ const Issues = () => {
     title: "",
     description: "",
   });
+  
+  // Multi-select states for "other" issue type
+  const [selectedVisualIssues, setSelectedVisualIssues] = useState([]);
+  const [selectedFunctionalityIssues, setSelectedFunctionalityIssues] = useState([]);
+  const [visualPopoverOpen, setVisualPopoverOpen] = useState(false);
+  const [functionalityPopoverOpen, setFunctionalityPopoverOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -82,23 +120,46 @@ const Issues = () => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const resetForm = () => {
+    setFormData({
+      product_id: "",
+      issue_type: "",
+      severity: "",
+      title: "",
+      description: "",
+    });
+    setPhotos([]);
+    setSelectedVisualIssues([]);
+    setSelectedFunctionalityIssues([]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Build description with inspection items if "other" type
+      let finalDescription = formData.description;
+      
+      if (formData.issue_type === "other") {
+        const inspectionDetails = [];
+        if (selectedVisualIssues.length > 0) {
+          inspectionDetails.push("Visual Inspection Issues:\n- " + selectedVisualIssues.join("\n- "));
+        }
+        if (selectedFunctionalityIssues.length > 0) {
+          inspectionDetails.push("Functionality Inspection Issues:\n- " + selectedFunctionalityIssues.join("\n- "));
+        }
+        if (inspectionDetails.length > 0) {
+          finalDescription = inspectionDetails.join("\n\n") + "\n\nAdditional Notes:\n" + formData.description;
+        }
+      }
+
       await axios.post(`${API}/issues`, {
         ...formData,
+        description: finalDescription,
         photos: photos,
       });
       toast.success("Issue reported successfully");
       setDialogOpen(false);
-      setFormData({
-        product_id: "",
-        issue_type: "",
-        severity: "",
-        title: "",
-        description: "",
-      });
-      setPhotos([]);
+      resetForm();
       fetchData();
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to report issue");
@@ -163,6 +224,22 @@ const Issues = () => {
     resolved: <CheckCircle size={16} className="text-emerald-500" />,
   };
 
+  const toggleVisualItem = (item) => {
+    setSelectedVisualIssues(prev => 
+      prev.includes(item) 
+        ? prev.filter(i => i !== item)
+        : [...prev, item]
+    );
+  };
+
+  const toggleFunctionalityItem = (item) => {
+    setSelectedFunctionalityIssues(prev => 
+      prev.includes(item) 
+        ? prev.filter(i => i !== item)
+        : [...prev, item]
+    );
+  };
+
   return (
     <div className="space-y-6 animate-fade-in" data-testid="issues-page">
       {/* Header */}
@@ -173,7 +250,10 @@ const Issues = () => {
           </h1>
           <p className="text-slate-500 mt-1">Track and resolve equipment problems</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) resetForm();
+        }}>
           <DialogTrigger asChild>
             <Button className="bg-[#FA4616] hover:bg-[#D9380D]" data-testid="report-issue-btn">
               <Plus size={18} className="mr-2" />
@@ -209,7 +289,14 @@ const Issues = () => {
                   <Label>Issue Type *</Label>
                   <Select
                     value={formData.issue_type}
-                    onValueChange={(value) => setFormData({ ...formData, issue_type: value })}
+                    onValueChange={(value) => {
+                      setFormData({ ...formData, issue_type: value });
+                      // Reset inspection selections when type changes
+                      if (value !== "other") {
+                        setSelectedVisualIssues([]);
+                        setSelectedFunctionalityIssues([]);
+                      }
+                    }}
                   >
                     <SelectTrigger className="mt-1" data-testid="issue-select-type">
                       <SelectValue placeholder="Select type" />
@@ -254,13 +341,144 @@ const Issues = () => {
                 />
               </div>
 
+              {/* Conditional Inspection Lists - Only show when issue_type is "other" */}
+              {formData.issue_type === "other" && (
+                <>
+                  {/* Visual Inspection Multi-Select */}
+                  <div>
+                    <Label className="flex items-center gap-2">
+                      <Eye size={16} className="text-[#0066CC]" />
+                      Visual Inspection
+                    </Label>
+                    <Popover open={visualPopoverOpen} onOpenChange={setVisualPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full mt-1 justify-between text-left font-normal"
+                          data-testid="visual-inspection-select"
+                        >
+                          <span className={selectedVisualIssues.length === 0 ? "text-slate-500" : ""}>
+                            {selectedVisualIssues.length === 0 
+                              ? "Select visual inspection issues" 
+                              : `${selectedVisualIssues.length} item(s) selected`}
+                          </span>
+                          <ChevronDown size={16} className="text-slate-400" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[400px] p-0" align="start">
+                        <div className="p-3 border-b bg-slate-50">
+                          <p className="text-sm font-medium">Select failed inspection items</p>
+                        </div>
+                        <div className="max-h-[250px] overflow-y-auto p-2">
+                          {VISUAL_INSPECTION.map((item, idx) => (
+                            <div 
+                              key={idx} 
+                              className="flex items-start gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer"
+                              onClick={() => toggleVisualItem(item)}
+                            >
+                              <Checkbox
+                                checked={selectedVisualIssues.includes(item)}
+                                onCheckedChange={() => toggleVisualItem(item)}
+                                className="mt-0.5"
+                              />
+                              <span className="text-sm">{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    {selectedVisualIssues.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {selectedVisualIssues.map((item, idx) => (
+                          <span 
+                            key={idx} 
+                            className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full flex items-center gap-1"
+                          >
+                            {item.substring(0, 30)}...
+                            <X 
+                              size={12} 
+                              className="cursor-pointer hover:text-red-900" 
+                              onClick={() => toggleVisualItem(item)}
+                            />
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Functionality Inspection Multi-Select */}
+                  <div>
+                    <Label className="flex items-center gap-2">
+                      <Settings size={16} className="text-[#0066CC]" />
+                      Functionality Inspection
+                    </Label>
+                    <Popover open={functionalityPopoverOpen} onOpenChange={setFunctionalityPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full mt-1 justify-between text-left font-normal"
+                          data-testid="functionality-inspection-select"
+                        >
+                          <span className={selectedFunctionalityIssues.length === 0 ? "text-slate-500" : ""}>
+                            {selectedFunctionalityIssues.length === 0 
+                              ? "Select functionality inspection issues" 
+                              : `${selectedFunctionalityIssues.length} item(s) selected`}
+                          </span>
+                          <ChevronDown size={16} className="text-slate-400" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[400px] p-0" align="start">
+                        <div className="p-3 border-b bg-slate-50">
+                          <p className="text-sm font-medium">Select failed inspection items</p>
+                        </div>
+                        <div className="max-h-[250px] overflow-y-auto p-2">
+                          {FUNCTIONALITY_INSPECTION.map((item, idx) => (
+                            <div 
+                              key={idx} 
+                              className="flex items-start gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer"
+                              onClick={() => toggleFunctionalityItem(item)}
+                            >
+                              <Checkbox
+                                checked={selectedFunctionalityIssues.includes(item)}
+                                onCheckedChange={() => toggleFunctionalityItem(item)}
+                                className="mt-0.5"
+                              />
+                              <span className="text-sm">{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    {selectedFunctionalityIssues.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {selectedFunctionalityIssues.map((item, idx) => (
+                          <span 
+                            key={idx} 
+                            className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full flex items-center gap-1"
+                          >
+                            {item.substring(0, 30)}...
+                            <X 
+                              size={12} 
+                              className="cursor-pointer hover:text-red-900" 
+                              onClick={() => toggleFunctionalityItem(item)}
+                            />
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
               <div>
                 <Label htmlFor="description">Description *</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Detailed description of the problem..."
+                  placeholder={formData.issue_type === "other" 
+                    ? "Additional notes about the issues..." 
+                    : "Detailed description of the problem..."}
                   required
                   data-testid="issue-input-description"
                   className="mt-1"
@@ -386,7 +604,7 @@ const Issues = () => {
                       {issue.title}
                     </h3>
                     <p className="text-sm text-slate-500 mt-1">S/N: {getProductSerial(issue.product_id)}</p>
-                    <p className="text-slate-600 mt-2">{issue.description}</p>
+                    <p className="text-slate-600 mt-2 whitespace-pre-line">{issue.description}</p>
                     {issue.resolution && (
                       <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
                         <p className="text-sm text-emerald-800">

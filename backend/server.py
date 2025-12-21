@@ -145,16 +145,19 @@ async def create_product(product: ProductCreate):
     doc = product_obj.model_dump()
     await db.products.insert_one(doc)
     
-    # Auto-schedule annual maintenance for 5 years (2026-2030)
-    for year in range(2026, 2031):
-        # Schedule maintenance on the registration anniversary or Jan 15 of each year
-        scheduled_date = f"{year}-01-15"
+    # Auto-schedule yearly maintenance for 5 years (12 months after registration, then yearly)
+    registration_date = datetime.now(timezone.utc)
+    for year_offset in range(1, 6):  # 1 to 5 years
+        maintenance_date = registration_date + timedelta(days=365 * year_offset)
+        scheduled_date = maintenance_date.strftime("%Y-%m-%d")
         maintenance_obj = ScheduledMaintenance(
             product_id=product_obj.id,
             scheduled_date=scheduled_date,
             maintenance_type="routine",
             technician_name=None,
-            notes=f"Annual maintenance - {product.city}"
+            notes=f"Annual maintenance - {product.city}",
+            source="auto_yearly",
+            priority=None
         )
         await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
     

@@ -83,7 +83,7 @@ const Navigation = ({ onLogout }) => {
               />
               <div className="hidden sm:block">
                 <h1 className="text-lg font-bold text-[#0066CC]" style={{ fontFamily: 'Manrope, sans-serif' }}>Dimeda Service Pro</h1>
-                <p className="text-xs text-slate-500">Medirol Vivera Monobloc</p>
+                <p className="text-xs text-slate-500">Medirol service partner</p>
               </div>
             </div>
           </div>

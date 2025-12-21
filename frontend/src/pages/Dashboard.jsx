@@ -120,7 +120,7 @@ const Dashboard = () => {
           <div className="p-6 flex flex-col justify-center">
             <span className="text-[#FA4616] font-semibold text-sm uppercase tracking-wide">Official Service Partner</span>
             <h2 className="text-2xl font-bold text-slate-900 mt-2" style={{ fontFamily: 'Manrope, sans-serif' }}>
-              Medirol Vivera Monobloc
+              Medirol Stretchers
             </h2>
             <p className="text-slate-600 mt-3">
               Dimeda is the official service provider for Medirol powered stretchers. 

@@ -80,7 +80,7 @@ const Login = ({ onLoginSuccess }) => {
             </Button>
           </form>
           <p className="text-xs text-slate-400 text-center mt-6">
-            Medirol Vivera Monobloc Service & Maintenance
+            Service & Maintenance
           </p>
         </CardContent>
       </Card>

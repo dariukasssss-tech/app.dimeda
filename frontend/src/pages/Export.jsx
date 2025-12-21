@@ -233,7 +233,7 @@ const Export = () => {
         format(new Date(issue.created_at), "MM/dd/yyyy")
       ]);
 
-      doc.autoTable({
+      autoTable(doc, {
         startY: yPos,
         head: [["Title", "Type", "Severity", "Status", "Date"]],
         body: issueRows,

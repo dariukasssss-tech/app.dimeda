@@ -96,11 +96,16 @@ const Export = () => {
       // Parse Visual Inspection Issues
       const visualMatch = description.match(/Visual Inspection Issues:\n([\s\S]*?)(?=\n\nFunctionality|$|\n\nAdditional)/);
       if (visualMatch) {
-        const items = visualMatch[1].split("\n- ").filter(item => item.trim());
+        // Split by newline and handle "- " prefix
+        const items = visualMatch[1]
+          .split("\n")
+          .map(item => item.replace(/^-\s*/, '').trim())
+          .filter(item => item.length > 0);
+        
         items.forEach(item => {
           // Find matching item in VISUAL_INSPECTION
           VISUAL_INSPECTION.forEach((checkItem, idx) => {
-            if (item.trim() === checkItem || item.trim().startsWith(checkItem.substring(0, 20))) {
+            if (item === checkItem) {
               failedVisualItems.add(idx);
             }
           });
@@ -110,11 +115,16 @@ const Export = () => {
       // Parse Functionality Inspection Issues
       const functionalityMatch = description.match(/Functionality Inspection Issues:\n([\s\S]*?)(?=\n\nAdditional|$)/);
       if (functionalityMatch) {
-        const items = functionalityMatch[1].split("\n- ").filter(item => item.trim());
+        // Split by newline and handle "- " prefix
+        const items = functionalityMatch[1]
+          .split("\n")
+          .map(item => item.replace(/^-\s*/, '').trim())
+          .filter(item => item.length > 0);
+        
         items.forEach(item => {
           // Find matching item in FUNCTIONALITY_INSPECTION
           FUNCTIONALITY_INSPECTION.forEach((checkItem, idx) => {
-            if (item.trim() === checkItem || item.trim().startsWith(checkItem.substring(0, 20))) {
+            if (item === checkItem) {
               failedFunctionalityItems.add(idx);
             }
           });

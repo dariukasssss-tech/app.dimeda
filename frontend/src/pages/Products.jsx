@@ -56,6 +56,7 @@ import {
 import { format, addYears } from "date-fns";
 
 const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
+const MODEL_OPTIONS = ["Powered Stretchers", "Roll-in stretchers"];
 
 const Products = () => {
   const [products, setProducts] = useState([]);

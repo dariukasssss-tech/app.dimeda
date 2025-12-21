@@ -1,34 +1,69 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* Dimeda Service Pro - Custom Styles */
+
+.dimeda-gradient {
+    background: linear-gradient(135deg, #0066CC 0%, #0052A3 100%);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+.card-hover {
+    transition: all 0.2s ease-in-out;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.1);
 }
 
-.App-link {
-    color: #61dafb;
+.status-badge {
+    @apply px-2.5 py-1 rounded-full text-xs font-medium;
 }
 
-@keyframes App-logo-spin {
+.status-open {
+    @apply bg-amber-100 text-amber-800;
+}
+
+.status-in_progress {
+    @apply bg-blue-100 text-blue-800;
+}
+
+.status-resolved {
+    @apply bg-emerald-100 text-emerald-800;
+}
+
+.severity-low {
+    @apply bg-slate-100 text-slate-700;
+}
+
+.severity-medium {
+    @apply bg-amber-100 text-amber-800;
+}
+
+.severity-high {
+    @apply bg-orange-100 text-orange-800;
+}
+
+.severity-critical {
+    @apply bg-red-100 text-red-800;
+}
+
+/* Animations */
+@keyframes fadeIn {
     from {
-        transform: rotate(0deg);
+        opacity: 0;
+        transform: translateY(10px);
     }
     to {
-        transform: rotate(360deg);
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
     }
 }

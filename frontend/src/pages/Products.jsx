@@ -72,7 +72,7 @@ const Products = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [formData, setFormData] = useState({
     serial_number: "",
-    model_name: "Vivera Monobloc",
+    model_name: "",
     city: "",
     location_detail: "",
     notes: "",

@@ -399,15 +399,7 @@ const MaintenanceCalendar = () => {
                     {dayMaintenance.slice(0, 3).map((item) => (
                       <div
                         key={item.id}
-                        className={`text-xs px-1.5 py-0.5 rounded truncate ${
-                          item.status === "completed"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : item.status === "cancelled"
-                            ? "bg-slate-100 text-slate-500 line-through"
-                            : isPast
-                            ? "bg-red-100 text-red-700"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
+                        className={`text-xs px-1.5 py-0.5 rounded truncate ${getTaskColor(item)}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           openEditDialog(item);

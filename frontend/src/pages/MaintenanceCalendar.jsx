@@ -51,6 +51,7 @@ const MaintenanceCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [upcomingCount, setUpcomingCount] = useState({ upcoming: 0, overdue: 0 });
+  const [cityFilter, setCityFilter] = useState("all");
   const [formData, setFormData] = useState({
     product_id: "",
     scheduled_date: "",
@@ -58,6 +59,8 @@ const MaintenanceCalendar = () => {
     technician_name: "",
     notes: "",
   });
+
+  const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
 
   useEffect(() => {
     fetchData();

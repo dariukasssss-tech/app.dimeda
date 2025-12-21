@@ -281,40 +281,6 @@ const Export = () => {
     doc.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 4;
 
-    // Issues Table
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(0, 102, 204);
-    doc.text("Issues", margin, yPos);
-    yPos += 3;
-
-    if (productData.issues.length > 0) {
-      const issueRows = productData.issues.slice(0, 5).map(issue => [
-        issue.title.substring(0, 20) + (issue.title.length > 20 ? "..." : ""),
-        issue.issue_type,
-        issue.severity,
-        issue.status,
-        format(new Date(issue.created_at), "MM/dd/yy")
-      ]);
-
-      autoTable(doc, {
-        startY: yPos,
-        head: [["Title", "Type", "Severity", "Status", "Date"]],
-        body: issueRows,
-        margin: { left: margin, right: margin },
-        styles: { fontSize: 7, cellPadding: 1.5 },
-        headStyles: { fillColor: [0, 102, 204], fontSize: 7 },
-      });
-
-      yPos = doc.lastAutoTable.finalY + 4;
-    } else {
-      doc.setFontSize(7);
-      doc.setFont("helvetica", "italic");
-      doc.setTextColor(150, 150, 150);
-      doc.text("No issues reported", margin, yPos + 3);
-      yPos += 6;
-    }
-
     // INSPECTION CHECKLISTS
     // Visual Inspection
     doc.setFontSize(9);
@@ -334,7 +300,7 @@ const Export = () => {
       body: visualRows,
       margin: { left: margin, right: margin },
       styles: { fontSize: 7, cellPadding: 1.5 },
-      headStyles: { fillColor: [0, 102, 204], fontSize: 7 },
+      headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontSize: 7, fontStyle: 'bold' },
       columnStyles: {
         0: { cellWidth: 150 },
         1: { cellWidth: 20, halign: 'center' }
@@ -371,7 +337,7 @@ const Export = () => {
       body: functionalityRows,
       margin: { left: margin, right: margin },
       styles: { fontSize: 7, cellPadding: 1.5 },
-      headStyles: { fillColor: [0, 102, 204], fontSize: 7 },
+      headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontSize: 7, fontStyle: 'bold' },
       columnStyles: {
         0: { cellWidth: 150 },
         1: { cellWidth: 20, halign: 'center' }
@@ -389,6 +355,40 @@ const Export = () => {
     });
 
     yPos = doc.lastAutoTable.finalY + 4;
+
+    // Issues Table (moved after Functionality Inspection)
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 102, 204);
+    doc.text("Issues", margin, yPos);
+    yPos += 3;
+
+    if (productData.issues.length > 0) {
+      const issueRows = productData.issues.slice(0, 5).map(issue => [
+        issue.title.substring(0, 20) + (issue.title.length > 20 ? "..." : ""),
+        issue.issue_type,
+        issue.severity,
+        issue.status,
+        format(new Date(issue.created_at), "MM/dd/yy")
+      ]);
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [["Title", "Type", "Severity", "Status", "Date"]],
+        body: issueRows,
+        margin: { left: margin, right: margin },
+        styles: { fontSize: 7, cellPadding: 1.5 },
+        headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontSize: 7, fontStyle: 'bold' },
+      });
+
+      yPos = doc.lastAutoTable.finalY + 4;
+    } else {
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(150, 150, 150);
+      doc.text("No issues reported", margin, yPos + 3);
+      yPos += 6;
+    }
 
     // Services Table
     doc.setFontSize(9);
@@ -411,7 +411,7 @@ const Export = () => {
         body: serviceRows,
         margin: { left: margin, right: margin },
         styles: { fontSize: 7, cellPadding: 1.5 },
-        headStyles: { fillColor: [0, 102, 204], fontSize: 7 },
+        headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontSize: 7, fontStyle: 'bold' },
       });
 
       yPos = doc.lastAutoTable.finalY + 4;

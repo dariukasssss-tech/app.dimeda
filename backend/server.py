@@ -31,6 +31,7 @@ app = FastAPI(title="Dimeda Service Pro API")
 # Auth configuration
 APP_ACCESS_PASSWORD = os.environ.get('APP_ACCESS_PASSWORD', '')
 AUTH_COOKIE_NAME = "dimeda_auth"
+AUTH_HEADER_NAME = "X-Auth-Token"
 AUTH_TOKEN_EXPIRY_DAYS = 7
 
 def generate_auth_token():
@@ -56,7 +57,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
         
         # Check if it's an API route that needs protection
         if request.url.path.startswith("/api"):
+            # Check both cookie and header for token
             auth_token = request.cookies.get(AUTH_COOKIE_NAME)
+            if not auth_token:
+                auth_token = request.headers.get(AUTH_HEADER_NAME)
             
             if not auth_token or auth_token not in valid_tokens:
                 return JSONResponse(

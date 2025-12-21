@@ -11,9 +11,10 @@ import Products from "@/pages/Products";
 import Services from "@/pages/Services";
 import Issues from "@/pages/Issues";
 import Export from "@/pages/Export";
+import MaintenanceCalendar from "@/pages/MaintenanceCalendar";
 
 // Icons
-import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X } from "lucide-react";
+import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X, CalendarDays } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;

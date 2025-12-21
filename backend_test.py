@@ -12,6 +12,7 @@ class DimedasServiceProAPITester:
         self.test_product_id = None
         self.test_service_id = None
         self.test_issue_id = None
+        self.test_maintenance_id = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, params=None):
         """Run a single API test"""

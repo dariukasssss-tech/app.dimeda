@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { Download, FileSpreadsheet, Package, Wrench, AlertTriangle, FileText, CalendarIcon, CheckCircle, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 const Export = () => {
   const [loading, setLoading] = useState({});

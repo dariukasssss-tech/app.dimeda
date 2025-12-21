@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Select,
   SelectContent,
@@ -21,6 +22,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Table,
   TableBody,
   TableCell,
@@ -29,7 +35,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Search, Package, MapPin, Calendar, Trash2, Edit, Building2 } from "lucide-react";
+import { Plus, Search, Package, MapPin, Calendar as CalendarIcon, Trash2, Edit, Building2 } from "lucide-react";
+import { format, addYears } from "date-fns";
 
 const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
 
@@ -40,6 +47,7 @@ const Products = () => {
   const [cityFilter, setCityFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [formData, setFormData] = useState({
     serial_number: "",
     model_name: "Vivera Monobloc",
@@ -66,20 +74,30 @@ const Products = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const payload = {
+        ...formData,
+        registration_date: selectedDate.toISOString(),
+      };
+      
       if (editProduct) {
-        await axios.put(`${API}/products/${editProduct.id}`, formData);
-        toast.success("Product updated successfully");
+        await axios.put(`${API}/products/${editProduct.id}`, payload);
+        toast.success("Product updated! Yearly maintenance recalculated.");
       } else {
-        await axios.post(`${API}/products`, formData);
-        toast.success("Product registered! Annual maintenance scheduled for 2026-2030.");
+        await axios.post(`${API}/products`, payload);
+        toast.success("Product registered! Annual maintenance scheduled for 5 years.");
       }
       setDialogOpen(false);
       setEditProduct(null);
-      setFormData({ serial_number: "", model_name: "Vivera Monobloc", city: "", location_detail: "", notes: "" });
+      resetForm();
       fetchProducts();
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to save product");
     }
+  };
+
+  const resetForm = () => {
+    setFormData({ serial_number: "", model_name: "Vivera Monobloc", city: "", location_detail: "", notes: "" });
+    setSelectedDate(new Date());
   };
 
   const handleEdit = (product) => {
@@ -91,6 +109,12 @@ const Products = () => {
       location_detail: product.location_detail || "",
       notes: product.notes || "",
     });
+    // Parse the registration date
+    if (product.registration_date) {
+      setSelectedDate(new Date(product.registration_date));
+    } else {
+      setSelectedDate(new Date());
+    }
     setDialogOpen(true);
   };
 
@@ -119,6 +143,15 @@ const Products = () => {
     return acc;
   }, {});
 
+  // Calculate maintenance preview dates
+  const getMaintenanceDates = () => {
+    const dates = [];
+    for (let i = 1; i <= 5; i++) {
+      dates.push(format(addYears(selectedDate, i), "MMM d, yyyy"));
+    }
+    return dates;
+  };
+
   return (
     <div className="space-y-6 animate-fade-in" data-testid="products-page">
       {/* Header */}
@@ -133,7 +166,7 @@ const Products = () => {
           setDialogOpen(open);
           if (!open) {
             setEditProduct(null);
-            setFormData({ serial_number: "", model_name: "Vivera Monobloc", city: "", location_detail: "", notes: "" });
+            resetForm();
           }
         }}>
           <DialogTrigger asChild>
@@ -142,7 +175,7 @@ const Products = () => {
               Register Product
             </Button>
           </DialogTrigger>
-          <DialogContent data-testid="product-dialog">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto" data-testid="product-dialog">
             <DialogHeader>
               <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>
                 {editProduct ? "Edit Product" : "Register New Product"}
@@ -189,6 +222,32 @@ const Products = () => {
                   </SelectContent>
                 </Select>
               </div>
+              
+              {/* Registration Date */}
+              <div>
+                <Label>Registration Date *</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full mt-1 justify-start text-left font-normal"
+                      data-testid="select-registration-date"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {format(selectedDate, "PPP")}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => date && setSelectedDate(date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
               <div>
                 <Label htmlFor="location_detail">Location Detail</Label>
                 <Input
@@ -212,13 +271,23 @@ const Products = () => {
                 />
               </div>
               
-              {!editProduct && (
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    <strong>Auto-Schedule:</strong> Annual maintenance will be automatically scheduled starting 12 months after registration date, then yearly for 5 years.
-                  </p>
+              {/* Maintenance Schedule Preview */}
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <p className="text-sm font-medium text-emerald-800 mb-2">
+                  <CalendarIcon size={14} className="inline mr-1" />
+                  Yearly Maintenance Schedule:
+                </p>
+                <div className="grid grid-cols-2 gap-1 text-xs text-emerald-700">
+                  {getMaintenanceDates().map((date, idx) => (
+                    <div key={idx}>Year {idx + 1}: {date}</div>
+                  ))}
                 </div>
-              )}
+                {editProduct && (
+                  <p className="text-xs text-emerald-600 mt-2 italic">
+                    * Changing the date will recalculate all yearly maintenance
+                  </p>
+                )}
+              </div>
               
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
@@ -310,65 +379,75 @@ const Products = () => {
                     <TableHead>City</TableHead>
                     <TableHead>Location</TableHead>
                     <TableHead>Registered</TableHead>
+                    <TableHead>Next Maintenance</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredProducts.map((product) => (
-                    <TableRow key={product.id} data-testid={`product-row-${product.id}`}>
-                      <TableCell className="font-medium">{product.serial_number}</TableCell>
-                      <TableCell>{product.model_name}</TableCell>
-                      <TableCell>
-                        <span className="flex items-center gap-1">
-                          <Building2 size={14} className="text-[#0066CC]" />
-                          {product.city}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {product.location_detail ? (
+                  {filteredProducts.map((product) => {
+                    const regDate = new Date(product.registration_date);
+                    const nextMaint = addYears(regDate, 1);
+                    return (
+                      <TableRow key={product.id} data-testid={`product-row-${product.id}`}>
+                        <TableCell className="font-medium">{product.serial_number}</TableCell>
+                        <TableCell>{product.model_name}</TableCell>
+                        <TableCell>
                           <span className="flex items-center gap-1">
-                            <MapPin size={14} className="text-slate-400" />
-                            {product.location_detail}
+                            <Building2 size={14} className="text-[#0066CC]" />
+                            {product.city}
                           </span>
-                        ) : (
-                          <span className="text-slate-400">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <span className="flex items-center gap-1 text-slate-500">
-                          <Calendar size={14} />
-                          {new Date(product.registration_date).toLocaleDateString()}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
-                          {product.status}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(product)}
-                            data-testid={`edit-product-${product.id}`}
-                          >
-                            <Edit size={16} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(product.id)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            data-testid={`delete-product-${product.id}`}
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                        <TableCell>
+                          {product.location_detail ? (
+                            <span className="flex items-center gap-1">
+                              <MapPin size={14} className="text-slate-400" />
+                              {product.location_detail}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <span className="flex items-center gap-1 text-slate-500">
+                            <CalendarIcon size={14} />
+                            {format(regDate, "MMM d, yyyy")}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-emerald-600 font-medium text-sm">
+                            {format(nextMaint, "MMM d, yyyy")}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
+                            {product.status}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(product)}
+                              data-testid={`edit-product-${product.id}`}
+                            >
+                              <Edit size={16} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(product.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              data-testid={`delete-product-${product.id}`}
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

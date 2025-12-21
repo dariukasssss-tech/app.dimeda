@@ -95,9 +95,12 @@ class IssueUpdate(BaseModel):
 class ScheduledMaintenanceBase(BaseModel):
     product_id: str
     scheduled_date: str  # ISO date string
-    maintenance_type: str  # routine, inspection, calibration
+    maintenance_type: str  # routine, inspection, calibration, issue_inspection, issue_service, issue_replacement
     technician_name: Optional[str] = None
     notes: Optional[str] = None
+    source: str = "manual"  # manual, auto_yearly, issue
+    issue_id: Optional[str] = None  # Link to issue if from issue
+    priority: Optional[str] = None  # 12h, 24h for issue-based tasks
 
 class ScheduledMaintenanceCreate(ScheduledMaintenanceBase):
     pass

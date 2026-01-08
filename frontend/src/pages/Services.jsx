@@ -851,23 +851,25 @@ const Services = () => {
                   <p className="text-sm font-medium text-gray-700">Non-Warranty Service Details</p>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="estimated_fix_time">Estimated Fix Time</Label>
+                      <Label htmlFor="estimated_fix_time">Estimated Fix Time (hours)</Label>
                       <Input
                         id="estimated_fix_time"
+                        type="number"
                         value={resolveData.estimated_fix_time}
                         onChange={(e) => setResolveData({ ...resolveData, estimated_fix_time: e.target.value })}
-                        placeholder="e.g., 2 hours"
+                        placeholder="e.g., 2"
                         className="mt-1"
                         data-testid="resolve-fix-time"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="estimated_cost">Estimated Cost</Label>
+                      <Label htmlFor="estimated_cost">Estimated Cost (Eur)</Label>
                       <Input
                         id="estimated_cost"
+                        type="number"
                         value={resolveData.estimated_cost}
                         onChange={(e) => setResolveData({ ...resolveData, estimated_cost: e.target.value })}
-                        placeholder="e.g., €150"
+                        placeholder="e.g., 150"
                         className="mt-1"
                         data-testid="resolve-cost"
                       />

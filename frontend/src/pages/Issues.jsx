@@ -199,34 +199,12 @@ const Issues = () => {
   };
 
   const handleStatusChange = async (issueId, newStatus) => {
-    if (newStatus === "resolved") {
-      setSelectedIssue(issues.find((i) => i.id === issueId));
-      setResolveDialogOpen(true);
-      return;
-    }
     try {
       await axios.put(`${API}/issues/${issueId}`, { status: newStatus });
       toast.success("Status updated");
       fetchData();
     } catch (error) {
       toast.error("Failed to update status");
-    }
-  };
-
-  const handleResolve = async () => {
-    if (!selectedIssue) return;
-    try {
-      await axios.put(`${API}/issues/${selectedIssue.id}`, {
-        status: "resolved",
-        resolution: resolution,
-      });
-      toast.success("Issue resolved");
-      setResolveDialogOpen(false);
-      setResolution("");
-      setSelectedIssue(null);
-      fetchData();
-    } catch (error) {
-      toast.error("Failed to resolve issue");
     }
   };
 

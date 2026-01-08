@@ -103,76 +103,48 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Implementing new features for Dimeda Service Pro:
-  1. Notification System - Bell icon with dropdown for customer issues in Service Pro
-  2. Calendar Integration - Customer issues appear in calendar when technician is assigned
-  3. SLA Timer - 12-hour deadline from issue registration, showing remaining time when technician is assigned
+  Comprehensive system evaluation of Dimeda Service Pro application.
+  Testing all workflows: Issue registration, technician assignment, service resolution, and service records.
 
 backend:
-  - task: "Customer issue creates calendar entry on technician assignment"
+  - task: "Complete workflow test - Issue to Service Record"
     implemented: true
-    working: true
+    working: NA
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: NA
-        agent: "main"
-        comment: "Implemented: When technician is assigned to customer issue, automatically creates calendar entry with SLA deadline (created_at + 12h)"
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED SUCCESSFULLY: Customer issue creation, technician assignment, and calendar integration all working correctly. SLA deadline properly calculated as created_at + 12 hours. Calendar entry created with correct properties (source='customer_issue', maintenance_type='customer_issue', priority='12h'). Unassigned customer issues correctly identified for notification system."
+    needs_retesting: true
 
 frontend:
-  - task: "Notification bell with dropdown showing unassigned customer issues"
+  - task: "Service Pro Portal - Full workflow"
     implemented: true
     working: NA
-    file: "/app/frontend/src/App.js"
+    file: "/app/frontend/src/pages/"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
-    status_history:
-      - working: NA
-        agent: "main"
-        comment: "Implemented bell icon in navigation with badge count, dropdown shows unassigned customer issues"
 
-  - task: "Calendar displays customer issues with SLA countdown"
+  - task: "Customer Pro Portal - Issue registration"
     implemented: true
     working: NA
-    file: "/app/frontend/src/pages/MaintenanceCalendar.jsx"
+    file: "/app/frontend/src/pages/CustomerDashboard.jsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
-    status_history:
-      - working: NA
-        agent: "main"
-        comment: "Added customer_issue source type with purple coloring, SLA timer calculation showing time remaining"
-
-  - task: "Issues page shows SLA timer for customer issues"
-    implemented: true
-    working: NA
-    file: "/app/frontend/src/pages/Issues.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: NA
-        agent: "main"
-        comment: "Added SLA countdown display next to technician assignment dropdown for customer issues"
 
 metadata:
   created_by: "main_agent"
-  version: "1.0"
-  test_sequence: 1
+  version: "2.0"
+  test_sequence: 2
   run_ui: true
 
 test_plan:
   current_focus:
-    - "Notification bell with dropdown showing unassigned customer issues"
-    - "Customer issue creates calendar entry on technician assignment"
-    - "Calendar displays customer issues with SLA countdown"
-    - "Issues page shows SLA timer for customer issues"
+    - "Complete end-to-end workflow testing"
+    - "Issue registration from both portals"
+    - "Technician assignment and SLA tracking"
+    - "Issue resolution with warranty/non-warranty options"
+    - "Service record creation (manual and from issue)"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
@@ -180,39 +152,45 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: |
-      Implemented 3 new features:
-      1. Notification System: Bell icon in Service Pro header shows count of unassigned customer issues, dropdown displays issue details
-      2. Calendar Integration: When technician is assigned to customer issue, creates calendar entry with SLA deadline
-      3. SLA Timer: Shows countdown (e.g., "10h 30m left") on calendar entries and issues page for customer issues
+      COMPREHENSIVE SYSTEM EVALUATION
       
-      Test Flow:
-      - Login to Customer Pro (password: customer2025)
-      - Create a new issue
-      - Login to Service Pro (password: dimeda2025)
-      - Check notification bell shows new customer issue
-      - Assign technician to the issue
-      - Check calendar shows the issue with SLA countdown
-      - Verify SLA timer appears on Issues page
-  - agent: "testing"
-    message: |
-      ✅ BACKEND TESTING COMPLETE - All core features working correctly:
+      Test the complete workflow:
       
-      TESTED SUCCESSFULLY:
-      1. Customer Issue Creation (POST /api/issues/customer) - ✅ Working
-         - Issues correctly marked with source='customer' and severity='high'
-         - Product validation working
+      1. CUSTOMER PORTAL FLOW:
+         - Login to Customer Pro (password: customer2025)
+         - Register a new issue (select city, product, issue type, fill details)
+         - Verify issue appears in customer's list
       
-      2. Calendar Integration (PUT /api/issues/{id} with technician assignment) - ✅ Working
-         - Calendar entry automatically created when technician assigned to customer issue
-         - Entry has correct properties: source='customer_issue', maintenance_type='customer_issue', priority='12h'
-         - SLA deadline correctly calculated as created_at + 12 hours
+      2. SERVICE PRO - NOTIFICATION:
+         - Login to Service Pro (password: dimeda2025)
+         - Check notification bell shows new customer issue
+         - Navigate to Issues page
       
-      3. Notification System Backend (GET /api/issues) - ✅ Working
-         - Unassigned customer issues correctly identified for notification system
-         - Filter working: issues with source='customer' and no technician_name
+      3. ISSUE MANAGEMENT:
+         - View customer-reported issue (gray background, high severity)
+         - Assign technician (dropdown should appear)
+         - Mark as "In Progress"
+         - Verify issue appears in Calendar with SLA countdown
       
-      MINOR ISSUES FOUND (not blocking):
-      - Product update endpoint has server error (520)
-      - Service CSV export has field mismatch error
+      4. SERVICE PAGE - RESOLVE ISSUE:
+         - Navigate to Services page
+         - View "In Progress Issues" tab
+         - Click "Resolve Issue"
+         - Select Warranty or Non-Warranty service type
+         - If Non-Warranty: fill estimated time (hours) and cost (Eur)
+         - Add resolution note
+         - Confirm resolution
       
-      RECOMMENDATION: Main agent should summarize and finish - backend APIs are working correctly for all new features.
+      5. SERVICE RECORD CREATION:
+         - Test "Log New Service" - manual form
+         - Test "Choose Service" - select from non-warranty issues
+         - Verify technician dropdown is editable
+         - Verify date picker works
+      
+      6. VERIFY RESOLVED ISSUE:
+         - Check issue status changed to "resolved"
+         - Verify customer portal shows updated status
+      
+      Credentials:
+      - Service Pro: dimeda2025
+      - Customer Pro: customer2025

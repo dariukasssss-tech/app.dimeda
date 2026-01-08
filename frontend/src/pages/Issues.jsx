@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { API } from "@/App";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +34,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "sonner";
-import { Plus, AlertTriangle, Camera, X, MoreVertical, CheckCircle, Clock, Trash2, Eye, Settings, ChevronDown } from "lucide-react";
+import { Plus, AlertTriangle, Camera, X, MoreVertical, CheckCircle, Clock, Trash2, Eye, Settings, ChevronDown, ListFilter } from "lucide-react";
 
 // Inspection checklist items (same as in Export.jsx)
 const VISUAL_INSPECTION = [

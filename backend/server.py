@@ -69,8 +69,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
             if not auth_token:
                 auth_token = request.headers.get(AUTH_HEADER_NAME)
             
-            # Accept both service and customer tokens
-            if not auth_token or (auth_token not in valid_tokens and auth_token not in valid_customer_tokens):
+            # Accept admin, technician, and customer tokens
+            if not auth_token or (auth_token not in valid_tokens and auth_token not in valid_technician_tokens and auth_token not in valid_customer_tokens):
                 return JSONResponse(
                     status_code=401,
                     content={"detail": "Unauthorized. Please login."}

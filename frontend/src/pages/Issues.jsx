@@ -34,7 +34,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "sonner";
-import { Plus, AlertTriangle, Camera, X, MoreVertical, CheckCircle, Clock, Trash2, Eye, Settings, ChevronDown, ListFilter } from "lucide-react";
+import { Plus, AlertTriangle, Camera, X, MoreVertical, CheckCircle, Clock, Trash2, Eye, Settings, ChevronDown, ListFilter, User } from "lucide-react";
 
 // Inspection checklist items (same as in Export.jsx)
 const VISUAL_INSPECTION = [
@@ -62,6 +62,9 @@ const FUNCTIONALITY_INSPECTION = [
   "The nut on the locking pin is properly tightened",
 ];
 
+// Beta version technician list
+const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];
+
 const Issues = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [issues, setIssues] = useState([]);
@@ -80,6 +83,7 @@ const Issues = () => {
     severity: "",
     title: "",
     description: "",
+    technician_name: "",
   });
   
   // Multi-select states for "other" issue type

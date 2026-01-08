@@ -94,9 +94,6 @@ const Issues = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
-  const [selectedIssue, setSelectedIssue] = useState(null);
-  const [resolution, setResolution] = useState("");
   const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all");
   const [photos, setPhotos] = useState([]);
   const fileInputRef = useRef(null);

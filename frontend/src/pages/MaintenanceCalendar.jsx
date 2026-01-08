@@ -805,6 +805,7 @@ const MaintenanceCalendar = () => {
                     <div className={`w-3 h-12 rounded-full ${
                       item.status === "completed" ? "bg-slate-800" :
                       item.status === "in_progress" ? "bg-blue-500" :
+                      item.source === "customer_issue" ? "bg-purple-500" :
                       item.source === "auto_yearly" || item.maintenance_type === "routine" ? "bg-emerald-500" :
                       item.priority === "12h" ? "bg-orange-500" :
                       item.priority === "24h" ? "bg-red-500" : "bg-blue-500"
@@ -814,14 +815,37 @@ const MaintenanceCalendar = () => {
                         S/N: {getProductSerial(item.product_id)}
                       </p>
                       <p className="text-sm text-slate-600 capitalize">
-                        {item.maintenance_type.replace("_", " ")} • {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
+                        {item.maintenance_type === "customer_issue" ? "Customer Issue" : item.maintenance_type.replace("_", " ")} • {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
                       </p>
-                      <div className="flex items-center gap-2 mt-1">
+                      {/* Notes for customer issues */}
+                      {item.source === "customer_issue" && item.notes && (
+                        <p className="text-xs text-slate-500 mt-1 max-w-md truncate">
+                          {item.notes}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <Badge variant="outline" className="text-xs">
                           <Building2 size={10} className="mr-1" />
                           {getProductCity(item.product_id)}
                         </Badge>
-                        {item.priority && (
+                        {item.source === "customer_issue" && (
+                          <Badge className="text-xs bg-purple-100 text-purple-800">
+                            <Users size={10} className="mr-1" />
+                            Customer Issue
+                          </Badge>
+                        )}
+                        {/* SLA Time Remaining for customer issues */}
+                        {item.source === "customer_issue" && item.status !== "completed" && (() => {
+                          const sla = calculateSLARemaining(item);
+                          if (!sla) return null;
+                          return (
+                            <Badge className={`text-xs ${sla.expired ? "bg-red-500 text-white" : sla.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
+                              <Timer size={10} className="mr-1" />
+                              {sla.text}
+                            </Badge>
+                          );
+                        })()}
+                        {item.priority && item.source !== "customer_issue" && (
                           <Badge className={`text-xs ${item.priority === "12h" ? "bg-orange-100 text-orange-800" : "bg-red-100 text-red-800"}`}>
                             {item.priority}
                           </Badge>

@@ -63,7 +63,6 @@ const MaintenanceCalendar = () => {
   const [upcomingCount, setUpcomingCount] = useState({ upcoming: 0, overdue: 0 });
   const [cityFilter, setCityFilter] = useState("all");
   const [technicianFilter, setTechnicianFilter] = useState("all"); // OPTIMIZATION 5: My Tasks filter
-  const [technicianFilter, setTechnicianFilter] = useState("all");
   const [formData, setFormData] = useState({
     product_id: "",
     scheduled_date: "",
@@ -73,7 +72,6 @@ const MaintenanceCalendar = () => {
   });
 
   const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
-  const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];
 
   useEffect(() => {
     fetchData();

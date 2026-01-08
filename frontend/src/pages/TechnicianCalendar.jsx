@@ -29,6 +29,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 const TechnicianCalendar = ({ selectedTechnician }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [maintenanceItems, setMaintenanceItems] = useState([]);
+  const [issues, setIssues] = useState([]); // Track issues for status updates
   const [unavailableDays, setUnavailableDays] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,9 +51,10 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
 
   const fetchData = async () => {
     try {
-      const [maintenanceRes, productsRes] = await Promise.all([
+      const [maintenanceRes, productsRes, issuesRes] = await Promise.all([
         axios.get(`${API}/scheduled-maintenance`),
         axios.get(`${API}/products`),
+        axios.get(`${API}/issues`),
       ]);
       
       // Filter by selected technician

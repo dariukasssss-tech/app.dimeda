@@ -42,8 +42,12 @@ const Dashboard = () => {
     }
   };
 
-  const StatCard = ({ title, value, icon: Icon, color, testId }) => (
-    <Card className="card-hover" data-testid={testId}>
+  const StatCard = ({ title, value, icon: Icon, color, testId, onClick }) => (
+    <Card 
+      className="card-hover cursor-pointer transition-transform hover:scale-[1.02]" 
+      data-testid={testId}
+      onClick={onClick}
+    >
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
           <div>

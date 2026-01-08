@@ -590,24 +590,44 @@ const Issues = () => {
         </Dialog>
       </div>
 
-      {/* Filter */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <Label className="text-slate-500">Filter by status:</Label>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-40" data-testid="status-filter">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Issues</SelectItem>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
+      {/* Filter Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <FilterCard
+          title="All Issues"
+          value={issueCounts.all}
+          icon={ListFilter}
+          color="bg-slate-600"
+          isActive={statusFilter === "all"}
+          onClick={() => handleFilterChange("all")}
+          testId="filter-all"
+        />
+        <FilterCard
+          title="Open"
+          value={issueCounts.open}
+          icon={AlertTriangle}
+          color="bg-[#FA4616]"
+          isActive={statusFilter === "open"}
+          onClick={() => handleFilterChange("open")}
+          testId="filter-open"
+        />
+        <FilterCard
+          title="In Progress"
+          value={issueCounts.in_progress}
+          icon={Clock}
+          color="bg-[#0066CC]"
+          isActive={statusFilter === "in_progress"}
+          onClick={() => handleFilterChange("in_progress")}
+          testId="filter-in-progress"
+        />
+        <FilterCard
+          title="Resolved"
+          value={issueCounts.resolved}
+          icon={CheckCircle}
+          color="bg-emerald-500"
+          isActive={statusFilter === "resolved"}
+          onClick={() => handleFilterChange("resolved")}
+          testId="filter-resolved"
+        />
       </Card>
 
       {/* Issues List */}

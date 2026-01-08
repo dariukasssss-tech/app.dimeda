@@ -524,6 +524,25 @@ async def update_issue(issue_id: str, update: IssueUpdate):
     # Track when technician was assigned
     if update_data.get("technician_name") and not existing.get("technician_name"):
         update_data["technician_assigned_at"] = datetime.now(timezone.utc).isoformat()
+        
+        # If this is a customer-reported issue, create a calendar entry with SLA deadline
+        if existing.get("source") == "customer":
+            # Calculate SLA deadline: issue created_at + 12 hours
+            created_at = datetime.fromisoformat(existing["created_at"].replace("Z", "+00:00"))
+            sla_deadline = created_at + timedelta(hours=12)
+            
+            # Create scheduled maintenance entry for this customer issue
+            maintenance_obj = ScheduledMaintenance(
+                product_id=existing["product_id"],
+                scheduled_date=sla_deadline.isoformat(),
+                maintenance_type="customer_issue",
+                technician_name=update_data["technician_name"],
+                notes=f"Customer Issue: {existing.get('title', 'N/A')} - SLA: 12h from registration",
+                source="customer_issue",
+                issue_id=issue_id,
+                priority="12h"
+            )
+            await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
     
     if update_data.get("status") == "resolved":
         update_data["resolved_at"] = datetime.now(timezone.utc).isoformat()

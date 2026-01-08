@@ -548,6 +548,250 @@ class DimedasServiceProAPITester:
         
         return success
 
+    # ============ NEW FEATURE TESTS ============
+    
+    def test_customer_issue_creation(self):
+        """Test creating a customer issue"""
+        if not self.test_product_id:
+            print("❌ Skipping - No test product ID available")
+            return False
+            
+        customer_issue_data = {
+            "product_id": self.test_product_id,
+            "issue_type": "electrical",
+            "title": "Customer Reported Issue",
+            "description": "Customer reported electrical malfunction",
+            "product_location": "Hospital Ward A, Room 101",
+            "warranty_status": "warranty"
+        }
+        
+        success, response = self.run_test(
+            "Create Customer Issue",
+            "POST",
+            "issues/customer",
+            200,
+            data=customer_issue_data
+        )
+        
+        if success and 'id' in response:
+            self.test_customer_issue_id = response['id']
+            print(f"   Created customer issue with ID: {self.test_customer_issue_id}")
+            # Verify it's marked as customer source and high severity
+            if response.get('source') == 'customer' and response.get('severity') == 'high':
+                print("   ✅ Customer issue correctly marked with source='customer' and severity='high'")
+            else:
+                print(f"   ❌ Customer issue not properly marked: source={response.get('source')}, severity={response.get('severity')}")
+                return False
+        
+        return success
+
+    def test_technician_assignment_creates_calendar_entry(self):
+        """Test that assigning technician to customer issue creates calendar entry"""
+        if not hasattr(self, 'test_customer_issue_id') or not self.test_customer_issue_id:
+            print("❌ Skipping - No test customer issue ID available")
+            return False
+            
+        # First, get the current count of scheduled maintenance
+        success, initial_maintenance = self.run_test(
+            "Get Initial Maintenance Count",
+            "GET",
+            "scheduled-maintenance",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        initial_count = len(initial_maintenance)
+        print(f"   Initial maintenance count: {initial_count}")
+        
+        # Assign technician to the customer issue
+        assignment_data = {
+            "technician_name": "Sarah Johnson"
+        }
+        
+        success, response = self.run_test(
+            "Assign Technician to Customer Issue",
+            "PUT",
+            f"issues/{self.test_customer_issue_id}",
+            200,
+            data=assignment_data
+        )
+        
+        if not success:
+            return False
+            
+        # Verify technician was assigned
+        if response.get('technician_name') != 'Sarah Johnson':
+            print(f"   ❌ Technician not properly assigned: {response.get('technician_name')}")
+            return False
+            
+        print("   ✅ Technician assigned successfully")
+        
+        # Check if calendar entry was created
+        success, updated_maintenance = self.run_test(
+            "Get Updated Maintenance Count",
+            "GET",
+            "scheduled-maintenance",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        updated_count = len(updated_maintenance)
+        print(f"   Updated maintenance count: {updated_count}")
+        
+        if updated_count <= initial_count:
+            print("   ❌ No new calendar entry created after technician assignment")
+            return False
+            
+        # Find the new calendar entry for customer issue
+        customer_entries = [m for m in updated_maintenance if m.get('source') == 'customer_issue' and m.get('issue_id') == self.test_customer_issue_id]
+        
+        if not customer_entries:
+            print("   ❌ No calendar entry found with source='customer_issue' for this issue")
+            return False
+            
+        calendar_entry = customer_entries[0]
+        self.test_customer_calendar_id = calendar_entry['id']
+        
+        # Verify calendar entry properties
+        expected_properties = {
+            'source': 'customer_issue',
+            'maintenance_type': 'customer_issue',
+            'technician_name': 'Sarah Johnson',
+            'priority': '12h',
+            'issue_id': self.test_customer_issue_id
+        }
+        
+        for prop, expected_value in expected_properties.items():
+            if calendar_entry.get(prop) != expected_value:
+                print(f"   ❌ Calendar entry property {prop} incorrect: expected {expected_value}, got {calendar_entry.get(prop)}")
+                return False
+                
+        print("   ✅ Calendar entry created with correct properties")
+        
+        # Verify SLA deadline calculation (should be created_at + 12 hours)
+        from datetime import datetime, timedelta
+        try:
+            # Get the original issue to check created_at
+            success, issue_details = self.run_test(
+                "Get Customer Issue Details",
+                "GET",
+                f"issues/{self.test_customer_issue_id}",
+                200
+            )
+            
+            if success:
+                created_at = datetime.fromisoformat(issue_details['created_at'].replace('Z', '+00:00'))
+                expected_sla = created_at + timedelta(hours=12)
+                
+                scheduled_date = datetime.fromisoformat(calendar_entry['scheduled_date'].replace('Z', '+00:00'))
+                
+                # Allow some tolerance (within 1 minute)
+                time_diff = abs((scheduled_date - expected_sla).total_seconds())
+                if time_diff <= 60:
+                    print(f"   ✅ SLA deadline correctly calculated: {scheduled_date.isoformat()}")
+                else:
+                    print(f"   ❌ SLA deadline incorrect: expected ~{expected_sla.isoformat()}, got {scheduled_date.isoformat()}")
+                    return False
+        except Exception as e:
+            print(f"   ⚠️  Could not verify SLA calculation: {e}")
+        
+        return True
+
+    def test_get_unassigned_customer_issues(self):
+        """Test getting unassigned customer issues (for notification system)"""
+        # Create another customer issue without technician
+        if not self.test_product_id:
+            print("❌ Skipping - No test product ID available")
+            return False
+            
+        unassigned_issue_data = {
+            "product_id": self.test_product_id,
+            "issue_type": "mechanical",
+            "title": "Unassigned Customer Issue",
+            "description": "This issue should appear in notifications",
+            "product_location": "Hospital Ward B, Room 205"
+        }
+        
+        success, response = self.run_test(
+            "Create Unassigned Customer Issue",
+            "POST",
+            "issues/customer",
+            200,
+            data=unassigned_issue_data
+        )
+        
+        if success and 'id' in response:
+            self.test_unassigned_issue_id = response['id']
+            
+        # Get all issues and filter for unassigned customer issues
+        success, all_issues = self.run_test(
+            "Get All Issues for Notification Check",
+            "GET",
+            "issues",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        # Filter for customer issues without technician
+        unassigned_customer_issues = [
+            issue for issue in all_issues 
+            if issue.get('source') == 'customer' and not issue.get('technician_name')
+        ]
+        
+        print(f"   Found {len(unassigned_customer_issues)} unassigned customer issues")
+        
+        if len(unassigned_customer_issues) == 0:
+            print("   ❌ No unassigned customer issues found for notification system")
+            return False
+            
+        # Verify our test issue is in the list
+        test_issue_found = any(issue['id'] == self.test_unassigned_issue_id for issue in unassigned_customer_issues)
+        
+        if not test_issue_found:
+            print("   ❌ Test unassigned issue not found in results")
+            return False
+            
+        print("   ✅ Unassigned customer issues correctly identified for notification system")
+        return True
+
+    def cleanup_test_customer_data(self):
+        """Clean up customer issue test data"""
+        success_count = 0
+        total_tests = 0
+        
+        # Delete customer calendar entry
+        if hasattr(self, 'test_customer_calendar_id') and self.test_customer_calendar_id:
+            total_tests += 1
+            success, _ = self.run_test(
+                "Delete Customer Calendar Entry",
+                "DELETE",
+                f"scheduled-maintenance/{self.test_customer_calendar_id}",
+                200
+            )
+            if success:
+                success_count += 1
+        
+        # Delete customer issues
+        for issue_attr in ['test_customer_issue_id', 'test_unassigned_issue_id']:
+            if hasattr(self, issue_attr) and getattr(self, issue_attr):
+                total_tests += 1
+                success, _ = self.run_test(
+                    f"Delete {issue_attr.replace('_', ' ').title()}",
+                    "DELETE",
+                    f"issues/{getattr(self, issue_attr)}",
+                    200
+                )
+                if success:
+                    success_count += 1
+        
+        return success_count == total_tests if total_tests > 0 else True
+
 def main():
     print("🚀 Starting Dimeda Service Pro API Tests")
     print("=" * 50)

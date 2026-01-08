@@ -135,10 +135,26 @@ const CustomerDashboard = () => {
     return product?.city || "Unknown";
   };
 
+  // Get display status for customer - "Registered" when technician assigned
+  const getDisplayStatus = (issue) => {
+    if (issue.technician_name && issue.status === "open") {
+      return "registered";
+    }
+    return issue.status;
+  };
+
   const statusIcons = {
     open: <AlertTriangle size={16} className="text-amber-500" />,
+    registered: <CheckCircle size={16} className="text-blue-500" />,
     in_progress: <Clock size={16} className="text-blue-500" />,
     resolved: <CheckCircle size={16} className="text-emerald-500" />,
+  };
+
+  const statusColors = {
+    open: "bg-amber-100 text-amber-800",
+    registered: "bg-blue-100 text-blue-800",
+    in_progress: "bg-blue-100 text-blue-800",
+    resolved: "bg-emerald-100 text-emerald-800",
   };
 
   if (loading) {

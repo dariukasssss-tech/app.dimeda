@@ -108,20 +108,51 @@ const Services = () => {
         service_date: selectedDate.toISOString(),
       });
       toast.success("Service record created successfully");
-      setDialogOpen(false);
-      setFormData({
-        product_id: "",
-        technician_name: "",
-        service_type: "",
-        description: "",
-        issues_found: "",
-        warranty_status: "",
-      });
-      setSelectedDate(new Date());
+      resetDialogState();
       fetchData();
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to create service record");
     }
+  };
+
+  const handleCreateFromIssue = async () => {
+    if (!selectedNonWarrantyIssue) return;
+    
+    const issue = nonWarrantyIssues.find(i => i.id === selectedNonWarrantyIssue);
+    if (!issue) return;
+
+    try {
+      await axios.post(`${API}/services`, {
+        product_id: issue.product_id,
+        technician_name: issue.technician_name || TECHNICIANS[0],
+        service_type: "repair",
+        description: `${issue.title}\n\nResolution: ${issue.resolution || "N/A"}\n\nEstimated Fix Time: ${issue.estimated_fix_time || "N/A"}\nEstimated Cost: ${issue.estimated_cost || "N/A"}`,
+        issues_found: issue.description,
+        warranty_status: "non_warranty",
+        service_date: new Date().toISOString(),
+        linked_issue_id: issue.id,
+      });
+      toast.success("Service record created from issue");
+      resetDialogState();
+      fetchData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to create service record");
+    }
+  };
+
+  const resetDialogState = () => {
+    setDialogOpen(false);
+    setServiceMode("new");
+    setSelectedNonWarrantyIssue("");
+    setFormData({
+      product_id: "",
+      technician_name: "",
+      service_type: "",
+      description: "",
+      issues_found: "",
+      warranty_status: "",
+    });
+    setSelectedDate(new Date());
   };
 
   const handleDelete = async (id) => {

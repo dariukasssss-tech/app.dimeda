@@ -333,6 +333,10 @@ async def create_product(product: ProductCreate):
 @api_router.get("/products", response_model=List[Product])
 async def get_products():
     products = await db.products.find({}, {"_id": 0}).to_list(1000)
+    # Ensure all products have valid registration_date
+    for product in products:
+        if not product.get("registration_date"):
+            product["registration_date"] = datetime.now(timezone.utc).isoformat()
     return products
 
 @api_router.get("/products/{product_id}", response_model=Product)

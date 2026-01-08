@@ -133,6 +133,7 @@ const Issues = () => {
       severity: "",
       title: "",
       description: "",
+      technician_name: "",
     });
     setPhotos([]);
     setSelectedVisualIssues([]);

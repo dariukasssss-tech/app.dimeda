@@ -216,6 +216,16 @@ const Issues = () => {
     }
   };
 
+  const handleTechnicianChange = async (issueId, technicianName) => {
+    try {
+      await axios.put(`${API}/issues/${issueId}`, { technician_name: technicianName });
+      toast.success(`Assigned to ${technicianName}`);
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to assign technician");
+    }
+  };
+
   const getProductSerial = (productId) => {
     const product = products.find((p) => p.id === productId);
     return product?.serial_number || "Unknown";

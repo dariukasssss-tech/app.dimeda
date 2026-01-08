@@ -709,11 +709,21 @@ const Issues = () => {
           </Card>
         ) : (
           filteredIssues.map((issue) => (
-            <Card key={issue.id} className="card-hover" data-testid={`issue-card-${issue.id}`}>
+            <Card 
+              key={issue.id} 
+              className={`card-hover ${issue.source === "customer" ? "bg-slate-50 border-slate-300" : ""}`}
+              data-testid={`issue-card-${issue.id}`}
+            >
               <CardContent className="pt-6">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 flex-wrap">
+                      {/* Customer badge */}
+                      {issue.source === "customer" && (
+                        <span className="px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                          Customer Reported
+                        </span>
+                      )}
                       <span className={`status-badge status-${issue.status}`}>
                         {statusIcons[issue.status]}
                         <span className="ml-1">{issue.status.replace("_", " ")}</span>
@@ -725,10 +735,27 @@ const Issues = () => {
                         {issue.issue_type}
                       </span>
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-900 mt-3" style={{ fontFamily: 'Manrope, sans-serif' }}>
+                    <h3 className={`text-lg font-semibold mt-3 ${issue.source === "customer" ? "text-slate-700" : "text-slate-900"}`} style={{ fontFamily: 'Manrope, sans-serif' }}>
                       {issue.title}
                     </h3>
-                    <p className="text-sm text-slate-500 mt-1">S/N: {getProductSerial(issue.product_id)}</p>
+                    
+                    {/* Product info with City for customer issues */}
+                    <div className={`text-sm mt-1 ${issue.source === "customer" ? "text-slate-500" : "text-slate-500"}`}>
+                      <span>S/N: {getProductSerial(issue.product_id)}</span>
+                      {issue.source === "customer" && (
+                        <>
+                          <span className="mx-2">•</span>
+                          <span className="font-medium">Place: {getProductCity(issue.product_id)}</span>
+                        </>
+                      )}
+                    </div>
+                    
+                    {/* Product Location for customer issues */}
+                    {issue.source === "customer" && issue.product_location && (
+                      <p className="text-sm text-slate-500 mt-1">
+                        <span className="font-medium">Location:</span> {issue.product_location}
+                      </p>
+                    )}
                     
                     {/* Technician Assignment */}
                     <div className="flex items-center gap-2 mt-2">

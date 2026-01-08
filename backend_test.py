@@ -64,8 +64,9 @@ class DimedasServiceProAPITester:
         """Test creating a product"""
         product_data = {
             "serial_number": "TEST-001",
-            "model_name": "Vivera Monobloc",
-            "location": "Test Location",
+            "model_name": "Powered Stretchers",
+            "city": "Vilnius",
+            "location_detail": "Test Hospital Ward A",
             "notes": "Test product for API testing"
         }
         

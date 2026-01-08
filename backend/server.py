@@ -141,6 +141,7 @@ class Issue(IssueBase):
     resolution: Optional[str] = None
     technician_name: Optional[str] = None
     warranty_status: Optional[str] = None
+    product_location: Optional[str] = None  # Address/location info from customer
     source: Optional[str] = None  # "customer" for customer-reported issues
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     resolved_at: Optional[str] = None

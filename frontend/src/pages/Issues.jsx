@@ -376,6 +376,25 @@ const Issues = () => {
               </div>
 
               <div>
+                <Label>Assign Technician</Label>
+                <Select
+                  value={formData.technician_name}
+                  onValueChange={(value) => setFormData({ ...formData, technician_name: value })}
+                >
+                  <SelectTrigger className="mt-1" data-testid="issue-select-technician">
+                    <SelectValue placeholder="Select technician (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TECHNICIANS.map((tech) => (
+                      <SelectItem key={tech} value={tech}>
+                        {tech}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
                 <Label htmlFor="title">Title *</Label>
                 <Input
                   id="title"

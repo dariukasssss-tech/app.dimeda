@@ -361,6 +361,10 @@ async def update_product(product_id: str, product: ProductCreate):
     
     update_data = product.model_dump()
     
+    # Ensure registration_date is preserved if not provided in update
+    if not update_data.get("registration_date"):
+        update_data["registration_date"] = existing.get("registration_date")
+    
     # Check if registration date changed
     old_reg_date = existing.get("registration_date", "")[:10]
     new_reg_date = (update_data.get("registration_date") or "")[:10]

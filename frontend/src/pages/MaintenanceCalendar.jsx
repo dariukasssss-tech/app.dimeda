@@ -615,14 +615,21 @@ const MaintenanceCalendar = () => {
 
             <div>
               <Label htmlFor="technician_name">Assigned Technician</Label>
-              <Input
-                id="technician_name"
+              <Select
                 value={formData.technician_name}
-                onChange={(e) => setFormData({ ...formData, technician_name: e.target.value })}
-                placeholder="Enter technician name"
-                data-testid="schedule-input-technician"
-                className="mt-1"
-              />
+                onValueChange={(value) => setFormData({ ...formData, technician_name: value })}
+              >
+                <SelectTrigger className="mt-1" data-testid="schedule-select-technician">
+                  <SelectValue placeholder="Select technician (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TECHNICIANS.map((tech) => (
+                    <SelectItem key={tech} value={tech}>
+                      {tech}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>

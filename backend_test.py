@@ -132,8 +132,9 @@ class DimedasServiceProAPITester:
             
         update_data = {
             "serial_number": "TEST-001",
-            "model_name": "Vivera Monobloc Updated",
-            "location": "Updated Location",
+            "model_name": "Roll-in stretchers",
+            "city": "Kaunas",
+            "location_detail": "Updated Hospital Location",
             "notes": "Updated test product"
         }
         

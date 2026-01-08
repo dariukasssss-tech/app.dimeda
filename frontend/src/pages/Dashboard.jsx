@@ -94,6 +94,7 @@ const Dashboard = () => {
           icon={Package}
           color="bg-[#0066CC]"
           testId="stat-total-products"
+          onClick={() => navigate("/products")}
         />
         <StatCard
           title="Service Records"
@@ -101,6 +102,7 @@ const Dashboard = () => {
           icon={Wrench}
           color="bg-slate-700"
           testId="stat-total-services"
+          onClick={() => navigate("/services")}
         />
         <StatCard
           title="Open Issues"
@@ -108,6 +110,7 @@ const Dashboard = () => {
           icon={AlertTriangle}
           color="bg-[#FA4616]"
           testId="stat-open-issues"
+          onClick={() => navigate("/issues?status=open")}
         />
         <StatCard
           title="Resolved Issues"
@@ -115,6 +118,7 @@ const Dashboard = () => {
           icon={CheckCircle}
           color="bg-emerald-500"
           testId="stat-resolved-issues"
+          onClick={() => navigate("/issues?status=resolved")}
         />
       </div>
 

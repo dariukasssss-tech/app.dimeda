@@ -316,8 +316,13 @@ async def logout(request: Request, response: Response):
     if not auth_token:
         auth_token = request.headers.get(AUTH_HEADER_NAME)
     
-    if auth_token and auth_token in valid_tokens:
-        valid_tokens.discard(auth_token)
+    if auth_token:
+        if auth_token in valid_tokens:
+            valid_tokens.discard(auth_token)
+        if auth_token in valid_technician_tokens:
+            valid_technician_tokens.discard(auth_token)
+        if auth_token in valid_customer_tokens:
+            valid_customer_tokens.discard(auth_token)
     
     response.delete_cookie(key=AUTH_COOKIE_NAME, path="/")
     return {"message": "Logged out successfully"}

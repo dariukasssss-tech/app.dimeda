@@ -303,7 +303,9 @@ async def check_auth(request: Request):
     
     if auth_token:
         if auth_token in valid_tokens:
-            return {"authenticated": True, "type": "service"}
+            return {"authenticated": True, "type": "admin"}
+        elif auth_token in valid_technician_tokens:
+            return {"authenticated": True, "type": "technician"}
         elif auth_token in valid_customer_tokens:
             return {"authenticated": True, "type": "customer"}
     return {"authenticated": False, "type": None}

@@ -63,6 +63,7 @@ const FUNCTIONALITY_INSPECTION = [
 ];
 
 const Issues = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [issues, setIssues] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +71,7 @@ const Issues = () => {
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [resolution, setResolution] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all");
   const [photos, setPhotos] = useState([]);
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({

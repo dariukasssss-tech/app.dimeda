@@ -184,6 +184,7 @@ const Services = () => {
       resolution: "",
       estimated_fix_time: "",
       estimated_cost: "",
+      create_service_record: true, // Default checked for non-warranty
     });
     setResolveDialogOpen(true);
   };
@@ -197,8 +198,13 @@ const Services = () => {
         warranty_service_type: resolveData.warranty_service_type,
         estimated_fix_time: resolveData.warranty_service_type === "non_warranty" ? resolveData.estimated_fix_time : null,
         estimated_cost: resolveData.warranty_service_type === "non_warranty" ? resolveData.estimated_cost : null,
+        // OPTIMIZATION 3: Auto-create service record for non-warranty
+        create_service_record: resolveData.warranty_service_type === "non_warranty" ? resolveData.create_service_record : false,
       });
-      toast.success("Issue resolved successfully");
+      const successMsg = resolveData.warranty_service_type === "non_warranty" && resolveData.create_service_record 
+        ? "Issue resolved & service record created" 
+        : "Issue resolved successfully";
+      toast.success(successMsg);
       setResolveDialogOpen(false);
       setSelectedIssue(null);
       setResolveData({
@@ -206,6 +212,7 @@ const Services = () => {
         resolution: "",
         estimated_fix_time: "",
         estimated_cost: "",
+        create_service_record: true,
       });
       fetchData();
     } catch (error) {

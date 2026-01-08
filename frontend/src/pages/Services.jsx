@@ -30,6 +30,9 @@ import { toast } from "sonner";
 import { Plus, Wrench, CalendarIcon, User, FileText, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
+// Beta version technician list
+const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];
+
 const Services = () => {
   const [services, setServices] = useState([]);
   const [products, setProducts] = useState([]);

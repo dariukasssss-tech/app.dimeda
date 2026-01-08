@@ -744,6 +744,19 @@ const Issues = () => {
                         </SelectContent>
                       </Select>
                     </div>
+
+                    {/* Warranty Status Badge */}
+                    {issue.warranty_status && (
+                      <div className="mt-2">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          issue.warranty_status === "warranty" 
+                            ? "bg-green-100 text-green-800" 
+                            : "bg-gray-100 text-gray-800"
+                        }`}>
+                          {issue.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
+                        </span>
+                      </div>
+                    )}
                     
                     <p className="text-slate-600 mt-2 whitespace-pre-line">{issue.description}</p>
                     {issue.resolution && (

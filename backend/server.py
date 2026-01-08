@@ -44,14 +44,19 @@ def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
 # Store valid tokens (in production, use Redis or database)
-valid_tokens = set()
+valid_tokens = set()  # Admin tokens
+valid_technician_tokens = set()  # Technician tokens
 valid_customer_tokens = set()
+
+# Get passwords from environment
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin2025")
+TECHNICIAN_PASSWORD = os.environ.get("TECHNICIAN_PASSWORD", "service2025")
 
 # Auth Middleware
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         # Skip auth for login endpoints and CORS preflight
-        if request.url.path in ["/api/auth/login", "/api/auth/customer-login", "/api/auth/check", "/api/auth/logout"]:
+        if request.url.path in ["/api/auth/login", "/api/auth/customer-login", "/api/auth/technician-login", "/api/auth/check", "/api/auth/logout"]:
             return await call_next(request)
         
         if request.method == "OPTIONS":

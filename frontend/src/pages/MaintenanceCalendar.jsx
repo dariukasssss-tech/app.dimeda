@@ -47,6 +47,8 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 const MaintenanceCalendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [maintenanceItems, setMaintenanceItems] = useState([]);
+  const [issues, setIssues] = useState([]);
+  const [services, setServices] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -75,15 +77,19 @@ const MaintenanceCalendar = () => {
       const year = currentMonth.getFullYear();
       const month = currentMonth.getMonth() + 1;
       
-      const [maintenanceRes, productsRes, countRes] = await Promise.all([
+      const [maintenanceRes, productsRes, countRes, issuesRes, servicesRes] = await Promise.all([
         axios.get(`${API}/scheduled-maintenance?year=${year}&month=${month}`),
         axios.get(`${API}/products`),
         axios.get(`${API}/scheduled-maintenance/upcoming/count`),
+        axios.get(`${API}/issues`),
+        axios.get(`${API}/services`),
       ]);
       
       setMaintenanceItems(maintenanceRes.data);
       setProducts(productsRes.data);
       setUpcomingCount(countRes.data);
+      setIssues(issuesRes.data);
+      setServices(servicesRes.data);
     } catch (error) {
       toast.error("Failed to fetch data");
     } finally {

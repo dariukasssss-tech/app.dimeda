@@ -618,8 +618,16 @@ const Products = () => {
                                       <Badge className={getSeverityColor(issue.severity)}>
                                         {issue.severity}
                                       </Badge>
+                                      {issue.warranty_status && (
+                                        <Badge className={issue.warranty_status === "warranty" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                                          {issue.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
+                                        </Badge>
+                                      )}
                                     </div>
-                                    <p className="text-sm text-slate-500 mt-1">{issue.issue_type}</p>
+                                    <p className="text-sm text-slate-500 mt-1">
+                                      {issue.issue_type}
+                                      {issue.technician_name && <span className="ml-2 text-[#0066CC]">• {issue.technician_name}</span>}
+                                    </p>
                                     <p className="text-sm text-slate-600 mt-2">{issue.description}</p>
                                     {issue.resolution && (
                                       <div className="mt-2 p-2 bg-emerald-50 rounded text-sm text-emerald-800">

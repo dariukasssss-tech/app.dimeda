@@ -65,6 +65,29 @@ const FUNCTIONALITY_INSPECTION = [
 // Beta version technician list
 const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];
 
+// Filter button card component - moved outside to avoid re-creation
+const FilterCard = ({ title, value, icon: Icon, color, isActive, onClick, testId }) => (
+  <Card 
+    className={`cursor-pointer transition-all ${isActive ? 'ring-2 ring-offset-2 ring-[#0066CC] scale-[1.02]' : 'hover:scale-[1.02]'}`}
+    data-testid={testId}
+    onClick={onClick}
+  >
+    <CardContent className="pt-4 pb-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-medium text-slate-500">{title}</p>
+          <p className="text-2xl font-bold text-slate-900 mt-0.5" style={{ fontFamily: 'Manrope, sans-serif' }}>
+            {value}
+          </p>
+        </div>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
+          <Icon className="text-white" size={20} />
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 const Issues = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [issues, setIssues] = useState([]);

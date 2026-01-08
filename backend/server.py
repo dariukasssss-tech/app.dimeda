@@ -50,8 +50,8 @@ valid_customer_tokens = set()
 # Auth Middleware
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        # Skip auth for login endpoint and CORS preflight
-        if request.url.path in ["/api/auth/login", "/api/auth/check", "/api/auth/logout"]:
+        # Skip auth for login endpoints and CORS preflight
+        if request.url.path in ["/api/auth/login", "/api/auth/customer-login", "/api/auth/check", "/api/auth/logout"]:
             return await call_next(request)
         
         if request.method == "OPTIONS":
@@ -64,7 +64,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
             if not auth_token:
                 auth_token = request.headers.get(AUTH_HEADER_NAME)
             
-            if not auth_token or auth_token not in valid_tokens:
+            # Accept both service and customer tokens
+            if not auth_token or (auth_token not in valid_tokens and auth_token not in valid_customer_tokens):
                 return JSONResponse(
                     status_code=401,
                     content={"detail": "Unauthorized. Please login."}

@@ -161,6 +161,9 @@ class IssueUpdate(BaseModel):
     resolution: Optional[str] = None
     technician_name: Optional[str] = None
     warranty_status: Optional[str] = None
+    warranty_service_type: Optional[str] = None  # warranty, non_warranty
+    estimated_fix_time: Optional[str] = None  # For non-warranty
+    estimated_cost: Optional[str] = None  # For non-warranty
 
 # Scheduled Maintenance Models
 class ScheduledMaintenanceBase(BaseModel):

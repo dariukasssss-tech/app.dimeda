@@ -63,6 +63,7 @@ const MaintenanceCalendar = () => {
   });
 
   const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
+  const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];
 
   useEffect(() => {
     fetchData();

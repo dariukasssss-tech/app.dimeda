@@ -259,7 +259,7 @@ const Services = () => {
           </h1>
           <p className="text-slate-500 mt-1">Manage in-progress issues and service records</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetDialogState(); }}>
           <DialogTrigger asChild>
             <Button className="bg-[#0066CC] hover:bg-[#0052A3]" data-testid="add-service-btn">
               <Plus size={18} className="mr-2" />
@@ -268,8 +268,106 @@ const Services = () => {
           </DialogTrigger>
           <DialogContent className="max-w-lg" data-testid="service-dialog">
             <DialogHeader>
-              <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Log Service Record</DialogTitle>
+              <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Add Service Record</DialogTitle>
             </DialogHeader>
+            
+            {/* Service Mode Selection */}
+            <div className="flex gap-2 mt-4">
+              <Button
+                type="button"
+                variant={serviceMode === "new" ? "default" : "outline"}
+                className={serviceMode === "new" ? "bg-[#0066CC] hover:bg-[#0052A3] flex-1" : "flex-1"}
+                onClick={() => setServiceMode("new")}
+                data-testid="mode-new-service"
+              >
+                <Plus size={16} className="mr-2" />
+                Log New Service
+              </Button>
+              <Button
+                type="button"
+                variant={serviceMode === "from_issue" ? "default" : "outline"}
+                className={serviceMode === "from_issue" ? "bg-[#0066CC] hover:bg-[#0052A3] flex-1" : "flex-1"}
+                onClick={() => setServiceMode("from_issue")}
+                data-testid="mode-from-issue"
+              >
+                <FileCheck size={16} className="mr-2" />
+                Choose Service
+              </Button>
+            </div>
+
+            {/* From Issue Mode */}
+            {serviceMode === "from_issue" && (
+              <div className="space-y-4 mt-4">
+                <div>
+                  <Label>Select Non-Warranty Issue *</Label>
+                  <Select
+                    value={selectedNonWarrantyIssue}
+                    onValueChange={setSelectedNonWarrantyIssue}
+                  >
+                    <SelectTrigger className="mt-1" data-testid="select-non-warranty-issue">
+                      <SelectValue placeholder="Select a resolved non-warranty issue" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {nonWarrantyIssues.length === 0 ? (
+                        <div className="p-3 text-sm text-slate-500 text-center">
+                          No non-warranty issues available
+                        </div>
+                      ) : (
+                        nonWarrantyIssues.map((issue) => (
+                          <SelectItem key={issue.id} value={issue.id}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{issue.title}</span>
+                              <span className="text-xs text-slate-500">
+                                S/N: {getProductSerial(issue.product_id)} • {issue.technician_name || "No technician"}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Preview selected issue */}
+                {selectedNonWarrantyIssue && (() => {
+                  const issue = nonWarrantyIssues.find(i => i.id === selectedNonWarrantyIssue);
+                  if (!issue) return null;
+                  return (
+                    <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                      <h4 className="font-medium text-slate-900 mb-2">{issue.title}</h4>
+                      <div className="space-y-1 text-sm text-slate-600">
+                        <p><strong>Product:</strong> S/N: {getProductSerial(issue.product_id)}</p>
+                        <p><strong>Technician:</strong> {issue.technician_name || "Not assigned"}</p>
+                        {issue.estimated_fix_time && <p><strong>Est. Fix Time:</strong> {issue.estimated_fix_time}</p>}
+                        {issue.estimated_cost && <p><strong>Est. Cost:</strong> {issue.estimated_cost}</p>}
+                        {issue.resolution && <p><strong>Resolution:</strong> {issue.resolution}</p>}
+                      </div>
+                      <Badge className="mt-2 bg-gray-100 text-gray-800">
+                        <ShieldOff size={12} className="mr-1" /> Non-Warranty
+                      </Badge>
+                    </div>
+                  );
+                })()}
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleCreateFromIssue}
+                    className="bg-[#0066CC] hover:bg-[#0052A3]"
+                    disabled={!selectedNonWarrantyIssue}
+                    data-testid="create-from-issue-btn"
+                  >
+                    Create Service Record
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* New Service Mode - Original Form */}
+            {serviceMode === "new" && (
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               <div>
                 <Label>Product *</Label>

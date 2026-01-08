@@ -34,7 +34,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "sonner";
-import { Plus, AlertTriangle, Camera, X, MoreVertical, CheckCircle, Clock, Trash2, Eye, Settings, ChevronDown, ListFilter, User } from "lucide-react";
+import { Plus, AlertTriangle, Camera, X, MoreVertical, CheckCircle, Clock, Trash2, Eye, Settings, ChevronDown, ListFilter, User, Timer } from "lucide-react";
 
 // Inspection checklist items (same as in Export.jsx)
 const VISUAL_INSPECTION = [

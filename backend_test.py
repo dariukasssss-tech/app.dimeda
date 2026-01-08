@@ -822,6 +822,11 @@ def main():
         tester.test_update_issue_status,
         tester.test_resolve_issue,
         
+        # NEW FEATURE TESTS - Customer Issues & Calendar Integration
+        tester.test_customer_issue_creation,
+        tester.test_technician_assignment_creates_calendar_entry,
+        tester.test_get_unassigned_customer_issues,
+        
         # Scheduled Maintenance tests
         tester.test_create_scheduled_maintenance,
         tester.test_get_scheduled_maintenance,
@@ -842,6 +847,7 @@ def main():
         # Cleanup tests
         tester.test_delete_service,
         tester.test_delete_issue,
+        tester.cleanup_test_customer_data,
         tester.test_delete_scheduled_maintenance,
         tester.test_delete_product,
     ]

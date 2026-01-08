@@ -68,6 +68,7 @@ const Services = () => {
     resolution: "",
     estimated_fix_time: "",
     estimated_cost: "",
+    create_service_record: true, // OPTIMIZATION 3: Default to auto-create service record
   });
 
   // Warranty options

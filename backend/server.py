@@ -141,8 +141,17 @@ class Issue(IssueBase):
     resolution: Optional[str] = None
     technician_name: Optional[str] = None
     warranty_status: Optional[str] = None
+    source: Optional[str] = None  # "customer" for customer-reported issues
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     resolved_at: Optional[str] = None
+
+# Customer Issue Create model (simpler than regular issue)
+class CustomerIssueCreate(BaseModel):
+    product_id: str
+    issue_type: str
+    title: str
+    description: str
+    warranty_status: Optional[str] = None
 
 class IssueUpdate(BaseModel):
     status: Optional[str] = None

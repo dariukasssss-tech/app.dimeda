@@ -815,7 +815,13 @@ const MaintenanceCalendar = () => {
                         S/N: {getProductSerial(item.product_id)}
                       </p>
                       <p className="text-sm text-slate-600 capitalize">
-                        {item.maintenance_type === "customer_issue" ? "Customer Issue" : item.maintenance_type.replace("_", " ")} • {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
+                        {item.maintenance_type === "customer_issue" ? "Customer Issue" : item.maintenance_type.replace("_", " ")} • {item.source === "customer_issue" ? (
+                          <span className="font-medium text-purple-700">
+                            Solve by: {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
+                          </span>
+                        ) : (
+                          format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")
+                        )}
                       </p>
                       {/* Notes for customer issues */}
                       {item.source === "customer_issue" && item.notes && (

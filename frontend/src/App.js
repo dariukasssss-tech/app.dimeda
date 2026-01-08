@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route, NavLink, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, NavLink, useLocation, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import Issues from "@/pages/Issues";
 import Export from "@/pages/Export";
 import MaintenanceCalendar from "@/pages/MaintenanceCalendar";
 import Login from "@/pages/Login";
+import CustomerDashboard from "@/pages/CustomerDashboard";
 
 // Icons
 import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X, CalendarDays, LogOut } from "lucide-react";
@@ -20,8 +21,9 @@ import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X, Cal
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
 
-// Auth token storage key
+// Auth token storage keys
 const AUTH_TOKEN_KEY = "dimeda_auth_token";
+const AUTH_TYPE_KEY = "dimeda_auth_type";
 
 // Configure axios defaults
 axios.defaults.withCredentials = true;
@@ -37,8 +39,15 @@ axios.interceptors.request.use((config) => {
 
 // Export auth helper functions
 export const getAuthToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
-export const setAuthToken = (token) => localStorage.setItem(AUTH_TOKEN_KEY, token);
-export const clearAuthToken = () => localStorage.removeItem(AUTH_TOKEN_KEY);
+export const getAuthType = () => localStorage.getItem(AUTH_TYPE_KEY);
+export const setAuthToken = (token, type = "service") => {
+  localStorage.setItem(AUTH_TOKEN_KEY, token);
+  localStorage.setItem(AUTH_TYPE_KEY, type);
+};
+export const clearAuthToken = () => {
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+  localStorage.removeItem(AUTH_TYPE_KEY);
+};
 
 // Navigation Component
 const Navigation = ({ onLogout }) => {

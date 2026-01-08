@@ -880,36 +880,6 @@ const Issues = () => {
           ))
         )}
       </div>
-
-      {/* Remove old Resolve Dialog - resolution is now only from Service page */}
-    </div>
-  );
-};
-
-export default Issues;
-                onChange={(e) => setResolution(e.target.value)}
-                placeholder="Describe how the issue was resolved..."
-                className="mt-1"
-                rows={4}
-                data-testid="resolution-input"
-              />
-            </div>
-            <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setResolveDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleResolve}
-                className="bg-emerald-600 hover:bg-emerald-700"
-                disabled={!resolution.trim()}
-                data-testid="confirm-resolve-btn"
-              >
-                Resolve Issue
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

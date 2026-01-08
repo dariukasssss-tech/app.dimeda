@@ -236,6 +236,11 @@ const Issues = () => {
     return product?.serial_number || "Unknown";
   };
 
+  const getProductCity = (productId) => {
+    const product = products.find((p) => p.id === productId);
+    return product?.city || "Unknown";
+  };
+
   // Calculate counts for each status
   const issueCounts = {
     all: issues.length,

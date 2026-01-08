@@ -30,6 +30,7 @@ app = FastAPI(title="Dimeda Service Pro API")
 
 # Auth configuration
 APP_ACCESS_PASSWORD = os.environ.get('APP_ACCESS_PASSWORD', '')
+CUSTOMER_ACCESS_PASSWORD = os.environ.get('CUSTOMER_ACCESS_PASSWORD', 'customer2025')  # Default customer password
 AUTH_COOKIE_NAME = "dimeda_auth"
 AUTH_HEADER_NAME = "X-Auth-Token"
 AUTH_TOKEN_EXPIRY_DAYS = 7

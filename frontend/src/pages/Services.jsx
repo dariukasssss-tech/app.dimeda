@@ -900,6 +900,23 @@ const Services = () => {
                 />
               </div>
               
+              {/* OPTIMIZATION 3: Auto-create service record checkbox for non-warranty */}
+              {resolveData.warranty_service_type === "non_warranty" && (
+                <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <input
+                    type="checkbox"
+                    id="create_service_record"
+                    checked={resolveData.create_service_record}
+                    onChange={(e) => setResolveData({ ...resolveData, create_service_record: e.target.checked })}
+                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    data-testid="create-service-checkbox"
+                  />
+                  <label htmlFor="create_service_record" className="text-sm text-blue-800">
+                    Automatically create Service Record from this issue
+                  </label>
+                </div>
+              )}
+              
               <div className="flex justify-end gap-3 pt-4">
                 <Button variant="outline" onClick={() => setResolveDialogOpen(false)}>
                   Cancel

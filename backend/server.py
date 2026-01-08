@@ -123,6 +123,7 @@ class IssueBase(BaseModel):
     severity: str  # low, medium, high, critical
     title: str
     description: str
+    technician_name: Optional[str] = None  # Assigned technician
 
 class IssueCreate(IssueBase):
     photos: Optional[List[str]] = []  # base64 encoded images
@@ -133,12 +134,14 @@ class Issue(IssueBase):
     status: str = "open"  # open, in_progress, resolved
     photos: List[str] = []
     resolution: Optional[str] = None
+    technician_name: Optional[str] = None
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     resolved_at: Optional[str] = None
 
 class IssueUpdate(BaseModel):
     status: Optional[str] = None
     resolution: Optional[str] = None
+    technician_name: Optional[str] = None
 
 # Scheduled Maintenance Models
 class ScheduledMaintenanceBase(BaseModel):

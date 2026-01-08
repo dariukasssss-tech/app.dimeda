@@ -45,6 +45,7 @@ def hash_password(password: str) -> str:
 
 # Store valid tokens (in production, use Redis or database)
 valid_tokens = set()
+valid_customer_tokens = set()
 
 # Auth Middleware
 class AuthMiddleware(BaseHTTPMiddleware):

@@ -140,6 +140,7 @@ class Issue(IssueBase):
     photos: List[str] = []
     resolution: Optional[str] = None
     technician_name: Optional[str] = None
+    technician_assigned_at: Optional[str] = None  # When technician was assigned
     warranty_status: Optional[str] = None
     product_location: Optional[str] = None  # Address/location info from customer
     source: Optional[str] = None  # "customer" for customer-reported issues

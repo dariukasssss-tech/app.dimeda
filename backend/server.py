@@ -167,6 +167,7 @@ class IssueUpdate(BaseModel):
     warranty_service_type: Optional[str] = None  # warranty, non_warranty
     estimated_fix_time: Optional[str] = None  # For non-warranty
     estimated_cost: Optional[str] = None  # For non-warranty
+    create_service_record: Optional[bool] = None  # OPTIMIZATION 3: Auto-create service record
 
 # Scheduled Maintenance Models
 class ScheduledMaintenanceBase(BaseModel):

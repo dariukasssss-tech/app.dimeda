@@ -237,7 +237,12 @@ const Dashboard = () => {
                           {issue.status.replace("_", " ")}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-500">S/N: {issue.product_serial || "Unknown"} • {issue.issue_type}</p>
+                      <p className="text-sm text-slate-500">
+                        S/N: {issue.product_serial || "Unknown"} • {issue.issue_type}
+                        {issue.technician_name && (
+                          <span className="ml-2 text-[#0066CC]">• {issue.technician_name}</span>
+                        )}
+                      </p>
                     </div>
                     <span className={`status-badge severity-${issue.severity}`}>
                       {issue.severity}

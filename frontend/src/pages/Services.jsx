@@ -178,15 +178,21 @@ const Services = () => {
 
               <div>
                 <Label htmlFor="technician_name">Technician Name *</Label>
-                <Input
-                  id="technician_name"
+                <Select
                   value={formData.technician_name}
-                  onChange={(e) => setFormData({ ...formData, technician_name: e.target.value })}
-                  placeholder="Enter technician name"
-                  required
-                  data-testid="input-technician"
-                  className="mt-1"
-                />
+                  onValueChange={(value) => setFormData({ ...formData, technician_name: value })}
+                >
+                  <SelectTrigger className="mt-1" data-testid="select-technician">
+                    <SelectValue placeholder="Select technician" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TECHNICIANS.map((tech) => (
+                      <SelectItem key={tech} value={tech}>
+                        {tech}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>

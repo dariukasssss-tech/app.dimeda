@@ -661,11 +661,16 @@ const Products = () => {
                               <CardContent className="pt-4">
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 flex-wrap">
                                       <Badge variant="outline" className="capitalize">{service.service_type}</Badge>
                                       <span className="text-sm text-slate-500">
                                         {new Date(service.service_date).toLocaleDateString()}
                                       </span>
+                                      {service.warranty_status && (
+                                        <Badge className={service.warranty_status === "warranty" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                                          {service.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
+                                        </Badge>
+                                      )}
                                     </div>
                                     <p className="text-sm text-slate-600 mt-2">{service.description}</p>
                                     {service.issues_found && (

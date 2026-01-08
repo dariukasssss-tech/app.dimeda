@@ -106,6 +106,7 @@ class ServiceRecordBase(BaseModel):
     service_type: str  # maintenance, repair, inspection
     description: str
     issues_found: Optional[str] = None
+    warranty_status: Optional[str] = None  # warranty, non_warranty
 
 class ServiceRecordCreate(ServiceRecordBase):
     service_date: Optional[str] = None
@@ -124,6 +125,7 @@ class IssueBase(BaseModel):
     title: str
     description: str
     technician_name: Optional[str] = None  # Assigned technician
+    warranty_status: Optional[str] = None  # warranty, non_warranty
 
 class IssueCreate(IssueBase):
     photos: Optional[List[str]] = []  # base64 encoded images
@@ -135,6 +137,7 @@ class Issue(IssueBase):
     photos: List[str] = []
     resolution: Optional[str] = None
     technician_name: Optional[str] = None
+    warranty_status: Optional[str] = None
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     resolved_at: Optional[str] = None
 
@@ -142,6 +145,7 @@ class IssueUpdate(BaseModel):
     status: Optional[str] = None
     resolution: Optional[str] = None
     technician_name: Optional[str] = None
+    warranty_status: Optional[str] = None
 
 # Scheduled Maintenance Models
 class ScheduledMaintenanceBase(BaseModel):

@@ -214,7 +214,30 @@ async def login(request: LoginRequest, response: Response):
     )
     
     # Also return token in response for cross-origin scenarios
-    return {"message": "Login successful", "token": token}
+    return {"message": "Login successful", "token": token, "type": "service"}
+
+@api_router.post("/auth/customer-login")
+async def customer_login(request: LoginRequest, response: Response):
+    if request.password != CUSTOMER_ACCESS_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid customer password")
+    
+    # Generate token and store it in customer tokens
+    token = generate_auth_token()
+    valid_customer_tokens.add(token)
+    
+    # Set HTTP-only cookie (for same-origin requests)
+    response.set_cookie(
+        key=AUTH_COOKIE_NAME,
+        value=token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        max_age=AUTH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60,
+        path="/"
+    )
+    
+    # Also return token in response for cross-origin scenarios
+    return {"message": "Customer login successful", "token": token, "type": "customer"}
 
 @api_router.get("/auth/check")
 async def check_auth(request: Request):

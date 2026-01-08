@@ -516,6 +516,25 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Action Button - Mark as In Progress */}
+                  {item.source === "customer_issue" && item.status === "scheduled" && item.issue_id && (
+                    <Button
+                      size="sm"
+                      onClick={() => handleMarkInProgress(item)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Play size={14} className="mr-1" />
+                      Start Work
+                    </Button>
+                  )}
+                  
+                  {item.status === "in_progress" && (
+                    <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
+                      <Clock size={14} className="mr-1" />
+                      Working...
+                    </Badge>
+                  )}
                 </div>
               ))}
             </div>

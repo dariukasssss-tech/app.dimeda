@@ -227,7 +227,7 @@ const Dashboard = () => {
                     data-testid={`issue-item-${issue.id}`}
                   >
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-medium text-slate-900">{issue.title}</p>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           issue.status === "open" ? "bg-amber-100 text-amber-800" :
@@ -236,6 +236,15 @@ const Dashboard = () => {
                         }`}>
                           {issue.status.replace("_", " ")}
                         </span>
+                        {issue.warranty_status && (
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            issue.warranty_status === "warranty" 
+                              ? "bg-green-100 text-green-800" 
+                              : "bg-gray-100 text-gray-800"
+                          }`}>
+                            {issue.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-slate-500">
                         S/N: {issue.product_serial || "Unknown"} • {issue.issue_type}

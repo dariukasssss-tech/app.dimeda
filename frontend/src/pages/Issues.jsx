@@ -138,6 +138,7 @@ const Issues = () => {
       title: "",
       description: "",
       technician_name: "",
+      warranty_status: "",
     });
     setPhotos([]);
     setSelectedVisualIssues([]);

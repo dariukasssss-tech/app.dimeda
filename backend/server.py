@@ -151,6 +151,7 @@ class CustomerIssueCreate(BaseModel):
     issue_type: str
     title: str
     description: str
+    product_location: Optional[str] = None  # Address/location info
     warranty_status: Optional[str] = None
 
 class IssueUpdate(BaseModel):

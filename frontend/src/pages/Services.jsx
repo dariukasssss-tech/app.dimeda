@@ -45,7 +45,11 @@ const Services = () => {
     service_type: "",
     description: "",
     issues_found: "",
+    warranty_status: "",
   });
+
+  // Warranty options
+  const WARRANTY_OPTIONS = ["Warranty", "Non Warranty"];
 
   useEffect(() => {
     fetchData();

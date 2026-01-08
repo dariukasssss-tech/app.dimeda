@@ -347,9 +347,8 @@ const Services = () => {
                       <h4 className="font-medium text-slate-900 mb-2">{issue.title}</h4>
                       <div className="space-y-1 text-sm text-slate-600">
                         <p><strong>Product:</strong> S/N: {getProductSerial(issue.product_id)}</p>
-                        <p><strong>Technician:</strong> {issue.technician_name || "Not assigned"}</p>
-                        {issue.estimated_fix_time && <p><strong>Est. Fix Time:</strong> {issue.estimated_fix_time}</p>}
-                        {issue.estimated_cost && <p><strong>Est. Cost:</strong> {issue.estimated_cost}</p>}
+                        {issue.estimated_fix_time && <p><strong>Est. Fix Time:</strong> {issue.estimated_fix_time} hours</p>}
+                        {issue.estimated_cost && <p><strong>Est. Cost:</strong> {issue.estimated_cost} Eur</p>}
                         {issue.resolution && <p><strong>Resolution:</strong> {issue.resolution}</p>}
                       </div>
                       <Badge className="mt-2 bg-gray-100 text-gray-800">
@@ -359,6 +358,51 @@ const Services = () => {
                   );
                 })()}
 
+                {/* Technician Selection */}
+                <div>
+                  <Label>Assign Technician *</Label>
+                  <Select
+                    value={fromIssueData.technician_name}
+                    onValueChange={(value) => setFromIssueData({ ...fromIssueData, technician_name: value })}
+                  >
+                    <SelectTrigger className="mt-1" data-testid="from-issue-technician">
+                      <SelectValue placeholder="Select technician" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TECHNICIANS.map((tech) => (
+                        <SelectItem key={tech} value={tech}>
+                          {tech}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Scheduled Date */}
+                <div>
+                  <Label>Scheduled Date *</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full mt-1 justify-start text-left font-normal"
+                        data-testid="from-issue-date"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {format(fromIssueData.scheduled_date, "PPP")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={fromIssueData.scheduled_date}
+                        onSelect={(date) => date && setFromIssueData({ ...fromIssueData, scheduled_date: date })}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
                 <div className="flex justify-end gap-3 pt-4">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                     Cancel
@@ -367,7 +411,7 @@ const Services = () => {
                     type="button"
                     onClick={handleCreateFromIssue}
                     className="bg-[#0066CC] hover:bg-[#0052A3]"
-                    disabled={!selectedNonWarrantyIssue}
+                    disabled={!selectedNonWarrantyIssue || !fromIssueData.technician_name}
                     data-testid="create-from-issue-btn"
                   >
                     Create Service Record

@@ -410,6 +410,9 @@ async def update_product(product_id: str, product: ProductCreate):
     
     await db.products.update_one({"id": product_id}, {"$set": update_data})
     updated = await db.products.find_one({"id": product_id}, {"_id": 0})
+    # Ensure updated product has valid registration_date
+    if not updated.get("registration_date"):
+        updated["registration_date"] = datetime.now(timezone.utc).isoformat()
     return updated
 
 @api_router.delete("/products/{product_id}")

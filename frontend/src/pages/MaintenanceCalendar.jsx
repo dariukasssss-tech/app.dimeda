@@ -472,23 +472,67 @@ const MaintenanceCalendar = () => {
 
           {/* Technician Filter & Stats */}
           <div className="border-t pt-4">
-            <div className="flex items-center gap-4 mb-3">
+            <div className="flex flex-wrap items-center gap-4 mb-3">
               <span className="font-medium text-slate-600">Filter by Technician:</span>
-              <Select value={technicianFilter} onValueChange={setTechnicianFilter}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Select technician" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Technicians</SelectItem>
-                  {TECHNICIANS.map((tech) => (
-                    <SelectItem key={tech} value={tech}>
-                      {tech}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
-                </SelectContent>
-              </Select>
+              
+              {/* OPTIMIZATION 5: Quick filter buttons for "My Tasks" */}
+              <div className="flex gap-2">
+                <Button
+                  variant={technicianFilter === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTechnicianFilter("all")}
+                  className={technicianFilter === "all" ? "bg-[#0066CC] hover:bg-[#0052A3]" : ""}
+                >
+                  All Tasks
+                </Button>
+                {TECHNICIANS.map((tech) => (
+                  <Button
+                    key={tech}
+                    variant={technicianFilter === tech ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setTechnicianFilter(tech)}
+                    className={technicianFilter === tech ? "bg-[#0066CC] hover:bg-[#0052A3]" : ""}
+                  >
+                    <User size={14} className="mr-1" />
+                    {tech}
+                  </Button>
+                ))}
+              </div>
             </div>
+
+            {/* Summary for selected technician */}
+            {technicianFilter !== "all" && technicianFilter !== "unassigned" && (() => {
+              const stats = getTechnicianStats(technicianFilter);
+              const todayTasks = filteredMaintenance.filter(item => {
+                const itemDate = new Date(item.scheduled_date);
+                const today = new Date();
+                return itemDate.toDateString() === today.toDateString() && item.status !== "completed";
+              });
+              const urgentTasks = filteredMaintenance.filter(item => {
+                if (item.status === "completed") return false;
+                if (item.source === "customer_issue") {
+                  const sla = calculateSLARemaining(item);
+                  return sla && (sla.expired || sla.text.includes("m left") || parseInt(sla.text) < 3);
+                }
+                return false;
+              });
+              return (
+                <div className="grid grid-cols-3 gap-4 mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-600">{todayTasks.length}</p>
+                    <p className="text-xs text-slate-600">Today's Tasks</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-orange-600">{urgentTasks.length}</p>
+                    <p className="text-xs text-slate-600">Urgent (SLA)</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-slate-700">{stats.total}</p>
+                    <p className="text-xs text-slate-600">Total Active</p>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Technician Statistics Table - Show full table for "All", single row for specific technician */}
             {technicianFilter !== "all" ? (

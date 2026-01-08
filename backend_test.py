@@ -13,11 +13,45 @@ class DimedasServiceProAPITester:
         self.test_service_id = None
         self.test_issue_id = None
         self.test_maintenance_id = None
+        self.auth_token = None
+        self.session = requests.Session()
+
+    def login(self, password="dimeda2025"):
+        """Login to get authentication token"""
+        login_data = {"password": password}
+        
+        print(f"🔐 Logging in with password: {password}")
+        
+        try:
+            response = self.session.post(
+                f"{self.api_url}/auth/login",
+                json=login_data,
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                self.auth_token = result.get('token')
+                # Set the token in session headers for future requests
+                self.session.headers.update({'X-Auth-Token': self.auth_token})
+                print("✅ Login successful")
+                return True
+            else:
+                print(f"❌ Login failed - Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Login error: {str(e)}")
+            return False
 
     def run_test(self, name, method, endpoint, expected_status, data=None, params=None):
         """Run a single API test"""
         url = f"{self.api_url}/{endpoint}"
         headers = {'Content-Type': 'application/json'}
+        
+        # Add auth token if available
+        if self.auth_token:
+            headers['X-Auth-Token'] = self.auth_token
 
         self.tests_run += 1
         print(f"\n🔍 Testing {name}...")
@@ -25,13 +59,13 @@ class DimedasServiceProAPITester:
         
         try:
             if method == 'GET':
-                response = requests.get(url, headers=headers, params=params)
+                response = self.session.get(url, headers=headers, params=params)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers)
+                response = self.session.post(url, json=data, headers=headers)
             elif method == 'PUT':
-                response = requests.put(url, json=data, headers=headers)
+                response = self.session.put(url, json=data, headers=headers)
             elif method == 'DELETE':
-                response = requests.delete(url, headers=headers)
+                response = self.session.delete(url, headers=headers)
 
             success = response.status_code == expected_status
             if success:

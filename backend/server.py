@@ -559,6 +559,10 @@ async def update_issue(issue_id: str, update: IssueUpdate):
     if update_data.get("technician_name") and not existing.get("technician_name"):
         update_data["technician_assigned_at"] = datetime.now(timezone.utc).isoformat()
         
+        # OPTIMIZATION 1: Auto-set status to "in_progress" when technician is assigned
+        if existing.get("status") == "open":
+            update_data["status"] = "in_progress"
+        
         # If this is a customer-reported issue, create a calendar entry with SLA deadline
         if existing.get("source") == "customer":
             # Calculate SLA deadline: issue created_at + 12 hours

@@ -890,6 +890,42 @@ async def get_upcoming_maintenance_count():
     
     return {"upcoming": upcoming, "overdue": overdue}
 
+# ============ TECHNICIAN UNAVAILABLE DAYS ============
+
+class TechnicianUnavailable(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    technician_name: str
+    date: str  # YYYY-MM-DD format
+    reason: Optional[str] = None
+
+@api_router.get("/technician-unavailable/{technician_name}")
+async def get_technician_unavailable_days(technician_name: str):
+    days = await db.technician_unavailable.find({"technician_name": technician_name}, {"_id": 0}).to_list(1000)
+    return days
+
+@api_router.post("/technician-unavailable")
+async def add_technician_unavailable_day(data: TechnicianUnavailable):
+    # Check if already marked
+    existing = await db.technician_unavailable.find_one({
+        "technician_name": data.technician_name,
+        "date": data.date
+    }, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail="Day already marked as unavailable")
+    
+    await db.technician_unavailable.insert_one(data.model_dump())
+    return {"message": "Unavailable day added", "data": data.model_dump()}
+
+@api_router.delete("/technician-unavailable/{technician_name}/{date}")
+async def remove_technician_unavailable_day(technician_name: str, date: str):
+    result = await db.technician_unavailable.delete_one({
+        "technician_name": technician_name,
+        "date": date
+    })
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Unavailable day not found")
+    return {"message": "Unavailable day removed"}
+
 # Include the router in the main app
 app.include_router(api_router)
 

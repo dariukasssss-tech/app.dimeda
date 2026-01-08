@@ -106,6 +106,30 @@ const Navigation = ({ onLogout }) => {
     return product?.city || "Unknown";
   };
 
+  // OPTIMIZATION 4: Calculate SLA time remaining for notification urgency
+  const calculateSLARemaining = (issue) => {
+    const createdAt = new Date(issue.created_at);
+    const slaDeadline = new Date(createdAt.getTime() + 12 * 60 * 60 * 1000);
+    const now = new Date();
+    const diffMs = slaDeadline - now;
+    
+    if (diffMs <= 0) {
+      return { expired: true, text: "EXPIRED", urgency: "critical" };
+    }
+    
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    let urgency = "normal";
+    if (hours < 2) urgency = "critical";
+    else if (hours < 6) urgency = "warning";
+    
+    if (hours > 0) {
+      return { expired: false, text: `${hours}h ${minutes}m`, urgency };
+    }
+    return { expired: false, text: `${minutes}m`, urgency };
+  };
+
   const handleNotificationClick = (issueId) => {
     setNotificationOpen(false);
     navigate(`/issues?status=open`);

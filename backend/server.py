@@ -344,6 +344,9 @@ async def get_product(product_id: str):
     product = await db.products.find_one({"id": product_id}, {"_id": 0})
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
+    # Ensure product has valid registration_date
+    if not product.get("registration_date"):
+        product["registration_date"] = datetime.now(timezone.utc).isoformat()
     return product
 
 @api_router.get("/products/serial/{serial_number}", response_model=Product)

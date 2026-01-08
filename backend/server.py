@@ -216,17 +216,50 @@ class LoginRequest(BaseModel):
 
 @api_router.post("/auth/login")
 async def login(request: LoginRequest, response: Response):
-    if not APP_ACCESS_PASSWORD:
-        raise HTTPException(status_code=500, detail="Server password not configured")
+    # Check for admin password
+    if request.password == ADMIN_PASSWORD:
+        token = generate_auth_token()
+        valid_tokens.add(token)
+        
+        response.set_cookie(
+            key=AUTH_COOKIE_NAME,
+            value=token,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            max_age=AUTH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60,
+            path="/"
+        )
+        
+        return {"message": "Admin login successful", "token": token, "type": "admin"}
     
-    if request.password != APP_ACCESS_PASSWORD:
-        raise HTTPException(status_code=401, detail="Invalid password")
+    # For backward compatibility, also accept old password
+    if request.password == APP_ACCESS_PASSWORD:
+        token = generate_auth_token()
+        valid_tokens.add(token)
+        
+        response.set_cookie(
+            key=AUTH_COOKIE_NAME,
+            value=token,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            max_age=AUTH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60,
+            path="/"
+        )
+        
+        return {"message": "Admin login successful", "token": token, "type": "admin"}
     
-    # Generate token and store it
+    raise HTTPException(status_code=401, detail="Invalid password")
+
+@api_router.post("/auth/technician-login")
+async def technician_login(request: LoginRequest, response: Response):
+    if request.password != TECHNICIAN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid technician password")
+    
     token = generate_auth_token()
-    valid_tokens.add(token)
+    valid_technician_tokens.add(token)
     
-    # Set HTTP-only cookie (for same-origin requests)
     response.set_cookie(
         key=AUTH_COOKIE_NAME,
         value=token,
@@ -237,8 +270,7 @@ async def login(request: LoginRequest, response: Response):
         path="/"
     )
     
-    # Also return token in response for cross-origin scenarios
-    return {"message": "Login successful", "token": token, "type": "service"}
+    return {"message": "Technician login successful", "token": token, "type": "technician"}
 
 @api_router.post("/auth/customer-login")
 async def customer_login(request: LoginRequest, response: Response):

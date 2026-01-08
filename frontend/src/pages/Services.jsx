@@ -85,6 +85,7 @@ const Services = () => {
         service_type: "",
         description: "",
         issues_found: "",
+        warranty_status: "",
       });
       setSelectedDate(new Date());
       fetchData();

@@ -409,49 +409,61 @@ const CustomerDashboard = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredIssues.map((issue) => (
-                <div 
-                  key={issue.id} 
-                  className="p-4 border rounded-lg hover:bg-slate-50 transition-colors"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {statusIcons[issue.status]}
-                        <h3 className="font-medium text-slate-900">{issue.title}</h3>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                          issue.status === "open" ? "bg-amber-100 text-amber-800" :
-                          issue.status === "in_progress" ? "bg-blue-100 text-blue-800" :
-                          "bg-emerald-100 text-emerald-800"
-                        }`}>
-                          {issue.status.replace("_", " ")}
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-500 mt-1">
-                        <span className="inline-flex items-center gap-1">
-                          <MapPin size={12} />
-                          {getProductCity(issue.product_id)}
-                        </span>
-                        {" • "}S/N: {getProductSerial(issue.product_id)} • {issue.issue_type}
-                      </p>
-                      {issue.product_location && (
-                        <p className="text-xs text-slate-400 mt-1">
-                          Location: {issue.product_location}
-                        </p>
-                      )}
-                      <p className="text-sm text-slate-600 mt-2">{issue.description}</p>
-                      {issue.resolution && (
-                        <div className="mt-2 p-2 bg-emerald-50 rounded text-sm text-emerald-800">
-                          <strong>Resolution:</strong> {issue.resolution}
+              {filteredIssues.map((issue) => {
+                const displayStatus = getDisplayStatus(issue);
+                return (
+                  <div 
+                    key={issue.id} 
+                    className="p-4 border rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {statusIcons[displayStatus]}
+                          <h3 className="font-medium text-slate-900">{issue.title}</h3>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[displayStatus]}`}>
+                            {displayStatus.replace("_", " ")}
+                          </span>
                         </div>
-                      )}
-                      <p className="text-xs text-slate-400 mt-2">
-                        Reported: {new Date(issue.created_at).toLocaleString()}
-                      </p>
+                        <p className="text-sm text-slate-500 mt-1">
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin size={12} />
+                            {getProductCity(issue.product_id)}
+                          </span>
+                          {" • "}S/N: {getProductSerial(issue.product_id)} • {issue.issue_type}
+                        </p>
+                        {issue.product_location && (
+                          <p className="text-xs text-slate-400 mt-1">
+                            Location: {issue.product_location}
+                          </p>
+                        )}
+                        <p className="text-sm text-slate-600 mt-2">{issue.description}</p>
+                        
+                        {/* Technician assignment info */}
+                        {issue.technician_name && (
+                          <div className="mt-2 p-2 bg-blue-50 rounded text-sm text-blue-800">
+                            <strong>Assigned to:</strong> {issue.technician_name}
+                            {issue.technician_assigned_at && (
+                              <span className="ml-2 text-blue-600">
+                                (Registered: {new Date(issue.technician_assigned_at).toLocaleString()})
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        
+                        {issue.resolution && (
+                          <div className="mt-2 p-2 bg-emerald-50 rounded text-sm text-emerald-800">
+                            <strong>Resolution:</strong> {issue.resolution}
+                          </div>
+                        )}
+                        <p className="text-xs text-slate-400 mt-2">
+                          Reported: {new Date(issue.created_at).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

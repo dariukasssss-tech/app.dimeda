@@ -115,8 +115,14 @@ const Services = () => {
     }
   };
 
+  // State for "from issue" mode form
+  const [fromIssueData, setFromIssueData] = useState({
+    technician_name: "",
+    scheduled_date: new Date(),
+  });
+
   const handleCreateFromIssue = async () => {
-    if (!selectedNonWarrantyIssue) return;
+    if (!selectedNonWarrantyIssue || !fromIssueData.technician_name) return;
     
     const issue = nonWarrantyIssues.find(i => i.id === selectedNonWarrantyIssue);
     if (!issue) return;
@@ -124,12 +130,12 @@ const Services = () => {
     try {
       await axios.post(`${API}/services`, {
         product_id: issue.product_id,
-        technician_name: issue.technician_name || TECHNICIANS[0],
+        technician_name: fromIssueData.technician_name,
         service_type: "repair",
-        description: `${issue.title}\n\nResolution: ${issue.resolution || "N/A"}\n\nEstimated Fix Time: ${issue.estimated_fix_time || "N/A"}\nEstimated Cost: ${issue.estimated_cost || "N/A"}`,
+        description: `${issue.title}\n\nResolution: ${issue.resolution || "N/A"}\n\nEstimated Fix Time: ${issue.estimated_fix_time ? issue.estimated_fix_time + " hours" : "N/A"}\nEstimated Cost: ${issue.estimated_cost ? issue.estimated_cost + " Eur" : "N/A"}`,
         issues_found: issue.description,
         warranty_status: "non_warranty",
-        service_date: new Date().toISOString(),
+        service_date: fromIssueData.scheduled_date.toISOString(),
         linked_issue_id: issue.id,
       });
       toast.success("Service record created from issue");
@@ -144,6 +150,10 @@ const Services = () => {
     setDialogOpen(false);
     setServiceMode("new");
     setSelectedNonWarrantyIssue("");
+    setFromIssueData({
+      technician_name: "",
+      scheduled_date: new Date(),
+    });
     setFormData({
       product_id: "",
       technician_name: "",

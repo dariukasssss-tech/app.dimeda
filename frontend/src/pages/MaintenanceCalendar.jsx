@@ -444,6 +444,10 @@ const MaintenanceCalendar = () => {
               <span className="text-slate-600">Yearly Maintenance</span>
             </div>
             <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded bg-purple-500"></div>
+              <span className="text-slate-600">Customer Issue</span>
+            </div>
+            <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded bg-orange-500"></div>
               <span className="text-slate-600">Issue - 12h</span>
             </div>

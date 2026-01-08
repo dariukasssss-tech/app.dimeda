@@ -216,6 +216,23 @@ const Issues = () => {
     return product?.serial_number || "Unknown";
   };
 
+  // Calculate counts for each status
+  const issueCounts = {
+    all: issues.length,
+    open: issues.filter(i => i.status === "open").length,
+    in_progress: issues.filter(i => i.status === "in_progress").length,
+    resolved: issues.filter(i => i.status === "resolved").length,
+  };
+
+  const handleFilterChange = (newFilter) => {
+    setStatusFilter(newFilter);
+    if (newFilter === "all") {
+      setSearchParams({});
+    } else {
+      setSearchParams({ status: newFilter });
+    }
+  };
+
   const filteredIssues = statusFilter === "all"
     ? issues
     : issues.filter((i) => i.status === statusFilter);
@@ -225,6 +242,29 @@ const Issues = () => {
     in_progress: <Clock size={16} className="text-blue-500" />,
     resolved: <CheckCircle size={16} className="text-emerald-500" />,
   };
+
+  // Filter button card component
+  const FilterCard = ({ title, value, icon: Icon, color, isActive, onClick, testId }) => (
+    <Card 
+      className={`cursor-pointer transition-all ${isActive ? 'ring-2 ring-offset-2 ring-[#0066CC] scale-[1.02]' : 'hover:scale-[1.02]'}`}
+      data-testid={testId}
+      onClick={onClick}
+    >
+      <CardContent className="pt-4 pb-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium text-slate-500">{title}</p>
+            <p className="text-2xl font-bold text-slate-900 mt-0.5" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              {value}
+            </p>
+          </div>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
+            <Icon className="text-white" size={20} />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   const toggleVisualItem = (item) => {
     setSelectedVisualIssues(prev => 

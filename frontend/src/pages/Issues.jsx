@@ -690,6 +690,27 @@ const Issues = () => {
                       {issue.title}
                     </h3>
                     <p className="text-sm text-slate-500 mt-1">S/N: {getProductSerial(issue.product_id)}</p>
+                    
+                    {/* Technician Assignment */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <User size={14} className="text-slate-400" />
+                      <Select
+                        value={issue.technician_name || ""}
+                        onValueChange={(value) => handleTechnicianChange(issue.id, value)}
+                      >
+                        <SelectTrigger className="h-7 w-40 text-xs">
+                          <SelectValue placeholder="Assign technician" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TECHNICIANS.map((tech) => (
+                            <SelectItem key={tech} value={tech}>
+                              {tech}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
                     <p className="text-slate-600 mt-2 whitespace-pre-line">{issue.description}</p>
                     {issue.resolution && (
                       <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">

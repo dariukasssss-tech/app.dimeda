@@ -16,7 +16,7 @@ import Login from "@/pages/Login";
 import CustomerDashboard from "@/pages/CustomerDashboard";
 
 // Icons
-import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X, CalendarDays, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X, CalendarDays, LogOut, Bell } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
@@ -52,7 +52,11 @@ export const clearAuthToken = () => {
 // Navigation Component
 const Navigation = ({ onLogout }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [customerIssues, setCustomerIssues] = useState([]);
+  const [products, setProducts] = useState([]);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { path: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -63,9 +67,49 @@ const Navigation = ({ onLogout }) => {
     { path: "/export", label: "Export", icon: Download },
   ];
 
+  // Fetch customer-reported issues without technician assigned
+  const fetchNotifications = async () => {
+    try {
+      const [issuesRes, productsRes] = await Promise.all([
+        axios.get(`${API}/issues`),
+        axios.get(`${API}/products`)
+      ]);
+      // Filter for customer issues without technician assigned
+      const unassignedCustomerIssues = issuesRes.data.filter(
+        issue => issue.source === "customer" && !issue.technician_name && issue.status !== "resolved"
+      );
+      setCustomerIssues(unassignedCustomerIssues);
+      setProducts(productsRes.data);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    // Refresh notifications every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location]);
+
+  const getProductSerial = (productId) => {
+    const product = products.find(p => p.id === productId);
+    return product?.serial_number || "Unknown";
+  };
+
+  const getProductCity = (productId) => {
+    const product = products.find(p => p.id === productId);
+    return product?.city || "Unknown";
+  };
+
+  const handleNotificationClick = (issueId) => {
+    setNotificationOpen(false);
+    navigate(`/issues?status=open`);
+  };
 
   const handleLogout = async () => {
     try {

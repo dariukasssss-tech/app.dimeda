@@ -202,29 +202,63 @@ const MaintenanceCalendar = () => {
     return cityMatch && techMatch;
   });
 
-  // Calculate statistics by technician
+  // Calculate statistics by technician (includes maintenance, issues, and services)
   const getTechnicianStats = (techName) => {
-    const techItems = maintenanceItems.filter(item => item.technician_name === techName);
+    // Maintenance items for this technician
+    const techMaintenance = maintenanceItems.filter(item => item.technician_name === techName);
+    
+    // Issues assigned to this technician
+    const techIssues = issues.filter(issue => issue.technician_name === techName);
+    
+    // Services done by this technician
+    const techServices = services.filter(service => service.technician_name === techName);
+    
     return {
-      yearly: techItems.filter(item => item.source === "auto_yearly" || item.maintenance_type === "routine").length,
-      issue12h: techItems.filter(item => item.priority === "12h").length,
-      issue24h: techItems.filter(item => item.priority === "24h").length,
-      inProgress: techItems.filter(item => item.status === "in_progress").length,
-      completed: techItems.filter(item => item.status === "completed").length,
-      total: techItems.length,
+      // Maintenance stats
+      yearly: techMaintenance.filter(item => item.source === "auto_yearly" || item.maintenance_type === "routine").length,
+      issue12h: techMaintenance.filter(item => item.priority === "12h").length,
+      issue24h: techMaintenance.filter(item => item.priority === "24h").length,
+      inProgress: techMaintenance.filter(item => item.status === "in_progress").length,
+      completed: techMaintenance.filter(item => item.status === "completed").length,
+      // Issues stats
+      openIssues: techIssues.filter(issue => issue.status === "open").length,
+      inProgressIssues: techIssues.filter(issue => issue.status === "in_progress").length,
+      resolvedIssues: techIssues.filter(issue => issue.status === "resolved").length,
+      totalIssues: techIssues.length,
+      // Services stats
+      totalServices: techServices.length,
+      // Combined total
+      total: techMaintenance.length + techIssues.length + techServices.length,
     };
   };
 
   // Unassigned stats
   const getUnassignedStats = () => {
-    const unassignedItems = maintenanceItems.filter(item => !item.technician_name);
+    // Maintenance items without technician
+    const unassignedMaintenance = maintenanceItems.filter(item => !item.technician_name);
+    
+    // Issues without technician
+    const unassignedIssues = issues.filter(issue => !issue.technician_name);
+    
+    // Services without technician (shouldn't happen but check anyway)
+    const unassignedServices = services.filter(service => !service.technician_name);
+    
     return {
-      yearly: unassignedItems.filter(item => item.source === "auto_yearly" || item.maintenance_type === "routine").length,
-      issue12h: unassignedItems.filter(item => item.priority === "12h").length,
-      issue24h: unassignedItems.filter(item => item.priority === "24h").length,
-      inProgress: unassignedItems.filter(item => item.status === "in_progress").length,
-      completed: unassignedItems.filter(item => item.status === "completed").length,
-      total: unassignedItems.length,
+      // Maintenance stats
+      yearly: unassignedMaintenance.filter(item => item.source === "auto_yearly" || item.maintenance_type === "routine").length,
+      issue12h: unassignedMaintenance.filter(item => item.priority === "12h").length,
+      issue24h: unassignedMaintenance.filter(item => item.priority === "24h").length,
+      inProgress: unassignedMaintenance.filter(item => item.status === "in_progress").length,
+      completed: unassignedMaintenance.filter(item => item.status === "completed").length,
+      // Issues stats
+      openIssues: unassignedIssues.filter(issue => issue.status === "open").length,
+      inProgressIssues: unassignedIssues.filter(issue => issue.status === "in_progress").length,
+      resolvedIssues: unassignedIssues.filter(issue => issue.status === "resolved").length,
+      totalIssues: unassignedIssues.length,
+      // Services stats
+      totalServices: unassignedServices.length,
+      // Combined total
+      total: unassignedMaintenance.length + unassignedIssues.length + unassignedServices.length,
     };
   };
 

@@ -43,8 +43,12 @@ import {
   Building2,
   Timer,
   Users,
+  User,
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, isBefore, parseISO } from "date-fns";
+
+// OPTIMIZATION 5: Technician list for "My Tasks" filter
+const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];
 
 const MaintenanceCalendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -58,6 +62,7 @@ const MaintenanceCalendar = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [upcomingCount, setUpcomingCount] = useState({ upcoming: 0, overdue: 0 });
   const [cityFilter, setCityFilter] = useState("all");
+  const [technicianFilter, setTechnicianFilter] = useState("all"); // OPTIMIZATION 5: My Tasks filter
   const [technicianFilter, setTechnicianFilter] = useState("all");
   const [formData, setFormData] = useState({
     product_id: "",

@@ -594,7 +594,7 @@ async def update_issue(issue_id: str, update: IssueUpdate):
     
     # OPTIMIZATION 3: Auto-create service record for non-warranty resolved issues
     if should_create_service and update_data.get("status") == "resolved" and update_data.get("warranty_service_type") == "non_warranty":
-        service_obj = Service(
+        service_obj = ServiceRecord(
             product_id=existing["product_id"],
             technician_name=updated.get("technician_name") or existing.get("technician_name") or "Unknown",
             service_type="repair",

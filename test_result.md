@@ -101,3 +101,92 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  Implementing new features for Dimeda Service Pro:
+  1. Notification System - Bell icon with dropdown for customer issues in Service Pro
+  2. Calendar Integration - Customer issues appear in calendar when technician is assigned
+  3. SLA Timer - 12-hour deadline from issue registration, showing remaining time when technician is assigned
+
+backend:
+  - task: "Customer issue creates calendar entry on technician assignment"
+    implemented: true
+    working: NA
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: NA
+        agent: "main"
+        comment: "Implemented: When technician is assigned to customer issue, automatically creates calendar entry with SLA deadline (created_at + 12h)"
+
+frontend:
+  - task: "Notification bell with dropdown showing unassigned customer issues"
+    implemented: true
+    working: NA
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: NA
+        agent: "main"
+        comment: "Implemented bell icon in navigation with badge count, dropdown shows unassigned customer issues"
+
+  - task: "Calendar displays customer issues with SLA countdown"
+    implemented: true
+    working: NA
+    file: "/app/frontend/src/pages/MaintenanceCalendar.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: NA
+        agent: "main"
+        comment: "Added customer_issue source type with purple coloring, SLA timer calculation showing time remaining"
+
+  - task: "Issues page shows SLA timer for customer issues"
+    implemented: true
+    working: NA
+    file: "/app/frontend/src/pages/Issues.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: NA
+        agent: "main"
+        comment: "Added SLA countdown display next to technician assignment dropdown for customer issues"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Notification bell with dropdown showing unassigned customer issues"
+    - "Customer issue creates calendar entry on technician assignment"
+    - "Calendar displays customer issues with SLA countdown"
+    - "Issues page shows SLA timer for customer issues"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      Implemented 3 new features:
+      1. Notification System: Bell icon in Service Pro header shows count of unassigned customer issues, dropdown displays issue details
+      2. Calendar Integration: When technician is assigned to customer issue, creates calendar entry with SLA deadline
+      3. SLA Timer: Shows countdown (e.g., "10h 30m left") on calendar entries and issues page for customer issues
+      
+      Test Flow:
+      - Login to Customer Pro (password: customer2025)
+      - Create a new issue
+      - Login to Service Pro (password: dimeda2025)
+      - Check notification bell shows new customer issue
+      - Assign technician to the issue
+      - Check calendar shows the issue with SLA countdown
+      - Verify SLA timer appears on Issues page

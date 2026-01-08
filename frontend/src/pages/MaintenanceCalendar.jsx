@@ -182,9 +182,38 @@ const MaintenanceCalendar = () => {
     return product?.city || "";
   };
 
-  const filteredMaintenance = cityFilter === "all"
-    ? maintenanceItems
-    : maintenanceItems.filter((item) => getProductCity(item.product_id) === cityFilter);
+  // Apply both city and technician filters
+  const filteredMaintenance = maintenanceItems.filter((item) => {
+    const cityMatch = cityFilter === "all" || getProductCity(item.product_id) === cityFilter;
+    const techMatch = technicianFilter === "all" || item.technician_name === technicianFilter;
+    return cityMatch && techMatch;
+  });
+
+  // Calculate statistics by technician
+  const getTechnicianStats = (techName) => {
+    const techItems = maintenanceItems.filter(item => item.technician_name === techName);
+    return {
+      yearly: techItems.filter(item => item.source === "auto_yearly" || item.maintenance_type === "routine").length,
+      issue12h: techItems.filter(item => item.priority === "12h").length,
+      issue24h: techItems.filter(item => item.priority === "24h").length,
+      inProgress: techItems.filter(item => item.status === "in_progress").length,
+      completed: techItems.filter(item => item.status === "completed").length,
+      total: techItems.length,
+    };
+  };
+
+  // Unassigned stats
+  const getUnassignedStats = () => {
+    const unassignedItems = maintenanceItems.filter(item => !item.technician_name);
+    return {
+      yearly: unassignedItems.filter(item => item.source === "auto_yearly" || item.maintenance_type === "routine").length,
+      issue12h: unassignedItems.filter(item => item.priority === "12h").length,
+      issue24h: unassignedItems.filter(item => item.priority === "24h").length,
+      inProgress: unassignedItems.filter(item => item.status === "in_progress").length,
+      completed: unassignedItems.filter(item => item.status === "completed").length,
+      total: unassignedItems.length,
+    };
+  };
 
   const maintenanceTypeColors = {
     routine: "bg-emerald-500",      // Green for yearly maintenance

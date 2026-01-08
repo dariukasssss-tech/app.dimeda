@@ -376,7 +376,7 @@ async def update_product(product_id: str, product: ProductCreate):
         update_data["registration_date"] = existing.get("registration_date")
     
     # Check if registration date changed
-    old_reg_date = existing.get("registration_date", "")[:10]
+    old_reg_date = (existing.get("registration_date") or "")[:10]
     new_reg_date = (update_data.get("registration_date") or "")[:10]
     
     # If registration date is provided and different, recalculate yearly maintenance

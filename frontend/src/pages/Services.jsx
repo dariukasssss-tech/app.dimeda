@@ -307,6 +307,16 @@ const Services = () => {
                         <CalendarIcon size={14} />
                         {new Date(service.service_date).toLocaleDateString()}
                       </span>
+                      {/* Warranty Status Badge */}
+                      {service.warranty_status && (
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          service.warranty_status === "warranty" 
+                            ? "bg-green-100 text-green-800" 
+                            : "bg-gray-100 text-gray-800"
+                        }`}>
+                          {service.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
+                        </span>
+                      )}
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900 mt-3" style={{ fontFamily: 'Manrope, sans-serif' }}>
                       S/N: {getProductSerial(service.product_id)}

@@ -798,6 +798,22 @@ const Issues = () => {
                           ))}
                         </SelectContent>
                       </Select>
+                      
+                      {/* SLA Timer for customer issues with technician assigned */}
+                      {issue.source === "customer" && issue.technician_name && issue.status !== "resolved" && (() => {
+                        const sla = calculateSLARemaining(issue);
+                        if (!sla) return null;
+                        return (
+                          <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                            sla.expired ? "bg-red-500 text-white" : 
+                            sla.urgent ? "bg-orange-500 text-white" : 
+                            "bg-amber-100 text-amber-800"
+                          }`}>
+                            <Timer size={12} />
+                            {sla.text}
+                          </span>
+                        );
+                      })()}
                     </div>
 
                     {/* Warranty Status Badge */}

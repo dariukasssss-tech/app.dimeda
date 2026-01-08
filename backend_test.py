@@ -834,6 +834,11 @@ def main():
     
     tester = DimedasServiceProAPITester()
     
+    # Login first
+    if not tester.login():
+        print("❌ Failed to login - cannot proceed with tests")
+        return 1
+    
     # Test sequence
     tests = [
         # Basic API test

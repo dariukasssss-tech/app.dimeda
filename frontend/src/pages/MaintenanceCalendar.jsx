@@ -593,17 +593,6 @@ const MaintenanceCalendar = () => {
                         </tr>
                       );
                     })}
-                          <td className="text-center py-2 px-2">
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 text-slate-800 text-xs font-medium">
-                              {stats.completed}
-                            </span>
-                          </td>
-                          <td className="text-center py-2 px-2">
-                            <span className="font-bold text-slate-900">{stats.total}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
                     {/* Unassigned row */}
                     {(() => {
                       const stats = getUnassignedStats();
@@ -629,13 +618,23 @@ const MaintenanceCalendar = () => {
                             </span>
                           </td>
                           <td className="text-center py-2 px-2">
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
-                              {stats.inProgress}
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-800 text-xs font-medium">
+                              {stats.openIssues}
                             </span>
                           </td>
                           <td className="text-center py-2 px-2">
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 text-slate-800 text-xs font-medium">
-                              {stats.completed}
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
+                              {stats.inProgressIssues}
+                            </span>
+                          </td>
+                          <td className="text-center py-2 px-2">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium">
+                              {stats.resolvedIssues}
+                            </span>
+                          </td>
+                          <td className="text-center py-2 px-2">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-100 text-purple-800 text-xs font-medium">
+                              {stats.totalServices}
                             </span>
                           </td>
                           <td className="text-center py-2 px-2">

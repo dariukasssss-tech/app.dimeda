@@ -84,7 +84,11 @@ const Issues = () => {
     title: "",
     description: "",
     technician_name: "",
+    warranty_status: "",
   });
+  
+  // Warranty options
+  const WARRANTY_OPTIONS = ["Warranty", "Non Warranty"];
   
   // Multi-select states for "other" issue type
   const [selectedVisualIssues, setSelectedVisualIssues] = useState([]);

@@ -783,21 +783,34 @@ const Issues = () => {
                     {/* Technician Assignment */}
                     <div className="flex items-center gap-2 mt-2">
                       <User size={14} className="text-slate-400" />
-                      <Select
-                        value={issue.technician_name || ""}
-                        onValueChange={(value) => handleTechnicianChange(issue.id, value)}
-                      >
-                        <SelectTrigger className="h-7 w-40 text-xs">
-                          <SelectValue placeholder="Assign technician" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TECHNICIANS.map((tech) => (
-                            <SelectItem key={tech} value={tech}>
-                              {tech}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      {issue.technician_name ? (
+                        // Technician already assigned - show locked display
+                        <div className="flex items-center gap-2">
+                          <span className="h-7 px-3 py-1 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-700 flex items-center">
+                            {issue.technician_name}
+                          </span>
+                          <span className="text-xs text-slate-400 italic">
+                            (Mark as Open to reassign)
+                          </span>
+                        </div>
+                      ) : (
+                        // No technician - show dropdown to assign
+                        <Select
+                          value={issue.technician_name || ""}
+                          onValueChange={(value) => handleTechnicianChange(issue.id, value)}
+                        >
+                          <SelectTrigger className="h-7 w-40 text-xs">
+                            <SelectValue placeholder="Assign technician" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TECHNICIANS.map((tech) => (
+                              <SelectItem key={tech} value={tech}>
+                                {tech}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                       
                       {/* SLA Timer for customer issues with technician assigned */}
                       {issue.source === "customer" && issue.technician_name && issue.status !== "resolved" && (() => {

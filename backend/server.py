@@ -245,9 +245,12 @@ async def check_auth(request: Request):
     if not auth_token:
         auth_token = request.headers.get(AUTH_HEADER_NAME)
     
-    if auth_token and auth_token in valid_tokens:
-        return {"authenticated": True}
-    return {"authenticated": False}
+    if auth_token:
+        if auth_token in valid_tokens:
+            return {"authenticated": True, "type": "service"}
+        elif auth_token in valid_customer_tokens:
+            return {"authenticated": True, "type": "customer"}
+    return {"authenticated": False, "type": None}
 
 @api_router.post("/auth/logout")
 async def logout(request: Request, response: Response):

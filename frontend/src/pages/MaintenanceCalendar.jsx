@@ -357,10 +357,11 @@ const MaintenanceCalendar = () => {
         </Card>
       </div>
 
-      {/* Calendar Legend */}
+      {/* Calendar Legend & Technician Stats */}
       <Card>
         <CardContent className="pt-4 pb-4">
-          <div className="flex flex-wrap items-center gap-4 text-sm">
+          {/* Legend Row */}
+          <div className="flex flex-wrap items-center gap-4 text-sm mb-4">
             <span className="font-medium text-slate-600">Legend:</span>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded bg-emerald-500"></div>
@@ -381,6 +382,141 @@ const MaintenanceCalendar = () => {
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded bg-slate-800"></div>
               <span className="text-slate-600">Completed</span>
+            </div>
+          </div>
+
+          {/* Technician Filter & Stats */}
+          <div className="border-t pt-4">
+            <div className="flex items-center gap-4 mb-3">
+              <span className="font-medium text-slate-600">Filter by Technician:</span>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={technicianFilter === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTechnicianFilter("all")}
+                  className={technicianFilter === "all" ? "bg-[#0066CC]" : ""}
+                >
+                  All
+                </Button>
+                {TECHNICIANS.map((tech) => (
+                  <Button
+                    key={tech}
+                    variant={technicianFilter === tech ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setTechnicianFilter(tech)}
+                    className={technicianFilter === tech ? "bg-[#0066CC]" : ""}
+                  >
+                    {tech}
+                  </Button>
+                ))}
+                <Button
+                  variant={technicianFilter === "unassigned" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTechnicianFilter("unassigned")}
+                  className={technicianFilter === "unassigned" ? "bg-slate-600" : ""}
+                >
+                  Unassigned
+                </Button>
+              </div>
+            </div>
+
+            {/* Technician Statistics Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-2 font-medium text-slate-600">Technician</th>
+                    <th className="text-center py-2 px-2 font-medium text-emerald-600">Yearly</th>
+                    <th className="text-center py-2 px-2 font-medium text-orange-600">12h</th>
+                    <th className="text-center py-2 px-2 font-medium text-red-600">24h</th>
+                    <th className="text-center py-2 px-2 font-medium text-blue-600">In Progress</th>
+                    <th className="text-center py-2 px-2 font-medium text-slate-600">Completed</th>
+                    <th className="text-center py-2 px-2 font-medium text-slate-900">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {TECHNICIANS.map((tech) => {
+                    const stats = getTechnicianStats(tech);
+                    return (
+                      <tr 
+                        key={tech} 
+                        className={`border-b hover:bg-slate-50 cursor-pointer ${technicianFilter === tech ? 'bg-blue-50' : ''}`}
+                        onClick={() => setTechnicianFilter(tech)}
+                      >
+                        <td className="py-2 px-2 font-medium">{tech}</td>
+                        <td className="text-center py-2 px-2">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium">
+                            {stats.yearly}
+                          </span>
+                        </td>
+                        <td className="text-center py-2 px-2">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-orange-800 text-xs font-medium">
+                            {stats.issue12h}
+                          </span>
+                        </td>
+                        <td className="text-center py-2 px-2">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-800 text-xs font-medium">
+                            {stats.issue24h}
+                          </span>
+                        </td>
+                        <td className="text-center py-2 px-2">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
+                            {stats.inProgress}
+                          </span>
+                        </td>
+                        <td className="text-center py-2 px-2">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 text-slate-800 text-xs font-medium">
+                            {stats.completed}
+                          </span>
+                        </td>
+                        <td className="text-center py-2 px-2">
+                          <span className="font-bold text-slate-900">{stats.total}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {/* Unassigned row */}
+                  {(() => {
+                    const stats = getUnassignedStats();
+                    return (
+                      <tr 
+                        className={`border-b hover:bg-slate-50 cursor-pointer ${technicianFilter === 'unassigned' ? 'bg-slate-100' : ''}`}
+                        onClick={() => setTechnicianFilter("unassigned")}
+                      >
+                        <td className="py-2 px-2 font-medium text-slate-500 italic">Unassigned</td>
+                        <td className="text-center py-2 px-2">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium">
+                            {stats.yearly}
+                          </span>
+                        </td>
+                        <td className="text-center py-2 px-2">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-orange-800 text-xs font-medium">
+                            {stats.issue12h}
+                          </span>
+                        </td>
+                        <td className="text-center py-2 px-2">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-800 text-xs font-medium">
+                            {stats.issue24h}
+                          </span>
+                        </td>
+                        <td className="text-center py-2 px-2">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
+                            {stats.inProgress}
+                          </span>
+                        </td>
+                        <td className="text-center py-2 px-2">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 text-slate-800 text-xs font-medium">
+                            {stats.completed}
+                          </span>
+                        </td>
+                        <td className="text-center py-2 px-2">
+                          <span className="font-bold text-slate-900">{stats.total}</span>
+                        </td>
+                      </tr>
+                    );
+                  })()}
+                </tbody>
+              </table>
             </div>
           </div>
         </CardContent>

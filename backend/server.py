@@ -521,6 +521,17 @@ async def update_issue(issue_id: str, update: IssueUpdate):
     
     update_data = {k: v for k, v in update.model_dump().items() if v is not None}
     
+    # When marking as "open", clear the technician assignment to allow reassignment
+    if update_data.get("status") == "open" and existing.get("technician_name"):
+        update_data["technician_name"] = None
+        update_data["technician_assigned_at"] = None
+        # Also delete the associated calendar entry for customer issues
+        if existing.get("source") == "customer":
+            await db.scheduled_maintenance.delete_many({
+                "issue_id": issue_id,
+                "source": "customer_issue"
+            })
+    
     # Track when technician was assigned
     if update_data.get("technician_name") and not existing.get("technician_name"):
         update_data["technician_assigned_at"] = datetime.now(timezone.utc).isoformat()

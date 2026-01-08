@@ -62,8 +62,14 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
         m => m.technician_name === selectedTechnician
       );
       
+      // Filter issues by technician
+      const technicianIssues = issuesRes.data.filter(
+        i => i.technician_name === selectedTechnician
+      );
+      
       setMaintenanceItems(technicianMaintenance);
       setProducts(productsRes.data);
+      setIssues(technicianIssues);
     } catch (error) {
       toast.error("Failed to fetch calendar data");
     } finally {
@@ -78,6 +84,36 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
     } catch (error) {
       console.error("Failed to fetch unavailable days");
     }
+  };
+
+  // Mark issue as "In Progress" - will appear in Services page
+  const handleMarkInProgress = async (maintenanceItem) => {
+    if (!maintenanceItem.issue_id) {
+      toast.error("No linked issue found");
+      return;
+    }
+    
+    try {
+      await axios.put(`${API}/issues/${maintenanceItem.issue_id}`, {
+        status: "in_progress"
+      });
+      
+      // Update local maintenance item status
+      await axios.put(`${API}/scheduled-maintenance/${maintenanceItem.id}`, {
+        status: "in_progress"
+      });
+      
+      toast.success("Issue marked as In Progress - now visible in Services");
+      fetchData(); // Refresh data
+    } catch (error) {
+      toast.error("Failed to update status");
+    }
+  };
+
+  // Get linked issue for a maintenance item
+  const getLinkedIssue = (maintenanceItem) => {
+    if (!maintenanceItem.issue_id) return null;
+    return issues.find(i => i.id === maintenanceItem.issue_id);
   };
 
   const toggleUnavailableDay = async (date) => {

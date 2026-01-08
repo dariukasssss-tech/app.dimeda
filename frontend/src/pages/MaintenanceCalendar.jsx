@@ -54,6 +54,7 @@ const MaintenanceCalendar = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [upcomingCount, setUpcomingCount] = useState({ upcoming: 0, overdue: 0 });
   const [cityFilter, setCityFilter] = useState("all");
+  const [technicianFilter, setTechnicianFilter] = useState("all");
   const [formData, setFormData] = useState({
     product_id: "",
     scheduled_date: "",

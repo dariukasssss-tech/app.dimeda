@@ -200,6 +200,7 @@ const ProtectedRoutes = ({ isAuthenticated, onLogout }) => {
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authType, setAuthType] = useState(null); // "service" or "customer"
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -208,8 +209,11 @@ function App() {
 
   const checkAuth = async () => {
     const token = getAuthToken();
+    const storedType = getAuthType();
+    
     if (!token) {
       setIsAuthenticated(false);
+      setAuthType(null);
       setIsLoading(false);
       return;
     }
@@ -217,25 +221,36 @@ function App() {
     try {
       const response = await axios.get(`${API}/auth/check`);
       setIsAuthenticated(response.data.authenticated);
+      setAuthType(response.data.type || storedType);
       if (!response.data.authenticated) {
         clearAuthToken();
+        setAuthType(null);
       }
     } catch (error) {
       setIsAuthenticated(false);
+      setAuthType(null);
       clearAuthToken();
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLoginSuccess = (token) => {
-    setAuthToken(token);
+  const handleServiceLoginSuccess = (token) => {
+    setAuthToken(token, "service");
     setIsAuthenticated(true);
+    setAuthType("service");
+  };
+
+  const handleCustomerLoginSuccess = (token) => {
+    setAuthToken(token, "customer");
+    setIsAuthenticated(true);
+    setAuthType("customer");
   };
 
   const handleLogout = () => {
     clearAuthToken();
     setIsAuthenticated(false);
+    setAuthType(null);
   };
 
   if (isLoading) {
@@ -253,19 +268,42 @@ function App() {
           path="/login" 
           element={
             isAuthenticated ? (
-              <Navigate to="/" replace />
+              authType === "customer" ? (
+                <Navigate to="/customer" replace />
+              ) : (
+                <Navigate to="/" replace />
+              )
             ) : (
-              <Login onLoginSuccess={handleLoginSuccess} />
+              <Login 
+                onLoginSuccess={handleServiceLoginSuccess} 
+                onCustomerLoginSuccess={handleCustomerLoginSuccess}
+              />
             )
           } 
         />
+        {/* Customer Portal Routes */}
+        <Route 
+          path="/customer/*" 
+          element={
+            isAuthenticated && authType === "customer" ? (
+              <CustomerPortal onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
+        {/* Service Pro Routes */}
         <Route 
           path="/*" 
           element={
-            <ProtectedRoutes 
-              isAuthenticated={isAuthenticated} 
-              onLogout={handleLogout} 
-            />
+            isAuthenticated && authType === "service" ? (
+              <ProtectedRoutes 
+                isAuthenticated={isAuthenticated} 
+                onLogout={handleLogout} 
+              />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           } 
         />
       </Routes>

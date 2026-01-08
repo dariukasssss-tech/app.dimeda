@@ -828,6 +828,425 @@ class DimedasServiceProAPITester:
         
         return success_count == total_tests if total_tests > 0 else True
 
+    def test_comprehensive_workflow(self):
+        """Test the complete Dimeda Service Pro workflow as specified in review request"""
+        print("\n🔄 STARTING COMPREHENSIVE WORKFLOW TEST")
+        print("=" * 60)
+        
+        workflow_success = True
+        
+        # Step 1: Customer Portal - Issue Registration
+        print("\n📋 STEP 1: CUSTOMER PORTAL - ISSUE REGISTRATION")
+        
+        # First login as customer
+        customer_session = requests.Session()
+        login_data = {"password": "customer2025"}
+        
+        try:
+            response = customer_session.post(
+                f"{self.api_url}/auth/customer-login",
+                json=login_data,
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                customer_token = result.get('token')
+                customer_session.headers.update({'X-Auth-Token': customer_token})
+                print("✅ Customer login successful")
+            else:
+                print(f"❌ Customer login failed - Status: {response.status_code}")
+                workflow_success = False
+                return workflow_success
+        except Exception as e:
+            print(f"❌ Customer login error: {str(e)}")
+            workflow_success = False
+            return workflow_success
+        
+        # Get products list
+        try:
+            response = customer_session.get(f"{self.api_url}/products")
+            if response.status_code == 200:
+                products = response.json()
+                if products:
+                    test_product = products[0]
+                    print(f"✅ Retrieved products list - Using product: {test_product['serial_number']}")
+                else:
+                    print("❌ No products available for testing")
+                    workflow_success = False
+                    return workflow_success
+            else:
+                print(f"❌ Failed to get products - Status: {response.status_code}")
+                workflow_success = False
+                return workflow_success
+        except Exception as e:
+            print(f"❌ Error getting products: {str(e)}")
+            workflow_success = False
+            return workflow_success
+        
+        # Create customer issue
+        customer_issue_data = {
+            "product_id": test_product['id'],
+            "title": "Evaluation Test Issue",
+            "description": "Testing complete workflow",
+            "issue_type": "mechanical",
+            "product_location": "Test Hospital Floor 1"
+        }
+        
+        try:
+            response = customer_session.post(
+                f"{self.api_url}/issues/customer",
+                json=customer_issue_data,
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            if response.status_code == 200:
+                customer_issue = response.json()
+                self.workflow_issue_id = customer_issue['id']
+                
+                # Verify response properties
+                if (customer_issue.get('source') == 'customer' and 
+                    customer_issue.get('severity') == 'high'):
+                    print(f"✅ Customer issue created successfully - ID: {self.workflow_issue_id}")
+                    print(f"   Source: {customer_issue.get('source')}, Severity: {customer_issue.get('severity')}")
+                else:
+                    print(f"❌ Customer issue properties incorrect - Source: {customer_issue.get('source')}, Severity: {customer_issue.get('severity')}")
+                    workflow_success = False
+            else:
+                print(f"❌ Failed to create customer issue - Status: {response.status_code}")
+                workflow_success = False
+                return workflow_success
+        except Exception as e:
+            print(f"❌ Error creating customer issue: {str(e)}")
+            workflow_success = False
+            return workflow_success
+        
+        # Step 2: Service Pro - Notification Check
+        print("\n🔔 STEP 2: SERVICE PRO - NOTIFICATION CHECK")
+        
+        # Get all issues and filter for unassigned customer issues
+        success, all_issues = self.run_test(
+            "Get Issues for Notification Check",
+            "GET",
+            "issues",
+            200
+        )
+        
+        if success:
+            unassigned_customer_issues = [
+                issue for issue in all_issues 
+                if (issue.get('source') == 'customer' and 
+                    not issue.get('technician_name'))
+            ]
+            
+            # Verify our test issue appears
+            test_issue_found = any(issue['id'] == self.workflow_issue_id for issue in unassigned_customer_issues)
+            
+            if test_issue_found:
+                print(f"✅ New customer issue appears in unassigned list ({len(unassigned_customer_issues)} total)")
+            else:
+                print("❌ Test issue not found in unassigned customer issues")
+                workflow_success = False
+        else:
+            workflow_success = False
+        
+        # Step 3: Technician Assignment
+        print("\n👨‍🔧 STEP 3: TECHNICIAN ASSIGNMENT")
+        
+        assignment_data = {"technician_name": "Technician 1"}
+        
+        success, updated_issue = self.run_test(
+            "Assign Technician",
+            "PUT",
+            f"issues/{self.workflow_issue_id}",
+            200,
+            data=assignment_data
+        )
+        
+        if success:
+            if (updated_issue.get('technician_name') == 'Technician 1' and 
+                updated_issue.get('technician_assigned_at')):
+                print("✅ Technician assigned successfully")
+                print(f"   Assigned at: {updated_issue.get('technician_assigned_at')}")
+            else:
+                print("❌ Technician assignment failed")
+                workflow_success = False
+        else:
+            workflow_success = False
+        
+        # Verify calendar entry created
+        success, maintenance_list = self.run_test(
+            "Check Calendar Entry Creation",
+            "GET",
+            "scheduled-maintenance",
+            200
+        )
+        
+        if success:
+            customer_calendar_entries = [
+                m for m in maintenance_list 
+                if (m.get('source') == 'customer_issue' and 
+                    m.get('issue_id') == self.workflow_issue_id)
+            ]
+            
+            if customer_calendar_entries:
+                calendar_entry = customer_calendar_entries[0]
+                self.workflow_calendar_id = calendar_entry['id']
+                print("✅ Calendar entry created with SLA deadline")
+                print(f"   Scheduled date: {calendar_entry.get('scheduled_date')}")
+                print(f"   Priority: {calendar_entry.get('priority')}")
+            else:
+                print("❌ No calendar entry created for customer issue")
+                workflow_success = False
+        else:
+            workflow_success = False
+        
+        # Step 4: Mark as In Progress
+        print("\n⏳ STEP 4: MARK AS IN PROGRESS")
+        
+        progress_data = {"status": "in_progress"}
+        
+        success, updated_issue = self.run_test(
+            "Mark Issue In Progress",
+            "PUT",
+            f"issues/{self.workflow_issue_id}",
+            200,
+            data=progress_data
+        )
+        
+        if success and updated_issue.get('status') == 'in_progress':
+            print("✅ Issue marked as in progress")
+        else:
+            print("❌ Failed to mark issue as in progress")
+            workflow_success = False
+        
+        # Step 5: Resolve Issue (Warranty)
+        print("\n🔧 STEP 5: RESOLVE ISSUE (WARRANTY)")
+        
+        warranty_resolution_data = {
+            "status": "resolved",
+            "warranty_service_type": "warranty",
+            "resolution": "Issue fixed under warranty"
+        }
+        
+        success, resolved_issue = self.run_test(
+            "Resolve Issue (Warranty)",
+            "PUT",
+            f"issues/{self.workflow_issue_id}",
+            200,
+            data=warranty_resolution_data
+        )
+        
+        if success:
+            if (resolved_issue.get('status') == 'resolved' and 
+                resolved_issue.get('warranty_service_type') == 'warranty' and
+                resolved_issue.get('resolved_at')):
+                print("✅ Issue resolved under warranty")
+                print(f"   Resolved at: {resolved_issue.get('resolved_at')}")
+            else:
+                print("❌ Warranty resolution failed")
+                workflow_success = False
+        else:
+            workflow_success = False
+        
+        # Step 6: Resolve Issue (Non-Warranty) - Create another test issue
+        print("\n💰 STEP 6: RESOLVE ISSUE (NON-WARRANTY)")
+        
+        # Create another customer issue for non-warranty test
+        non_warranty_issue_data = {
+            "product_id": test_product['id'],
+            "title": "Non-Warranty Test Issue",
+            "description": "Testing non-warranty resolution",
+            "issue_type": "electrical",
+            "product_location": "Test Hospital Floor 2"
+        }
+        
+        try:
+            response = customer_session.post(
+                f"{self.api_url}/issues/customer",
+                json=non_warranty_issue_data,
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            if response.status_code == 200:
+                non_warranty_issue = response.json()
+                self.workflow_non_warranty_issue_id = non_warranty_issue['id']
+                print(f"✅ Created second test issue for non-warranty test - ID: {self.workflow_non_warranty_issue_id}")
+            else:
+                print(f"❌ Failed to create second test issue - Status: {response.status_code}")
+                workflow_success = False
+                return workflow_success
+        except Exception as e:
+            print(f"❌ Error creating second test issue: {str(e)}")
+            workflow_success = False
+            return workflow_success
+        
+        # Assign technician to second issue
+        success, _ = self.run_test(
+            "Assign Technician to Second Issue",
+            "PUT",
+            f"issues/{self.workflow_non_warranty_issue_id}",
+            200,
+            data={"technician_name": "Technician 2"}
+        )
+        
+        if not success:
+            workflow_success = False
+            return workflow_success
+        
+        # Mark second issue in progress
+        success, _ = self.run_test(
+            "Mark Second Issue In Progress",
+            "PUT",
+            f"issues/{self.workflow_non_warranty_issue_id}",
+            200,
+            data={"status": "in_progress"}
+        )
+        
+        if not success:
+            workflow_success = False
+            return workflow_success
+        
+        # Resolve with non-warranty
+        non_warranty_resolution_data = {
+            "status": "resolved",
+            "warranty_service_type": "non_warranty",
+            "resolution": "Paid repair completed",
+            "estimated_fix_time": "3",
+            "estimated_cost": "200"
+        }
+        
+        success, resolved_non_warranty = self.run_test(
+            "Resolve Issue (Non-Warranty)",
+            "PUT",
+            f"issues/{self.workflow_non_warranty_issue_id}",
+            200,
+            data=non_warranty_resolution_data
+        )
+        
+        if success:
+            if (resolved_non_warranty.get('status') == 'resolved' and 
+                resolved_non_warranty.get('warranty_service_type') == 'non_warranty' and
+                resolved_non_warranty.get('estimated_fix_time') == '3' and
+                resolved_non_warranty.get('estimated_cost') == '200'):
+                print("✅ Issue resolved as non-warranty with cost details")
+                print(f"   Fix time: {resolved_non_warranty.get('estimated_fix_time')} hours")
+                print(f"   Cost: €{resolved_non_warranty.get('estimated_cost')}")
+            else:
+                print("❌ Non-warranty resolution failed")
+                workflow_success = False
+        else:
+            workflow_success = False
+        
+        # Step 7: Service Record Creation
+        print("\n📝 STEP 7: SERVICE RECORD CREATION")
+        
+        service_data = {
+            "product_id": test_product['id'],
+            "technician_name": "Manual Service Tech",
+            "service_type": "repair",
+            "description": "Manual service record creation test",
+            "issues_found": "Test issues found",
+            "warranty_status": "warranty"
+        }
+        
+        success, service_record = self.run_test(
+            "Create Manual Service Record",
+            "POST",
+            "services",
+            200,
+            data=service_data
+        )
+        
+        if success and service_record.get('id'):
+            self.workflow_service_id = service_record['id']
+            print(f"✅ Manual service record created - ID: {self.workflow_service_id}")
+        else:
+            workflow_success = False
+        
+        # Step 8: Mark as Open (Re-assignment Test)
+        print("\n🔄 STEP 8: MARK AS OPEN (RE-ASSIGNMENT TEST)")
+        
+        reopen_data = {"status": "open"}
+        
+        success, reopened_issue = self.run_test(
+            "Mark Issue as Open",
+            "PUT",
+            f"issues/{self.workflow_issue_id}",
+            200,
+            data=reopen_data
+        )
+        
+        if success:
+            if (reopened_issue.get('status') == 'open' and 
+                not reopened_issue.get('technician_name') and
+                not reopened_issue.get('technician_assigned_at')):
+                print("✅ Issue marked as open - technician assignment cleared")
+            else:
+                print("❌ Failed to properly reopen issue")
+                print(f"   Status: {reopened_issue.get('status')}")
+                print(f"   Technician: {reopened_issue.get('technician_name')}")
+                workflow_success = False
+        else:
+            workflow_success = False
+        
+        # Verify calendar entry was deleted
+        success, updated_maintenance = self.run_test(
+            "Check Calendar Entry Deletion",
+            "GET",
+            "scheduled-maintenance",
+            200
+        )
+        
+        if success:
+            remaining_entries = [
+                m for m in updated_maintenance 
+                if (m.get('source') == 'customer_issue' and 
+                    m.get('issue_id') == self.workflow_issue_id)
+            ]
+            
+            if not remaining_entries:
+                print("✅ Calendar entry deleted when issue marked as open")
+            else:
+                print("❌ Calendar entry not deleted when issue marked as open")
+                workflow_success = False
+        else:
+            workflow_success = False
+        
+        print("\n" + "=" * 60)
+        if workflow_success:
+            print("🎉 COMPREHENSIVE WORKFLOW TEST COMPLETED SUCCESSFULLY")
+        else:
+            print("❌ COMPREHENSIVE WORKFLOW TEST FAILED")
+        print("=" * 60)
+        
+        return workflow_success
+    
+    def cleanup_workflow_data(self):
+        """Clean up workflow test data"""
+        print("\n🧹 CLEANING UP WORKFLOW TEST DATA")
+        
+        cleanup_items = [
+            ('workflow_service_id', 'services'),
+            ('workflow_non_warranty_issue_id', 'issues'),
+            ('workflow_issue_id', 'issues'),
+            ('workflow_calendar_id', 'scheduled-maintenance')
+        ]
+        
+        for attr_name, endpoint in cleanup_items:
+            if hasattr(self, attr_name) and getattr(self, attr_name):
+                item_id = getattr(self, attr_name)
+                success, _ = self.run_test(
+                    f"Delete {attr_name.replace('_', ' ').title()}",
+                    "DELETE",
+                    f"{endpoint}/{item_id}",
+                    200
+                )
+                if success:
+                    print(f"✅ Deleted {attr_name}")
+                else:
+                    print(f"❌ Failed to delete {attr_name}")
+
 def main():
     print("🚀 Starting Dimeda Service Pro API Tests")
     print("=" * 50)
@@ -839,7 +1258,13 @@ def main():
         print("❌ Failed to login - cannot proceed with tests")
         return 1
     
-    # Test sequence
+    # Run comprehensive workflow test
+    workflow_success = tester.test_comprehensive_workflow()
+    
+    # Clean up workflow data
+    tester.cleanup_workflow_data()
+    
+    # Test sequence for other tests
     tests = [
         # Basic API test
         tester.test_api_root,
@@ -901,11 +1326,20 @@ def main():
     print("\n" + "=" * 50)
     print(f"📊 Test Results: {tester.tests_passed}/{tester.tests_run} tests passed")
     
-    if tester.tests_passed == tester.tests_run:
+    # Include workflow test result
+    if workflow_success:
+        print("🎉 Comprehensive workflow test: PASSED")
+    else:
+        print("❌ Comprehensive workflow test: FAILED")
+    
+    if tester.tests_passed == tester.tests_run and workflow_success:
         print("🎉 All tests passed!")
         return 0
     else:
-        print(f"❌ {tester.tests_run - tester.tests_passed} tests failed")
+        failed_count = tester.tests_run - tester.tests_passed
+        if not workflow_success:
+            failed_count += 1
+        print(f"❌ {failed_count} tests failed")
         return 1
 
 if __name__ == "__main__":

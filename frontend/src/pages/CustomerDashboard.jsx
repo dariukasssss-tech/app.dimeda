@@ -21,22 +21,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { AlertTriangle, Plus, CheckCircle, Clock } from "lucide-react";
+import { AlertTriangle, Plus, CheckCircle, Clock, MapPin, Filter } from "lucide-react";
 
-// Warranty options
-const WARRANTY_OPTIONS = ["Warranty", "Non Warranty"];
+// Cities list
+const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
 
 const CustomerDashboard = () => {
   const [products, setProducts] = useState([]);
   const [myIssues, setMyIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [issueFilter, setIssueFilter] = useState("all");
   const [formData, setFormData] = useState({
+    selected_city: "",
     product_id: "",
     issue_type: "",
     title: "",
     description: "",
-    warranty_status: "",
+    product_location: "",
   });
 
   useEffect(() => {
@@ -47,7 +50,7 @@ const CustomerDashboard = () => {
     try {
       const [productsRes, issuesRes] = await Promise.all([
         axios.get(`${API}/products`),
-        axios.get(`${API}/issues?source=customer`),
+        axios.get(`${API}/issues`),
       ]);
       setProducts(productsRes.data);
       setMyIssues(issuesRes.data.filter(i => i.source === "customer"));
@@ -58,25 +61,65 @@ const CustomerDashboard = () => {
     }
   };
 
+  // Filter products by selected city
+  const filteredProducts = formData.selected_city
+    ? products.filter(p => p.city === formData.selected_city)
+    : [];
+
+  // Filter issues by city
+  const filteredIssues = issueFilter === "all"
+    ? myIssues
+    : myIssues.filter(issue => {
+        const product = products.find(p => p.id === issue.product_id);
+        return product?.city === issueFilter;
+      });
+
+  const handleCityChange = (city) => {
+    setFormData({ 
+      ...formData, 
+      selected_city: city,
+      product_id: "" // Reset product when city changes
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
+      const selectedProduct = products.find(p => p.id === formData.product_id);
+      
       await axios.post(`${API}/issues/customer`, {
-        ...formData,
-        severity: "high", // Customer issues are always high severity
+        product_id: formData.product_id,
+        issue_type: formData.issue_type,
+        title: formData.title,
+        description: formData.description,
+        product_location: formData.product_location,
+        severity: "high",
         source: "customer",
       });
+      
+      // Show success message
+      setSuccessMessage({
+        title: formData.title,
+        serial: selectedProduct?.serial_number || "Unknown",
+        city: selectedProduct?.city || "Unknown",
+        time: new Date().toLocaleString(),
+      });
+      
       toast.success("Issue reported successfully! Our team will be notified.");
       setDialogOpen(false);
       setFormData({
+        selected_city: "",
         product_id: "",
         issue_type: "",
         title: "",
         description: "",
-        warranty_status: "",
+        product_location: "",
       });
       fetchData();
+      
+      // Clear success message after 30 seconds
+      setTimeout(() => setSuccessMessage(null), 30000);
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to report issue");
     }
@@ -85,6 +128,11 @@ const CustomerDashboard = () => {
   const getProductSerial = (productId) => {
     const product = products.find((p) => p.id === productId);
     return product?.serial_number || "Unknown";
+  };
+
+  const getProductCity = (productId) => {
+    const product = products.find((p) => p.id === productId);
+    return product?.city || "Unknown";
   };
 
   const statusIcons = {
@@ -120,32 +168,64 @@ const CustomerDashboard = () => {
               Report New Issue
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-[#0066CC]" style={{ fontFamily: 'Manrope, sans-serif' }}>
                 Report New Issue
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+              {/* Place (City) - First field */}
               <div>
-                <Label>Product (Serial Number) *</Label>
+                <Label>Place (City) *</Label>
                 <Select
-                  value={formData.product_id}
-                  onValueChange={(value) => setFormData({ ...formData, product_id: value })}
+                  value={formData.selected_city}
+                  onValueChange={handleCityChange}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select product" />
+                    <SelectValue placeholder="Select city" />
                   </SelectTrigger>
                   <SelectContent>
-                    {products.map((product) => (
-                      <SelectItem key={product.id} value={product.id}>
-                        {product.serial_number} - {product.model_name}
+                    {CITIES.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
+              {/* Product - Filtered by city */}
+              <div>
+                <Label>Product (Serial Number) *</Label>
+                <Select
+                  value={formData.product_id}
+                  onValueChange={(value) => setFormData({ ...formData, product_id: value })}
+                  disabled={!formData.selected_city}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={formData.selected_city ? "Select product" : "Select city first"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredProducts.length === 0 ? (
+                      <SelectItem value="none" disabled>
+                        No products in this city
+                      </SelectItem>
+                    ) : (
+                      filteredProducts.map((product) => (
+                        <SelectItem key={product.id} value={product.id}>
+                          {product.serial_number} - {product.model_name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                {formData.selected_city && filteredProducts.length === 0 && (
+                  <p className="text-xs text-amber-600 mt-1">No products registered in {formData.selected_city}</p>
+                )}
+              </div>
+
+              {/* Issue Type */}
               <div>
                 <Label>Issue Type *</Label>
                 <Select
@@ -164,25 +244,19 @@ const CustomerDashboard = () => {
                 </Select>
               </div>
 
+              {/* Product Location - Text input instead of warranty dropdown */}
               <div>
-                <Label>Warranty Status *</Label>
-                <Select
-                  value={formData.warranty_status}
-                  onValueChange={(value) => setFormData({ ...formData, warranty_status: value })}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select warranty status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {WARRANTY_OPTIONS.map((opt) => (
-                      <SelectItem key={opt} value={opt.toLowerCase().replace(' ', '_')}>
-                        {opt}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="product_location">Product Location</Label>
+                <Input
+                  id="product_location"
+                  value={formData.product_location}
+                  onChange={(e) => setFormData({ ...formData, product_location: e.target.value })}
+                  placeholder="Enter product location address"
+                  className="mt-1"
+                />
               </div>
 
+              {/* Issue Title */}
               <div>
                 <Label htmlFor="title">Issue Title *</Label>
                 <Input
@@ -195,6 +269,7 @@ const CustomerDashboard = () => {
                 />
               </div>
 
+              {/* Detailed Description */}
               <div>
                 <Label htmlFor="description">Detailed Description *</Label>
                 <Textarea
@@ -220,7 +295,7 @@ const CustomerDashboard = () => {
                 <Button
                   type="submit"
                   className="flex-1 bg-[#0066CC] hover:bg-[#0052A3]"
-                  disabled={!formData.product_id || !formData.issue_type || !formData.title || !formData.description || !formData.warranty_status}
+                  disabled={!formData.product_id || !formData.issue_type || !formData.title || !formData.description}
                 >
                   Submit Issue
                 </Button>
@@ -230,7 +305,7 @@ const CustomerDashboard = () => {
         </Dialog>
       </div>
 
-      {/* Info Card */}
+      {/* Info Card - How it works */}
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
@@ -247,22 +322,78 @@ const CustomerDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* My Issues */}
+      {/* Success Message - Shows after successful issue registration */}
+      {successMessage && (
+        <Card className="bg-emerald-50 border-emerald-200 animate-in fade-in slide-in-from-top-2 duration-300">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="text-emerald-600 mt-0.5" size={20} />
+              <div className="flex-1">
+                <p className="font-medium text-emerald-900">Issue Registered Successfully!</p>
+                <div className="text-sm text-emerald-700 mt-2 space-y-1">
+                  <p><strong>Issue:</strong> {successMessage.title}</p>
+                  <p><strong>Product S/N:</strong> {successMessage.serial}</p>
+                  <p><strong>City:</strong> {successMessage.city}</p>
+                  <p><strong>Submitted:</strong> {successMessage.time}</p>
+                </div>
+                <p className="text-xs text-emerald-600 mt-2">
+                  Our service team has been notified and will review your issue shortly.
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSuccessMessage(null)}
+                className="text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100"
+              >
+                Dismiss
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Reported Issues */}
       <Card>
         <CardHeader>
-          <CardTitle style={{ fontFamily: 'Manrope, sans-serif' }}>My Reported Issues</CardTitle>
-          <CardDescription>Track the status of your submitted issues</CardDescription>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <CardTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Reported Issues</CardTitle>
+              <CardDescription>Track the status of your submitted issues</CardDescription>
+            </div>
+            {/* City Filter */}
+            <div className="flex items-center gap-2">
+              <Filter size={16} className="text-slate-400" />
+              <Select value={issueFilter} onValueChange={setIssueFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Filter by city" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Cities</SelectItem>
+                  {CITIES.map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          {myIssues.length === 0 ? (
+          {filteredIssues.length === 0 ? (
             <div className="text-center py-8">
               <AlertTriangle className="mx-auto text-slate-300" size={48} />
-              <p className="text-slate-500 mt-4">No issues reported yet</p>
-              <p className="text-sm text-slate-400 mt-1">Click "Report New Issue" to get started</p>
+              <p className="text-slate-500 mt-4">
+                {issueFilter === "all" ? "No issues reported yet" : `No issues reported in ${issueFilter}`}
+              </p>
+              <p className="text-sm text-slate-400 mt-1">
+                {issueFilter === "all" ? 'Click "Report New Issue" to get started' : "Try selecting a different city"}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {myIssues.map((issue) => (
+              {filteredIssues.map((issue) => (
                 <div 
                   key={issue.id} 
                   className="p-4 border rounded-lg hover:bg-slate-50 transition-colors"
@@ -279,19 +410,19 @@ const CustomerDashboard = () => {
                         }`}>
                           {issue.status.replace("_", " ")}
                         </span>
-                        {issue.warranty_status && (
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                            issue.warranty_status === "warranty" 
-                              ? "bg-green-100 text-green-800" 
-                              : "bg-gray-100 text-gray-800"
-                          }`}>
-                            {issue.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
-                          </span>
-                        )}
                       </div>
                       <p className="text-sm text-slate-500 mt-1">
-                        S/N: {getProductSerial(issue.product_id)} • {issue.issue_type}
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin size={12} />
+                          {getProductCity(issue.product_id)}
+                        </span>
+                        {" • "}S/N: {getProductSerial(issue.product_id)} • {issue.issue_type}
                       </p>
+                      {issue.product_location && (
+                        <p className="text-xs text-slate-400 mt-1">
+                          Location: {issue.product_location}
+                        </p>
+                      )}
                       <p className="text-sm text-slate-600 mt-2">{issue.description}</p>
                       {issue.resolution && (
                         <div className="mt-2 p-2 bg-emerald-50 rounded text-sm text-emerald-800">

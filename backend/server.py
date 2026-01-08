@@ -520,6 +520,11 @@ async def update_issue(issue_id: str, update: IssueUpdate):
         raise HTTPException(status_code=404, detail="Issue not found")
     
     update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    
+    # Track when technician was assigned
+    if update_data.get("technician_name") and not existing.get("technician_name"):
+        update_data["technician_assigned_at"] = datetime.now(timezone.utc).isoformat()
+    
     if update_data.get("status") == "resolved":
         update_data["resolved_at"] = datetime.now(timezone.utc).isoformat()
     

@@ -278,6 +278,11 @@ const MaintenanceCalendar = () => {
     if (item.status === "completed") return "bg-slate-800 text-white";  // Black/dark for finished
     if (item.status === "in_progress") return "bg-blue-500 text-white"; // Blue for in progress
     
+    // Customer issues - purple color
+    if (item.source === "customer_issue") {
+      return "bg-purple-100 text-purple-800";
+    }
+    
     // For scheduled items
     if (item.source === "auto_yearly" || item.maintenance_type === "routine") {
       return "bg-emerald-100 text-emerald-800"; // Green for yearly maintenance
@@ -294,10 +299,32 @@ const MaintenanceCalendar = () => {
   const getTaskBorderColor = (item) => {
     if (item.status === "completed") return "border-slate-800";
     if (item.status === "in_progress") return "border-blue-500";
+    if (item.source === "customer_issue") return "border-purple-500";
     if (item.source === "auto_yearly" || item.maintenance_type === "routine") return "border-emerald-500";
     if (item.priority === "12h") return "border-orange-500";
     if (item.priority === "24h") return "border-red-500";
     return "border-blue-500";
+  };
+
+  // Calculate SLA time remaining for customer issues
+  const calculateSLARemaining = (item) => {
+    if (item.source !== "customer_issue" || item.status === "completed") return null;
+    
+    const scheduledDate = new Date(item.scheduled_date);
+    const now = new Date();
+    const diffMs = scheduledDate - now;
+    
+    if (diffMs <= 0) {
+      return { expired: true, text: "SLA Expired" };
+    }
+    
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return { expired: false, text: `${hours}h ${minutes}m left` };
+    }
+    return { expired: false, text: `${minutes}m left`, urgent: true };
   };
 
   const statusColors = {

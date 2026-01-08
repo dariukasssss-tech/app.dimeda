@@ -241,6 +241,29 @@ const Issues = () => {
     return product?.city || "Unknown";
   };
 
+  // Calculate SLA time remaining for customer issues
+  const calculateSLARemaining = (issue) => {
+    if (issue.source !== "customer" || issue.status === "resolved" || !issue.technician_name) return null;
+    
+    // SLA is 12 hours from issue creation
+    const createdAt = new Date(issue.created_at);
+    const slaDeadline = new Date(createdAt.getTime() + 12 * 60 * 60 * 1000);
+    const now = new Date();
+    const diffMs = slaDeadline - now;
+    
+    if (diffMs <= 0) {
+      return { expired: true, text: "SLA Expired" };
+    }
+    
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return { expired: false, text: `${hours}h ${minutes}m left`, urgent: hours < 2 };
+    }
+    return { expired: false, text: `${minutes}m left`, urgent: true };
+  };
+
   // Calculate counts for each status
   const issueCounts = {
     all: issues.length,

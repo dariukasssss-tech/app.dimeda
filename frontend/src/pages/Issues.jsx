@@ -881,14 +881,14 @@ const Issues = () => {
                           <AlertTriangle size={14} className="mr-2" /> Mark as Open
                         </DropdownMenuItem>
                       )}
-                      {issue.status !== "in_progress" && (
+                      {issue.status !== "in_progress" && issue.status !== "resolved" && (
                         <DropdownMenuItem onClick={() => handleStatusChange(issue.id, "in_progress")}>
                           <Clock size={14} className="mr-2" /> Mark In Progress
                         </DropdownMenuItem>
                       )}
-                      {issue.status !== "resolved" && (
-                        <DropdownMenuItem onClick={() => handleStatusChange(issue.id, "resolved")}>
-                          <CheckCircle size={14} className="mr-2" /> Mark as Resolved
+                      {issue.status === "in_progress" && (
+                        <DropdownMenuItem disabled className="text-slate-400">
+                          <CheckCircle size={14} className="mr-2" /> Resolve from Services page
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem
@@ -906,18 +906,12 @@ const Issues = () => {
         )}
       </div>
 
-      {/* Resolve Dialog */}
-      <Dialog open={resolveDialogOpen} onOpenChange={setResolveDialogOpen}>
-        <DialogContent data-testid="resolve-dialog">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Resolve Issue</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div>
-              <Label htmlFor="resolution">Resolution Notes *</Label>
-              <Textarea
-                id="resolution"
-                value={resolution}
+      {/* Remove old Resolve Dialog - resolution is now only from Service page */}
+    </div>
+  );
+};
+
+export default Issues;
                 onChange={(e) => setResolution(e.target.value)}
                 placeholder="Describe how the issue was resolved..."
                 className="mt-1"

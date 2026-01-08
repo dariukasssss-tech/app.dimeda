@@ -460,11 +460,13 @@ const MaintenanceCalendar = () => {
                   <thead>
                     <tr className="border-b">
                       <th className="text-left py-2 px-2 font-medium text-slate-600">Technician</th>
-                      <th className="text-center py-2 px-2 font-medium text-emerald-600">Yearly</th>
-                      <th className="text-center py-2 px-2 font-medium text-orange-600">12h</th>
-                      <th className="text-center py-2 px-2 font-medium text-red-600">24h</th>
-                      <th className="text-center py-2 px-2 font-medium text-blue-600">In Progress</th>
-                      <th className="text-center py-2 px-2 font-medium text-slate-600">Completed</th>
+                      <th className="text-center py-2 px-2 font-medium text-emerald-600" title="Yearly Maintenance">Yearly</th>
+                      <th className="text-center py-2 px-2 font-medium text-orange-600" title="12h Priority">12h</th>
+                      <th className="text-center py-2 px-2 font-medium text-red-600" title="24h Priority">24h</th>
+                      <th className="text-center py-2 px-2 font-medium text-amber-600" title="Open Issues">Issues (Open)</th>
+                      <th className="text-center py-2 px-2 font-medium text-blue-600" title="In Progress Issues">Issues (Progress)</th>
+                      <th className="text-center py-2 px-2 font-medium text-emerald-600" title="Resolved Issues">Issues (Resolved)</th>
+                      <th className="text-center py-2 px-2 font-medium text-purple-600" title="Service Records">Services</th>
                       <th className="text-center py-2 px-2 font-medium text-slate-900">Total</th>
                     </tr>
                   </thead>
@@ -495,13 +497,23 @@ const MaintenanceCalendar = () => {
                             </span>
                           </td>
                           <td className="text-center py-2 px-2">
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
-                              {stats.inProgress}
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-800 text-xs font-medium">
+                              {stats.openIssues}
                             </span>
                           </td>
                           <td className="text-center py-2 px-2">
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 text-slate-800 text-xs font-medium">
-                              {stats.completed}
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
+                              {stats.inProgressIssues}
+                            </span>
+                          </td>
+                          <td className="text-center py-2 px-2">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium">
+                              {stats.resolvedIssues}
+                            </span>
+                          </td>
+                          <td className="text-center py-2 px-2">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-100 text-purple-800 text-xs font-medium">
+                              {stats.totalServices}
                             </span>
                           </td>
                           <td className="text-center py-2 px-2">
@@ -520,11 +532,13 @@ const MaintenanceCalendar = () => {
                   <thead>
                     <tr className="border-b">
                       <th className="text-left py-2 px-2 font-medium text-slate-600">Technician</th>
-                      <th className="text-center py-2 px-2 font-medium text-emerald-600">Yearly</th>
-                      <th className="text-center py-2 px-2 font-medium text-orange-600">12h</th>
-                      <th className="text-center py-2 px-2 font-medium text-red-600">24h</th>
-                      <th className="text-center py-2 px-2 font-medium text-blue-600">In Progress</th>
-                      <th className="text-center py-2 px-2 font-medium text-slate-600">Completed</th>
+                      <th className="text-center py-2 px-2 font-medium text-emerald-600" title="Yearly Maintenance">Yearly</th>
+                      <th className="text-center py-2 px-2 font-medium text-orange-600" title="12h Priority">12h</th>
+                      <th className="text-center py-2 px-2 font-medium text-red-600" title="24h Priority">24h</th>
+                      <th className="text-center py-2 px-2 font-medium text-amber-600" title="Open Issues">Issues (Open)</th>
+                      <th className="text-center py-2 px-2 font-medium text-blue-600" title="In Progress Issues">Issues (Progress)</th>
+                      <th className="text-center py-2 px-2 font-medium text-emerald-600" title="Resolved Issues">Issues (Resolved)</th>
+                      <th className="text-center py-2 px-2 font-medium text-purple-600" title="Service Records">Services</th>
                       <th className="text-center py-2 px-2 font-medium text-slate-900">Total</th>
                     </tr>
                   </thead>
@@ -554,10 +568,31 @@ const MaintenanceCalendar = () => {
                             </span>
                           </td>
                           <td className="text-center py-2 px-2">
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
-                              {stats.inProgress}
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-800 text-xs font-medium">
+                              {stats.openIssues}
                             </span>
                           </td>
+                          <td className="text-center py-2 px-2">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
+                              {stats.inProgressIssues}
+                            </span>
+                          </td>
+                          <td className="text-center py-2 px-2">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium">
+                              {stats.resolvedIssues}
+                            </span>
+                          </td>
+                          <td className="text-center py-2 px-2">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-100 text-purple-800 text-xs font-medium">
+                              {stats.totalServices}
+                            </span>
+                          </td>
+                          <td className="text-center py-2 px-2">
+                            <span className="font-bold text-slate-900">{stats.total}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                           <td className="text-center py-2 px-2">
                             <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 text-slate-800 text-xs font-medium">
                               {stats.completed}

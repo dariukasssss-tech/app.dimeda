@@ -506,6 +506,7 @@ const Services = () => {
                 </Button>
               </div>
             </form>
+            )}
           </DialogContent>
         </Dialog>
       </div>

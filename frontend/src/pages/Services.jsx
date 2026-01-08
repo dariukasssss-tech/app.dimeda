@@ -218,6 +218,25 @@ const Services = () => {
               </div>
 
               <div>
+                <Label>Warranty Status *</Label>
+                <Select
+                  value={formData.warranty_status}
+                  onValueChange={(value) => setFormData({ ...formData, warranty_status: value })}
+                >
+                  <SelectTrigger className="mt-1" data-testid="select-warranty">
+                    <SelectValue placeholder="Select warranty status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {WARRANTY_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt.toLowerCase().replace(' ', '_')}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
                 <Label htmlFor="description">Description *</Label>
                 <Textarea
                   id="description"

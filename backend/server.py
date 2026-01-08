@@ -586,8 +586,25 @@ async def update_issue(issue_id: str, update: IssueUpdate):
     if update_data.get("status") == "resolved":
         update_data["resolved_at"] = datetime.now(timezone.utc).isoformat()
     
+    # Remove create_service_record from update_data before saving (it's not a field in Issue model)
+    should_create_service = update_data.pop("create_service_record", None)
+    
     await db.issues.update_one({"id": issue_id}, {"$set": update_data})
     updated = await db.issues.find_one({"id": issue_id}, {"_id": 0})
+    
+    # OPTIMIZATION 3: Auto-create service record for non-warranty resolved issues
+    if should_create_service and update_data.get("status") == "resolved" and update_data.get("warranty_service_type") == "non_warranty":
+        service_obj = Service(
+            product_id=existing["product_id"],
+            technician_name=updated.get("technician_name") or existing.get("technician_name") or "Unknown",
+            service_type="repair",
+            description=f"{existing.get('title', 'Issue')}\n\nResolution: {update_data.get('resolution', 'N/A')}\n\nEstimated Fix Time: {update_data.get('estimated_fix_time', 'N/A')} hours\nEstimated Cost: {update_data.get('estimated_cost', 'N/A')} Eur",
+            issues_found=existing.get("description", ""),
+            warranty_status="non_warranty",
+            service_date=datetime.now(timezone.utc).isoformat(),
+        )
+        await db.services.insert_one(service_obj.model_dump())
+    
     return updated
 
 @api_router.delete("/issues/{issue_id}")

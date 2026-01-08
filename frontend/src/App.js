@@ -217,10 +217,15 @@ const Navigation = ({ onLogout }) => {
                         No unassigned customer issues
                       </div>
                     ) : (
-                      customerIssues.map((issue) => (
+                      customerIssues.map((issue) => {
+                        const sla = calculateSLARemaining(issue);
+                        return (
                         <div
                           key={issue.id}
-                          className="p-3 border-b border-slate-100 hover:bg-slate-50 cursor-pointer"
+                          className={`p-3 border-b border-slate-100 hover:bg-slate-50 cursor-pointer ${
+                            sla.urgency === "critical" ? "bg-red-50" : 
+                            sla.urgency === "warning" ? "bg-orange-50" : ""
+                          }`}
                           onClick={() => handleNotificationClick(issue.id)}
                         >
                           <div className="flex items-start justify-between">
@@ -231,16 +236,25 @@ const Navigation = ({ onLogout }) => {
                               <p className="text-xs text-slate-500 mt-0.5">
                                 S/N: {getProductSerial(issue.product_id)} • {getProductCity(issue.product_id)}
                               </p>
-                              <p className="text-xs text-slate-400 mt-1">
-                                {new Date(issue.created_at).toLocaleString()}
-                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                                  sla.urgency === "critical" ? "bg-red-500 text-white" :
+                                  sla.urgency === "warning" ? "bg-orange-500 text-white" :
+                                  "bg-amber-100 text-amber-800"
+                                }`}>
+                                  SLA: {sla.text}
+                                </span>
+                                <span className="text-xs text-slate-400">
+                                  {new Date(issue.created_at).toLocaleString()}
+                                </span>
+                              </div>
                             </div>
                             <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">
                               {issue.severity}
                             </span>
                           </div>
                         </div>
-                      ))
+                      )})
                     )}
                   </div>
                   {customerIssues.length > 0 && (

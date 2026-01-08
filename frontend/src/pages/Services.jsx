@@ -34,7 +34,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Plus, Wrench, CalendarIcon, User, FileText, Trash2, AlertTriangle, Clock, CheckCircle, Timer, Shield, ShieldOff } from "lucide-react";
+import { Plus, Wrench, CalendarIcon, User, FileText, Trash2, AlertTriangle, Clock, CheckCircle, Timer, Shield, ShieldOff, FileCheck } from "lucide-react";
 import { format } from "date-fns";
 
 // Beta version technician list
@@ -43,6 +43,7 @@ const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];
 const Services = () => {
   const [services, setServices] = useState([]);
   const [inProgressIssues, setInProgressIssues] = useState([]);
+  const [nonWarrantyIssues, setNonWarrantyIssues] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -50,6 +51,8 @@ const Services = () => {
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeTab, setActiveTab] = useState("issues");
+  const [serviceMode, setServiceMode] = useState("new"); // "new" or "from_issue"
+  const [selectedNonWarrantyIssue, setSelectedNonWarrantyIssue] = useState("");
   const [formData, setFormData] = useState({
     product_id: "",
     technician_name: "",
@@ -76,14 +79,20 @@ const Services = () => {
 
   const fetchData = async () => {
     try {
-      const [servicesRes, productsRes, issuesRes] = await Promise.all([
+      const [servicesRes, productsRes, issuesInProgressRes, allIssuesRes] = await Promise.all([
         axios.get(`${API}/services`),
         axios.get(`${API}/products`),
         axios.get(`${API}/issues?status=in_progress`),
+        axios.get(`${API}/issues`),
       ]);
       setServices(servicesRes.data);
       setProducts(productsRes.data);
-      setInProgressIssues(issuesRes.data);
+      setInProgressIssues(issuesInProgressRes.data);
+      // Filter for non-warranty resolved issues that haven't been converted to service yet
+      const nonWarranty = allIssuesRes.data.filter(
+        issue => issue.warranty_service_type === "non_warranty" && issue.status === "resolved"
+      );
+      setNonWarrantyIssues(nonWarranty);
     } catch (error) {
       toast.error("Failed to fetch data");
     } finally {

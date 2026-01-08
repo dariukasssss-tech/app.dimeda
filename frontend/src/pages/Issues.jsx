@@ -628,7 +628,7 @@ const Issues = () => {
           onClick={() => handleFilterChange("resolved")}
           testId="filter-resolved"
         />
-      </Card>
+      </div>
 
       {/* Issues List */}
       <div className="space-y-4" data-testid="issues-list">

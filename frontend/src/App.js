@@ -592,12 +592,15 @@ function App() {
             isAuthenticated ? (
               authType === "customer" ? (
                 <Navigate to="/customer" replace />
+              ) : authType === "technician" ? (
+                <Navigate to="/technician" replace />
               ) : (
                 <Navigate to="/" replace />
               )
             ) : (
               <Login 
-                onLoginSuccess={handleServiceLoginSuccess} 
+                onLoginSuccess={handleAdminLoginSuccess}
+                onTechnicianLoginSuccess={handleTechnicianLoginSuccess}
                 onCustomerLoginSuccess={handleCustomerLoginSuccess}
               />
             )
@@ -614,11 +617,22 @@ function App() {
             )
           } 
         />
-        {/* Service Pro Routes */}
+        {/* Technician Portal Routes */}
+        <Route 
+          path="/technician/*" 
+          element={
+            isAuthenticated && authType === "technician" ? (
+              <TechnicianPortal onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
+        {/* Admin/Service Pro Routes */}
         <Route 
           path="/*" 
           element={
-            isAuthenticated && authType === "service" ? (
+            isAuthenticated && authType === "admin" ? (
               <ProtectedRoutes 
                 isAuthenticated={isAuthenticated} 
                 onLogout={handleLogout} 

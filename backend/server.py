@@ -531,6 +531,25 @@ async def delete_issue(issue_id: str):
         raise HTTPException(status_code=404, detail="Issue not found")
     return {"message": "Issue deleted successfully"}
 
+# Customer Issue Endpoint - creates high severity issues
+@api_router.post("/issues/customer", response_model=Issue)
+async def create_customer_issue(issue: CustomerIssueCreate):
+    # Verify product exists
+    product = await db.products.find_one({"id": issue.product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Create issue with high severity and customer source
+    issue_data = issue.model_dump()
+    issue_data["severity"] = "high"  # Customer issues are always high severity
+    issue_data["source"] = "customer"  # Mark as customer-reported
+    issue_data["photos"] = []
+    
+    issue_obj = Issue(**issue_data)
+    doc = issue_obj.model_dump()
+    await db.issues.insert_one(doc)
+    return issue_obj
+
 # ============ STATISTICS ENDPOINT ============
 
 @api_router.get("/stats")

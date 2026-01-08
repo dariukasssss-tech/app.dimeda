@@ -14,9 +14,12 @@ import Export from "@/pages/Export";
 import MaintenanceCalendar from "@/pages/MaintenanceCalendar";
 import Login from "@/pages/Login";
 import CustomerDashboard from "@/pages/CustomerDashboard";
+import TechnicianDashboard from "@/pages/TechnicianDashboard";
+import TechnicianCalendar from "@/pages/TechnicianCalendar";
+import TechnicianServices from "@/pages/TechnicianServices";
 
 // Icons
-import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X, CalendarDays, LogOut, Bell } from "lucide-react";
+import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X, CalendarDays, LogOut, Bell, User } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
@@ -24,6 +27,7 @@ export const API = `${BACKEND_URL}/api`;
 // Auth token storage keys
 const AUTH_TOKEN_KEY = "dimeda_auth_token";
 const AUTH_TYPE_KEY = "dimeda_auth_type";
+const SELECTED_TECHNICIAN_KEY = "dimeda_selected_technician";
 
 // Configure axios defaults
 axios.defaults.withCredentials = true;
@@ -40,14 +44,17 @@ axios.interceptors.request.use((config) => {
 // Export auth helper functions
 export const getAuthToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
 export const getAuthType = () => localStorage.getItem(AUTH_TYPE_KEY);
-export const setAuthToken = (token, type = "service") => {
+export const setAuthToken = (token, type = "admin") => {
   localStorage.setItem(AUTH_TOKEN_KEY, token);
   localStorage.setItem(AUTH_TYPE_KEY, type);
 };
 export const clearAuthToken = () => {
   localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(AUTH_TYPE_KEY);
+  localStorage.removeItem(SELECTED_TECHNICIAN_KEY);
 };
+export const getSelectedTechnician = () => localStorage.getItem(SELECTED_TECHNICIAN_KEY);
+export const setSelectedTechnician = (tech) => localStorage.setItem(SELECTED_TECHNICIAN_KEY, tech);
 
 // Navigation Component
 const Navigation = ({ onLogout }) => {

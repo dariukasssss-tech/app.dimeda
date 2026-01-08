@@ -142,6 +142,9 @@ class Issue(IssueBase):
     technician_name: Optional[str] = None
     technician_assigned_at: Optional[str] = None  # When technician was assigned
     warranty_status: Optional[str] = None
+    warranty_service_type: Optional[str] = None  # warranty, non_warranty (set when resolving)
+    estimated_fix_time: Optional[str] = None  # For non-warranty
+    estimated_cost: Optional[str] = None  # For non-warranty
     product_location: Optional[str] = None  # Address/location info from customer
     source: Optional[str] = None  # "customer" for customer-reported issues
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())

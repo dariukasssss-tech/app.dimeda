@@ -185,7 +185,14 @@ const MaintenanceCalendar = () => {
   // Apply both city and technician filters
   const filteredMaintenance = maintenanceItems.filter((item) => {
     const cityMatch = cityFilter === "all" || getProductCity(item.product_id) === cityFilter;
-    const techMatch = technicianFilter === "all" || item.technician_name === technicianFilter;
+    let techMatch = true;
+    if (technicianFilter === "all") {
+      techMatch = true;
+    } else if (technicianFilter === "unassigned") {
+      techMatch = !item.technician_name;
+    } else {
+      techMatch = item.technician_name === technicianFilter;
+    }
     return cityMatch && techMatch;
   });
 

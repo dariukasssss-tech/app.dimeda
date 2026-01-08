@@ -160,6 +160,82 @@ const Navigation = ({ onLogout }) => {
                 {item.label}
               </NavLink>
             ))}
+            
+            {/* Notification Bell */}
+            <div className="relative">
+              <button
+                onClick={() => setNotificationOpen(!notificationOpen)}
+                className="relative flex items-center justify-center w-10 h-10 rounded-lg text-slate-600 hover:bg-slate-100 transition-all ml-2"
+                data-testid="notification-bell"
+              >
+                <Bell size={20} />
+                {customerIssues.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                    {customerIssues.length > 9 ? "9+" : customerIssues.length}
+                  </span>
+                )}
+              </button>
+              
+              {/* Notification Dropdown */}
+              {notificationOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-lg shadow-lg z-50" data-testid="notification-dropdown">
+                  <div className="p-3 border-b border-slate-200">
+                    <h3 className="font-semibold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
+                      Customer Issues
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      {customerIssues.length} unassigned issue{customerIssues.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto">
+                    {customerIssues.length === 0 ? (
+                      <div className="p-4 text-center text-slate-500 text-sm">
+                        No unassigned customer issues
+                      </div>
+                    ) : (
+                      customerIssues.map((issue) => (
+                        <div
+                          key={issue.id}
+                          className="p-3 border-b border-slate-100 hover:bg-slate-50 cursor-pointer"
+                          onClick={() => handleNotificationClick(issue.id)}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-slate-900 truncate">
+                                {issue.title}
+                              </p>
+                              <p className="text-xs text-slate-500 mt-0.5">
+                                S/N: {getProductSerial(issue.product_id)} • {getProductCity(issue.product_id)}
+                              </p>
+                              <p className="text-xs text-slate-400 mt-1">
+                                {new Date(issue.created_at).toLocaleString()}
+                              </p>
+                            </div>
+                            <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">
+                              {issue.severity}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  {customerIssues.length > 0 && (
+                    <div className="p-2 border-t border-slate-200">
+                      <button
+                        onClick={() => {
+                          setNotificationOpen(false);
+                          navigate('/issues?status=open');
+                        }}
+                        className="w-full text-center text-sm text-[#0066CC] hover:text-[#0052A3] font-medium py-2"
+                      >
+                        View all issues
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all ml-2"

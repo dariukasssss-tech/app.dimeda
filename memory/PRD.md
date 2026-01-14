@@ -49,6 +49,22 @@ Three-portal system with role-based access:
 
 ## Recent Updates (January 2026)
 
+### Major Refactoring Complete (Jan 14, 2026)
+**Backend Refactored:**
+- `server.py`: 960 lines → 71 lines (93% reduction)
+- Created modular structure:
+  - `/backend/models/` - Pydantic models (product, service, issue, maintenance, auth, technician)
+  - `/backend/routes/` - API handlers (auth, products, services, issues, maintenance, export, stats, technician)
+  - `/backend/core/` - Config, database, auth middleware
+
+**Frontend Refactored:**
+- `App.js`: 651 lines → 190 lines (71% reduction)
+- Created layout components:
+  - `/layouts/AdminLayout.jsx` - Admin portal layout with navigation
+  - `/layouts/CustomerLayout.jsx` - Customer portal layout
+  - `/layouts/TechnicianLayout.jsx` - Technician portal layout
+  - `/components/Navigation.jsx` - Admin navigation with notifications
+
 ### Customer Portal Enhancements (Jan 14, 2026)
 - Added **Status/Condition Filter** (Filter #2): Reported, Registered, In Progress, Resolved
 - **3-Date Display** for resolved issues: Reported, Registered, Resolved dates
@@ -60,12 +76,6 @@ Three-portal system with role-based access:
 - Marks issue as "In Progress" when clicked
 - Services page shows "In Progress Issues" section
 - "Resolve Issue" dialog with warranty/non-warranty options
-
-### Role-Based Access Control (Jan 13, 2026)
-- Three-panel login page
-- Admin: Full access
-- Technician: Dashboard, Calendar, Services (filtered to assigned tasks)
-- Customer: Issue registration only
 
 ## Database Schema
 
@@ -91,16 +101,54 @@ estimated_cost, product_location, source, created_at, resolution}
 {product_id, scheduled_date, maintenance_type, technician_name, status, notes, source, issue_id}
 ```
 
+## Code Architecture (Post-Refactoring)
+
+### Backend Structure
+```
+/app/backend/
+├── server.py           # Main app entry (71 lines)
+├── core/
+│   ├── config.py       # Configuration and constants
+│   ├── database.py     # MongoDB connection
+│   └── auth.py         # Authentication middleware
+├── models/
+│   ├── product.py
+│   ├── service.py
+│   ├── issue.py
+│   ├── maintenance.py
+│   ├── auth.py
+│   └── technician.py
+└── routes/
+    ├── auth.py
+    ├── products.py
+    ├── services.py
+    ├── issues.py
+    ├── maintenance.py
+    ├── export.py
+    ├── stats.py
+    └── technician.py
+```
+
+### Frontend Structure
+```
+/app/frontend/src/
+├── App.js              # Main app entry (190 lines)
+├── layouts/
+│   ├── AdminLayout.jsx
+│   ├── CustomerLayout.jsx
+│   └── TechnicianLayout.jsx
+├── components/
+│   ├── Navigation.jsx  # Admin navigation with notifications
+│   └── ui/             # Shadcn UI components
+└── pages/              # All page components
+```
+
 ## P1 - Upcoming Tasks
 - Email notifications for upcoming maintenance (7 days in advance)
 
 ## P2 - Future Tasks
 - Bulk import products from CSV
 - Progressive Web App (PWA) for offline technician access
-
-## Refactoring Needed
-- Break down `/app/backend/server.py` into modules (routes/, models/, services/)
-- Simplify `/app/frontend/src/App.js` with separate portal parent components
 
 ## Test Reports
 - `/app/test_reports/iteration_2.json` - Latest comprehensive test (100% pass)

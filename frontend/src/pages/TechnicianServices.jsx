@@ -369,34 +369,12 @@ const TechnicianServices = ({ selectedTechnician }) => {
                 </Select>
               </div>
               
-              {/* Non-Warranty fields */}
+              {/* Non-Warranty indicator - simplified for technicians */}
               {resolveData.warranty_service_type === "non_warranty" && (
-                <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm font-medium text-gray-700">Non-Warranty Service Details</p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="estimated_fix_time">Estimated Fix Time (hours)</Label>
-                      <Input
-                        id="estimated_fix_time"
-                        type="number"
-                        value={resolveData.estimated_fix_time}
-                        onChange={(e) => setResolveData({ ...resolveData, estimated_fix_time: e.target.value })}
-                        placeholder="e.g., 2"
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="estimated_cost">Estimated Cost (Eur)</Label>
-                      <Input
-                        id="estimated_cost"
-                        type="number"
-                        value={resolveData.estimated_cost}
-                        onChange={(e) => setResolveData({ ...resolveData, estimated_cost: e.target.value })}
-                        placeholder="e.g., 150"
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-600">
+                    This service will be recorded as <strong>Non-Warranty</strong>
+                  </p>
                 </div>
               )}
               

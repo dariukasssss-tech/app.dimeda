@@ -471,7 +471,7 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
         </CardContent>
       </Card>
 
-      {/* Scheduled Tasks - Read Only */}
+      {/* Scheduled Tasks - Interactive */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2" style={{ fontFamily: 'Manrope, sans-serif' }}>
@@ -487,66 +487,93 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
               No scheduled tasks for this month
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid gap-3 md:grid-cols-2">
               {filteredMaintenance.map((item) => {
                 const linkedIssue = getLinkedIssue(item);
+                const product = products.find(p => p.id === item.product_id);
                 return (
                   <div
                     key={item.id}
-                    className={`flex items-center justify-between p-4 rounded-lg border-l-4 bg-white border ${
-                      item.status === "completed" ? "border-slate-800" :
-                      item.source === "customer_issue" ? "border-purple-500" :
-                      item.source === "auto_yearly" ? "border-emerald-500" :
-                      item.priority === "12h" ? "border-orange-500" :
-                      "border-blue-500"
+                    onClick={(e) => handleTaskClick(item, e)}
+                    className={`p-4 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer ${
+                      item.status === "completed" ? "border-slate-800 bg-slate-50" :
+                      item.source === "customer_issue" ? "border-purple-500 hover:bg-purple-50" :
+                      item.source === "auto_yearly" ? "border-emerald-500 hover:bg-emerald-50" :
+                      item.priority === "12h" ? "border-orange-500 hover:bg-orange-50" :
+                      "border-blue-500 hover:bg-blue-50"
                     }`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className={`w-3 h-12 rounded-full ${getTaskColor(item)}`} />
-                      <div>
+                    {/* Header with S/N and Status */}
+                    <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <p className="font-medium text-slate-900">
-                          S/N: {getProductSerial(item.product_id)}
-                        </p>
+                        <span className="font-bold text-slate-900">
+                          {product?.serial_number || "Unknown"}
+                        </span>
                         {linkedIssue?.issue_code && (
-                          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
+                          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-600 text-xs font-mono">
                             {linkedIssue.issue_code}
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-slate-600 capitalize">
-                        {item.maintenance_type === "customer_issue" ? "Customer Issue" : item.maintenance_type.replace("_", " ")} • {item.source === "customer_issue" ? (
-                          <span className="font-medium text-purple-700">
-                            Solve by: {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
-                          </span>
-                        ) : (
-                          format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")
-                        )}
-                      </p>
-                      {item.notes && item.source === "customer_issue" && (
-                        <p className="text-xs text-slate-500 mt-1 max-w-md truncate">
-                          {item.notes}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <Badge variant="outline" className="text-xs">
-                          <Building2 size={10} className="mr-1" />
-                          {getProductCity(item.product_id)}
+                      <Badge className={`text-xs ${
+                        item.status === "completed" ? "bg-slate-800 text-white" :
+                        item.status === "in_progress" ? "bg-blue-500 text-white" :
+                        "bg-slate-100 text-slate-700"
+                      }`}>
+                        {item.status}
+                      </Badge>
+                    </div>
+                    
+                    {/* City and Type */}
+                    <div className="flex items-center gap-3 text-sm text-slate-600 mb-2">
+                      <span className="flex items-center gap-1">
+                        <MapPin size={14} className="text-slate-400" />
+                        {product?.city || "Unknown"}
+                      </span>
+                      <span className="capitalize">
+                        {item.maintenance_type.replace("_", " ")}
+                      </span>
+                    </div>
+                    
+                    {/* Deadline */}
+                    <div className={`text-sm font-medium ${
+                      item.source === "customer_issue" ? "text-purple-700" : "text-slate-700"
+                    }`}>
+                      <Clock size={14} className="inline mr-1" />
+                      {item.source === "customer_issue" ? "Solve by: " : ""}
+                      {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
+                    </div>
+                    
+                    {/* Tags */}
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      {item.source === "customer_issue" && (
+                        <Badge className="text-xs bg-purple-100 text-purple-800">
+                          <Users size={10} className="mr-1" />
+                          Customer
                         </Badge>
-                        {item.source === "customer_issue" && (
-                          <Badge className="text-xs bg-purple-100 text-purple-800">
-                            <Users size={10} className="mr-1" />
-                            Customer Issue
+                      )}
+                      {item.source === "auto_yearly" && (
+                        <Badge className="text-xs bg-emerald-100 text-emerald-800">Yearly</Badge>
+                      )}
+                      {item.source === "customer_issue" && item.status !== "completed" && (() => {
+                        const sla = calculateSLARemaining(item);
+                        if (!sla) return null;
+                        return (
+                          <Badge className={`text-xs ${sla.expired ? "bg-red-500 text-white" : sla.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
+                            <Timer size={10} className="mr-1" />
+                            {sla.text}
                           </Badge>
-                        )}
-                        {/* SLA Timer */}
-                        {item.source === "customer_issue" && item.status !== "completed" && (() => {
-                          const sla = calculateSLARemaining(item);
-                          if (!sla) return null;
-                          return (
-                            <Badge className={`text-xs ${sla.expired ? "bg-red-500 text-white" : sla.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
-                              <Timer size={10} className="mr-1" />
-                              {sla.text}
+                        );
+                      })()}
+                    </div>
+                    
+                    {/* Click hint */}
+                    <p className="text-xs text-slate-400 mt-2 text-right">Click for details</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
                             </Badge>
                           );
                         })()}

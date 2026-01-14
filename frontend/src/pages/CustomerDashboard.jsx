@@ -408,11 +408,12 @@ const CustomerDashboard = () => {
               <CardTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Reported Issues</CardTitle>
               <CardDescription>Track the status of your submitted issues</CardDescription>
             </div>
-            {/* City Filter */}
-            <div className="flex items-center gap-2">
+            {/* Filters */}
+            <div className="flex flex-wrap items-center gap-2">
               <Filter size={16} className="text-slate-400" />
-              <Select value={issueFilter} onValueChange={setIssueFilter}>
-                <SelectTrigger className="w-40">
+              {/* City Filter */}
+              <Select value={cityFilter} onValueChange={setCityFilter}>
+                <SelectTrigger className="w-36" data-testid="city-filter">
                   <SelectValue placeholder="Filter by city" />
                 </SelectTrigger>
                 <SelectContent>
@@ -420,6 +421,19 @@ const CustomerDashboard = () => {
                   {CITIES.map((city) => (
                     <SelectItem key={city} value={city}>
                       {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {/* Status/Condition Filter */}
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40" data-testid="status-filter">
+                  <SelectValue placeholder="Filter by condition" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_FILTERS.map((status) => (
+                    <SelectItem key={status.value} value={status.value}>
+                      {status.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

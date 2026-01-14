@@ -1117,6 +1117,98 @@ const MaintenanceCalendar = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Stats Popup Dialog */}
+      <Dialog open={statsPopupOpen} onOpenChange={setStatsPopupOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden" data-testid="stats-popup-dialog">
+          <DialogHeader>
+            <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }} className="flex items-center gap-2">
+              {statsPopupType === "upcoming" && <Clock size={20} className="text-[#0066CC]" />}
+              {statsPopupType === "overdue" && <AlertTriangle size={20} className="text-red-500" />}
+              {statsPopupType === "this-month" && <CalendarDays size={20} className="text-emerald-500" />}
+              {getStatsPopupTitle()}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="overflow-auto max-h-[60vh] mt-4">
+            {statsPopupLoading ? (
+              <div className="text-center py-8 text-slate-500">Loading...</div>
+            ) : statsPopupData.length === 0 ? (
+              <div className="text-center py-8 text-slate-500">No maintenance records found</div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 sticky top-0">
+                  <tr>
+                    <th className="text-left py-3 px-3 font-medium text-slate-600">Date</th>
+                    <th className="text-left py-3 px-3 font-medium text-slate-600">Product S/N</th>
+                    <th className="text-left py-3 px-3 font-medium text-slate-600">City</th>
+                    <th className="text-left py-3 px-3 font-medium text-slate-600">Type</th>
+                    <th className="text-left py-3 px-3 font-medium text-slate-600">Technician</th>
+                    <th className="text-left py-3 px-3 font-medium text-slate-600">Priority</th>
+                    <th className="text-left py-3 px-3 font-medium text-slate-600">Notes</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {statsPopupData.map((item) => {
+                    const product = products.find(p => p.id === item.product_id);
+                    return (
+                      <tr key={item.id} className="hover:bg-slate-50">
+                        <td className="py-3 px-3">
+                          <span className={`font-medium ${
+                            statsPopupType === "overdue" ? "text-red-600" : "text-slate-900"
+                          }`}>
+                            {new Date(item.scheduled_date).toLocaleDateString()}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 font-mono text-xs">
+                          {product?.serial_number || "Unknown"}
+                        </td>
+                        <td className="py-3 px-3">
+                          {product?.city || "Unknown"}
+                        </td>
+                        <td className="py-3 px-3">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            item.source === "customer_issue" ? "bg-purple-100 text-purple-800" :
+                            item.source === "auto_yearly" || item.maintenance_type === "routine" ? "bg-emerald-100 text-emerald-800" :
+                            item.priority === "12h" ? "bg-orange-100 text-orange-800" :
+                            item.priority === "24h" ? "bg-red-100 text-red-800" :
+                            "bg-blue-100 text-blue-800"
+                          }`}>
+                            {item.maintenance_type.replace("_", " ")}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3">
+                          {item.technician_name || (
+                            <span className="text-slate-400 italic">Unassigned</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-3">
+                          {item.priority && (
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              item.priority === "12h" ? "bg-orange-500 text-white" : "bg-red-500 text-white"
+                            }`}>
+                              {item.priority}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 px-3 max-w-xs truncate text-slate-600">
+                          {item.notes || "-"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+          
+          <div className="flex justify-end pt-4 border-t">
+            <Button variant="outline" onClick={() => setStatsPopupOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

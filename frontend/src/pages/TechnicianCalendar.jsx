@@ -567,7 +567,6 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                     }
                     // Default to Working... if no linked issue found
                     return (
-                    return (
                       <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
                         <Clock size={14} className="mr-1" />
                         Working...

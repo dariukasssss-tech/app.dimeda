@@ -262,6 +262,7 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
   const getTaskColor = (item) => {
     if (item.status === "completed") return "bg-slate-800";
     if (item.status === "in_progress") return "bg-blue-500";
+    if (item.source === "warranty_service") return "bg-orange-500";
     if (item.source === "customer_issue") return "bg-purple-500";
     if (item.source === "auto_yearly") return "bg-emerald-500";
     if (item.priority === "12h") return "bg-orange-500";

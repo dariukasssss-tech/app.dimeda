@@ -660,8 +660,8 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                         })()}
                       </div>
                       
-                      {/* Start Work Button - visible on card */}
-                      {canStartWork && (
+                      {/* Start Work Button - visible on card for customer issues */}
+                      {canStartWork && !isWarrantyRepair && (
                         <Button
                           size="sm"
                           onClick={(e) => {
@@ -669,15 +669,44 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                             handleMarkInProgress(item);
                           }}
                           className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                          data-testid="start-work-btn"
                         >
                           <Play size={14} className="mr-1" />
                           Start Work
                         </Button>
                       )}
                       
+                      {/* Continue Button - for warranty repair tasks */}
+                      {canContinueRepair && (
+                        <Button
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContinueRepair(item);
+                          }}
+                          className="bg-orange-600 hover:bg-orange-700 text-white"
+                          data-testid="continue-repair-btn"
+                        >
+                          <Play size={14} className="mr-1" />
+                          Continue
+                        </Button>
+                      )}
+                      
                       {/* Show status badges for in_progress/resolved */}
-                      {item.status === "in_progress" && linkedIssue && linkedIssue.status === "in_progress" && (
+                      {item.status === "in_progress" && linkedIssue && linkedIssue.status === "in_progress" && !isWarrantyRepair && (
                         <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
+                          <Clock size={14} className="mr-1" />
+                          Working...
+                        </Badge>
+                      )}
+                      
+                      {/* In Progress badge for warranty repairs */}
+                      {item.status === "in_progress" && isWarrantyRepair && linkedIssue && linkedIssue.status === "in_progress" && (
+                        <Badge className="bg-orange-100 text-orange-800 px-3 py-1">
+                          <Wrench size={14} className="mr-1" />
+                          Repairing...
+                        </Badge>
+                      )}
                           <Clock size={14} className="mr-1" />
                           Working...
                         </Badge>

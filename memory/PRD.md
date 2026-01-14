@@ -205,3 +205,14 @@ estimated_cost, product_location, source, created_at, resolution}
 - `/app/test_reports/iteration_2.json` - Previous comprehensive test (100% pass)
 - `/app/tests/test_warranty_workflow.py` - Warranty workflow API tests
 - `/app/tests/test_technician_customer_portals.py` - API tests for portals
+
+## Bug Fixes (Jan 14, 2026)
+
+### Issue Deletion Cascade Fix
+**Problem:** When issues were deleted from the Issues page, associated scheduled maintenance entries remained in the database, causing orphaned calendar entries and incorrect "Overdue" counts.
+
+**Fix:** Updated `delete_issue` endpoint to:
+1. Delete all related `scheduled_maintenance` entries with matching `issue_id`
+2. If parent issue with warranty child - also delete child issue and its maintenance entries
+3. If child (warranty route) issue - update parent to remove `child_issue_id` reference
+4. Return message: "Issue and related entries deleted successfully"

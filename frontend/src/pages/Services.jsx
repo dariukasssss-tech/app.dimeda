@@ -88,17 +88,43 @@ const Services = () => {
 
   const fetchData = async () => {
     try {
-      const [servicesRes, productsRes, issuesInProgressRes, allIssuesRes] = await Promise.all([
+      const [servicesRes, productsRes, allIssuesRes] = await Promise.all([
         axios.get(`${API}/services`),
         axios.get(`${API}/products`),
-        axios.get(`${API}/issues?status=in_progress`),
         axios.get(`${API}/issues`),
       ]);
       setServices(servicesRes.data);
       setProducts(productsRes.data);
-      setInProgressIssues(issuesInProgressRes.data);
+      
+      const allIssues = allIssuesRes.data;
+      
+      // In progress issues (not warranty routes)
+      setInProgressIssues(allIssues.filter(
+        issue => issue.status === "in_progress" && !issue.is_warranty_route
+      ));
+      
+      // In service issues (waiting for warranty service to complete)
+      setInServiceIssues(allIssues.filter(
+        issue => issue.status === "in_service"
+      ));
+      
+      // Warranty service routed issues (Make Service)
+      setWarrantyServiceIssues(allIssues.filter(
+        issue => issue.is_warranty_route && issue.status !== "resolved"
+      ));
+      
+      // Resolved warranty issues
+      setResolvedWarrantyIssues(allIssues.filter(
+        issue => issue.warranty_service_type === "warranty" && issue.status === "resolved" && !issue.is_warranty_route
+      ));
+      
+      // Resolved non-warranty issues
+      setResolvedNonWarrantyIssues(allIssues.filter(
+        issue => issue.warranty_service_type === "non_warranty" && issue.status === "resolved"
+      ));
+      
       // Filter for non-warranty resolved issues that haven't been converted to service yet
-      const nonWarranty = allIssuesRes.data.filter(
+      const nonWarranty = allIssues.filter(
         issue => issue.warranty_service_type === "non_warranty" && issue.status === "resolved"
       );
       setNonWarrantyIssues(nonWarranty);
@@ -106,6 +132,20 @@ const Services = () => {
       toast.error("Failed to fetch data");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch issue track data
+  const fetchIssueTrack = async (issueId) => {
+    setTrackLoading(true);
+    try {
+      const response = await axios.get(`${API}/issues/${issueId}/track`);
+      setTrackData(response.data);
+      setTrackDialogOpen(true);
+    } catch (error) {
+      toast.error("Failed to fetch issue track");
+    } finally {
+      setTrackLoading(false);
     }
   };
 

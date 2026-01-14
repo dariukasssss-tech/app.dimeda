@@ -201,5 +201,7 @@ estimated_cost, product_location, source, created_at, resolution}
 - Progressive Web App (PWA) for offline technician access
 
 ## Test Reports
-- `/app/test_reports/iteration_2.json` - Latest comprehensive test (100% pass)
+- `/app/test_reports/iteration_3.json` - Latest warranty workflow test (100% pass, 8/8 backend tests)
+- `/app/test_reports/iteration_2.json` - Previous comprehensive test (100% pass)
+- `/app/tests/test_warranty_workflow.py` - Warranty workflow API tests
 - `/app/tests/test_technician_customer_portals.py` - API tests for portals

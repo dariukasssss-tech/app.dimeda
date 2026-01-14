@@ -403,9 +403,13 @@ const MaintenanceCalendar = () => {
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Interactive */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Card data-testid="stat-upcoming">
+        <Card 
+          data-testid="stat-upcoming" 
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => openStatsPopup("upcoming")}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -413,6 +417,7 @@ const MaintenanceCalendar = () => {
                 <p className="text-3xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Manrope, sans-serif' }}>
                   {upcomingCount.upcoming}
                 </p>
+                <p className="text-xs text-[#0066CC] mt-1">Click to view details</p>
               </div>
               <div className="w-12 h-12 bg-[#0066CC] rounded-xl flex items-center justify-center">
                 <Clock className="text-white" size={24} />
@@ -421,7 +426,11 @@ const MaintenanceCalendar = () => {
           </CardContent>
         </Card>
         
-        <Card data-testid="stat-overdue">
+        <Card 
+          data-testid="stat-overdue"
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => openStatsPopup("overdue")}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -429,6 +438,7 @@ const MaintenanceCalendar = () => {
                 <p className="text-3xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Manrope, sans-serif' }}>
                   {upcomingCount.overdue}
                 </p>
+                <p className="text-xs text-red-500 mt-1">Click to view details</p>
               </div>
               <div className={`w-12 h-12 ${upcomingCount.overdue > 0 ? 'bg-red-500' : 'bg-slate-400'} rounded-xl flex items-center justify-center`}>
                 <AlertTriangle className="text-white" size={24} />
@@ -437,7 +447,11 @@ const MaintenanceCalendar = () => {
           </CardContent>
         </Card>
         
-        <Card data-testid="stat-this-month">
+        <Card 
+          data-testid="stat-this-month"
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => openStatsPopup("this-month")}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -445,6 +459,7 @@ const MaintenanceCalendar = () => {
                 <p className="text-3xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Manrope, sans-serif' }}>
                   {filteredMaintenance.filter(m => m.status === "scheduled").length}
                 </p>
+                <p className="text-xs text-emerald-500 mt-1">Click to view details</p>
               </div>
               <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center">
                 <CalendarDays className="text-white" size={24} />

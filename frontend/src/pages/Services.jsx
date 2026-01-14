@@ -871,18 +871,20 @@ const Services = () => {
         <TabsContent value="in_service" className="mt-6">
           <div className="space-y-6" data-testid="in-service-issues-list">
             {/* Original issues marked as In Service */}
-            {inServiceIssues.length > 0 && (
+            {inServiceIssues.length > 0 ? (
               <div>
                 <h3 className="text-lg font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <Shield className="text-amber-500" size={20} />
                   Awaiting Warranty Service ({inServiceIssues.length})
                 </h3>
                 <div className="space-y-4">
-                  {inServiceIssues.map((issue) => (
+                  {inServiceIssues.map((issue) => {
+                    // Find the linked warranty service issue
+                    const linkedServiceIssue = warrantyServiceIssues.find(wi => wi.parent_issue_id === issue.id);
+                    return (
                     <Card 
                       key={issue.id} 
-                      className="border-l-4 border-amber-500 cursor-pointer hover:shadow-md transition-shadow"
-                      onClick={() => fetchIssueTrack(issue.id)}
+                      className="border-l-4 border-amber-500"
                       data-testid={`in-service-${issue.id}`}
                     >
                       <CardContent className="pt-6">
@@ -902,6 +904,11 @@ const Services = () => {
                                 <Shield size={12} className="mr-1" />
                                 Warranty
                               </Badge>
+                              {linkedServiceIssue && (
+                                <Badge variant="outline" className="text-purple-700 border-purple-300">
+                                  Service: {linkedServiceIssue.issue_code}
+                                </Badge>
+                              )}
                             </div>
                             <h3 className="text-lg font-semibold text-slate-900 mt-2">{issue.title}</h3>
                             <div className="text-sm text-slate-500 mt-1">
@@ -914,40 +921,59 @@ const Services = () => {
                                 <strong>Resolution:</strong> {issue.resolution}
                               </p>
                             )}
-                            <p className="text-xs text-blue-600 mt-2">Click to view full track</p>
+                            {linkedServiceIssue?.technician_name && (
+                              <p className="text-sm text-purple-700 mt-2 flex items-center gap-1">
+                                <User size={14} />
+                                Assigned to: {linkedServiceIssue.technician_name}
+                              </p>
+                            )}
                           </div>
-                          <Badge className="bg-amber-500 text-white">In Service</Badge>
+                          <div className="flex flex-col gap-2">
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (linkedServiceIssue) {
+                                  setSelectedIssue(linkedServiceIssue);
+                                  setResolveDialogOpen(true);
+                                }
+                              }}
+                              className="bg-emerald-600 hover:bg-emerald-700"
+                              disabled={!linkedServiceIssue}
+                            >
+                              <CheckCircle size={14} className="mr-1" />
+                              Complete Service
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                fetchIssueTrack(issue.id);
+                              }}
+                            >
+                              <FileText size={14} className="mr-1" />
+                              View Track
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
+            ) : (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Shield className="mx-auto text-slate-300" size={48} />
+                  <p className="text-slate-500 mt-4">No issues in service</p>
+                  <p className="text-sm text-slate-400 mt-1">Warranty service issues will appear here</p>
+                </CardContent>
+              </Card>
             )}
-
-            {/* Warranty Service Issues (Make Service) */}
-            {warrantyServiceIssues.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                  <Wrench className="text-purple-500" size={20} />
-                  Make Service Issues ({warrantyServiceIssues.length})
-                </h3>
-                <div className="space-y-4">
-                  {warrantyServiceIssues.map((issue) => (
-                    <Card 
-                      key={issue.id} 
-                      className="border-l-4 border-purple-500"
-                      data-testid={`warranty-service-${issue.id}`}
-                    >
-                      <CardContent className="pt-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {issue.issue_code && (
-                                <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
-                                  {issue.issue_code}
-                                </span>
-                              )}
+          </div>
+        </TabsContent>
                               <Badge className="bg-purple-100 text-purple-800">
                                 <Wrench size={12} className="mr-1" />
                                 Make Service

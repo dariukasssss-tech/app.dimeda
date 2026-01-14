@@ -470,6 +470,11 @@ const CustomerDashboard = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           {statusIcons[displayStatus]}
+                          {issue.issue_code && (
+                            <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
+                              {issue.issue_code}
+                            </span>
+                          )}
                           <h3 className="font-medium text-slate-900">{issue.title}</h3>
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[displayStatus]}`}>
                             {displayStatus.replace("_", " ")}

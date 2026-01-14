@@ -97,7 +97,7 @@ async def update_product(product_id: str, product: ProductCreate):
     if new_reg_date and new_reg_date != old_reg_date:
         try:
             reg_date = datetime.fromisoformat(update_data["registration_date"].replace("Z", "+00:00"))
-        except:
+        except (ValueError, TypeError):
             reg_date = datetime.strptime(update_data["registration_date"][:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
         
         await db.scheduled_maintenance.delete_many({

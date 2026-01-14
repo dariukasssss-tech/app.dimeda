@@ -8,13 +8,40 @@ from core.database import db
 
 router = APIRouter(prefix="/issues", tags=["issues"])
 
+async def generate_issue_code(product_id: str) -> str:
+    """Generate unique issue code: YYYY_SN_MM_DD_ORDER"""
+    now = datetime.now(timezone.utc)
+    year = now.strftime("%Y")
+    month = now.strftime("%m")
+    day = now.strftime("%d")
+    
+    # Get product serial number
+    product = await db.products.find_one({"id": product_id}, {"_id": 0})
+    serial = product.get("serial_number", "UNK")[:6] if product else "UNK"  # First 6 chars of serial
+    
+    # Get next order number (count issues today + 1)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+    today_end = (now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)).isoformat()
+    
+    order_count = await db.issues.count_documents({
+        "created_at": {"$gte": today_start, "$lt": today_end}
+    })
+    order_num = order_count  # 0-indexed
+    
+    # Format: YYYY_SN_MM_DD_ORDER
+    return f"{year}_{serial}_{month}_{day}_{order_num}"
+
 @router.post("", response_model=Issue)
 async def create_issue(issue: IssueCreate):
     product = await db.products.find_one({"id": issue.product_id}, {"_id": 0})
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
+    # Generate issue code
+    issue_code = await generate_issue_code(issue.product_id)
+    
     issue_obj = Issue(**issue.model_dump())
+    issue_obj.issue_code = issue_code
     doc = issue_obj.model_dump()
     await db.issues.insert_one(doc)
     

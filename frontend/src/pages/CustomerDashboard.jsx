@@ -76,13 +76,42 @@ const CustomerDashboard = () => {
     ? products.filter(p => p.city === formData.selected_city)
     : [];
 
-  // Filter issues by city
-  const filteredIssues = issueFilter === "all"
-    ? myIssues
-    : myIssues.filter(issue => {
+  // Get display status for customer - "Registered" when technician assigned
+  const getDisplayStatus = (issue) => {
+    if (issue.status === "resolved") return "resolved";
+    if (issue.status === "in_progress") return "in_progress";
+    if (issue.technician_name && issue.status === "open") return "registered";
+    return "reported"; // open without technician = reported
+  };
+
+  // Get the latest relevant date for sorting
+  const getLatestDate = (issue) => {
+    const displayStatus = getDisplayStatus(issue);
+    if (displayStatus === "resolved" && issue.resolved_at) {
+      return new Date(issue.resolved_at);
+    }
+    if ((displayStatus === "registered" || displayStatus === "in_progress") && issue.technician_assigned_at) {
+      return new Date(issue.technician_assigned_at);
+    }
+    return new Date(issue.created_at);
+  };
+
+  // Filter issues by city and status, then sort by latest date
+  const filteredIssues = myIssues
+    .filter(issue => {
+      // City filter
+      if (cityFilter !== "all") {
         const product = products.find(p => p.id === issue.product_id);
-        return product?.city === issueFilter;
-      });
+        if (product?.city !== cityFilter) return false;
+      }
+      // Status filter
+      if (statusFilter !== "all") {
+        const displayStatus = getDisplayStatus(issue);
+        if (displayStatus !== statusFilter) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => getLatestDate(b) - getLatestDate(a)); // Latest date on top
 
   const handleCityChange = (city) => {
     setFormData({ 

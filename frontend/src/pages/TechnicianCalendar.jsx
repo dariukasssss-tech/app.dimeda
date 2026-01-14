@@ -573,7 +573,6 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                       </Badge>
                     );
                   })()}
-                  </div>
                 </div>
                 );
               })}

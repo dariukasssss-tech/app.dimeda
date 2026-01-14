@@ -469,7 +469,7 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded bg-orange-500"></div>
-              <span className="text-slate-600">12h Priority</span>
+              <span className="text-slate-600">Warranty Repair</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded bg-slate-800"></div>

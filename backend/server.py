@@ -48,7 +48,7 @@ app.add_middleware(AuthMiddleware)
 cors_origins = [
     FRONTEND_URL,
     "http://localhost:3000",
-    "https://medirol-service-hub.preview.emergentagent.com"
+    "https://stretcher-pro.preview.emergentagent.com"
 ]
 
 app.add_middleware(

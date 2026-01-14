@@ -722,6 +722,11 @@ const Issues = () => {
                           Customer Reported
                         </span>
                       )}
+                      {issue.issue_code && (
+                        <span className="px-2 py-1 rounded bg-slate-200 text-slate-700 text-xs font-mono">
+                          {issue.issue_code}
+                        </span>
+                      )}
                       <span className={`status-badge status-${issue.status}`}>
                         {statusIcons[issue.status]}
                         <span className="ml-1">{issue.status.replace("_", " ")}</span>

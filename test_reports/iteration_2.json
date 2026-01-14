@@ -1,0 +1,80 @@
+{
+  "summary": "Comprehensive testing of Technician and Customer Portal features completed successfully. All requested features are working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/tests/test_technician_customer_portals.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/tests/test_technician_customer_portals.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100% (All UI features verified)"
+  },
+  "seed_data_creation": "None - used existing test data",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All Technician and Customer Portal features are working. The app has three login portals (Admin, Technician, Customer). Technician portal requires selecting a technician from dropdown before viewing Calendar/Services.",
+  "features_tested": {
+    "customer_portal": {
+      "status_filter": {
+        "tested": true,
+        "working": true,
+        "notes": "Status/Condition filter with options: All Conditions, Reported, Registered, In Progress, Resolved - filters issues correctly"
+      },
+      "city_filter": {
+        "tested": true,
+        "working": true,
+        "notes": "City filter with options: All Cities, Vilnius, Kaunas, Klaipėda, Šiauliai, Panevėžys"
+      },
+      "three_dates_display": {
+        "tested": true,
+        "working": true,
+        "notes": "Resolved issues display all 3 dates: Reported (created_at), Registered (technician_assigned_at), Resolved (resolved_at)"
+      },
+      "sorting": {
+        "tested": true,
+        "working": true,
+        "notes": "Issues sorted by latest date on top (descending order)"
+      }
+    },
+    "technician_portal": {
+      "login": {
+        "tested": true,
+        "working": true,
+        "notes": "Login works with password 'service2025'"
+      },
+      "calendar_mark_in_progress": {
+        "tested": true,
+        "working": true,
+        "notes": "Calendar shows 'Start Work' button for scheduled open issues. Clicking updates issue status to 'in_progress' and shows 'Working...' badge"
+      },
+      "services_page_in_progress": {
+        "tested": true,
+        "working": true,
+        "notes": "Services page shows 'In Progress Issues' section with count. Issues marked as in_progress from Calendar appear here"
+      },
+      "resolve_issue": {
+        "tested": true,
+        "working": true,
+        "notes": "Resolve Issue dialog has: Service Type (Warranty/Non-Warranty), Resolution Note. Non-Warranty shows additional fields: Estimated Fix Time (hours), Estimated Cost (Eur), and checkbox to auto-create Service Record"
+      }
+    }
+  },
+  "test_credentials": {
+    "admin": "admin2025",
+    "technician": "service2025",
+    "customer": "customer2025"
+  }
+}

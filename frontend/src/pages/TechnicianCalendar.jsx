@@ -340,6 +340,7 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
               const dayItems = getItemsForDay(day);
               const dateStr = format(day, "yyyy-MM-dd");
               const isUnavailable = unavailableDays.includes(dateStr);
+              const hasTasks = dayItems.length > 0;
               
               return (
                 <div
@@ -349,10 +350,12 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                       ? "border-[#0066CC] border-2 bg-blue-50"
                       : isUnavailable
                       ? "bg-red-50 border-red-200"
+                      : hasTasks
+                      ? "border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-emerald-400"
                       : "border-slate-200 hover:border-slate-300"
                   }`}
-                  onClick={() => toggleUnavailableDay(day)}
-                  title={isUnavailable ? "Click to mark as available" : "Click to mark as unavailable"}
+                  onClick={(e) => hasTasks ? handleDayClick(day, dayItems, e) : toggleUnavailableDay(day)}
+                  title={hasTasks ? `${dayItems.length} task(s) - Click to view details` : (isUnavailable ? "Click to mark as available" : "Click to mark as unavailable")}
                 >
                   <div className="flex items-center justify-between">
                     <span className={`text-sm font-medium ${
@@ -362,6 +365,11 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                     </span>
                     {isUnavailable && (
                       <X size={14} className="text-red-500" />
+                    )}
+                    {hasTasks && !isUnavailable && (
+                      <span className="text-xs bg-emerald-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
+                        {dayItems.length}
+                      </span>
                     )}
                   </div>
                   

@@ -15,9 +15,9 @@ async def generate_issue_code(product_id: str) -> str:
     month = now.strftime("%m")
     day = now.strftime("%d")
     
-    # Get product serial number
+    # Get product serial number - use full serial number
     product = await db.products.find_one({"id": product_id}, {"_id": 0})
-    serial = product.get("serial_number", "UNK")[:6] if product else "UNK"  # First 6 chars of serial
+    serial = product.get("serial_number", "UNK") if product else "UNK"
     
     # Get next order number (count issues today + 1)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()

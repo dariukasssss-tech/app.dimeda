@@ -216,6 +216,39 @@ async def update_issue(issue_id: str, update: IssueUpdate):
     
     return updated
 
+@router.get("/{issue_id}/track")
+async def get_issue_track(issue_id: str):
+    """Get full tracking history for an issue including parent/child warranty service issues"""
+    issue = await db.issues.find_one({"id": issue_id}, {"_id": 0})
+    if not issue:
+        raise HTTPException(status_code=404, detail="Issue not found")
+    
+    track = {
+        "original_issue": None,
+        "current_issue": issue,
+        "warranty_service_issue": None,
+        "is_warranty_flow": False
+    }
+    
+    # If this is a routed warranty service issue, get the parent
+    if issue.get("parent_issue_id"):
+        parent = await db.issues.find_one({"id": issue["parent_issue_id"]}, {"_id": 0})
+        track["original_issue"] = parent
+        track["is_warranty_flow"] = True
+    
+    # If this issue has a child warranty service issue, get it
+    if issue.get("child_issue_id"):
+        child = await db.issues.find_one({"id": issue["child_issue_id"]}, {"_id": 0})
+        track["warranty_service_issue"] = child
+        track["original_issue"] = issue
+        track["is_warranty_flow"] = True
+    
+    # Get product info
+    product = await db.products.find_one({"id": issue["product_id"]}, {"_id": 0})
+    track["product"] = product
+    
+    return track
+
 @router.delete("/{issue_id}")
 async def delete_issue(issue_id: str):
     result = await db.issues.delete_one({"id": issue_id})

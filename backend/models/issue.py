@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 class IssueBase(BaseModel):
     product_id: str
-    issue_type: str  # mechanical, electrical, cosmetic, other
+    issue_type: str  # mechanical, electrical, cosmetic, other, make_service
     severity: str  # low, medium, high, critical
     title: str
     description: str
@@ -19,7 +19,7 @@ class Issue(IssueBase):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     issue_code: Optional[str] = None  # Unique code: YYYY_SN_MM_DD_ORDER
-    status: str = "open"  # open, in_progress, resolved
+    status: str = "open"  # open, in_progress, in_service, resolved
     photos: List[str] = []
     resolution: Optional[str] = None
     technician_name: Optional[str] = None
@@ -32,6 +32,10 @@ class Issue(IssueBase):
     source: Optional[str] = None  # "customer" for customer-reported issues
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     resolved_at: Optional[str] = None
+    # Warranty service routing fields
+    parent_issue_id: Optional[str] = None  # If this is a routed warranty service issue
+    child_issue_id: Optional[str] = None  # If this issue has a routed warranty service issue
+    is_warranty_route: bool = False  # True if this is a "Make Service" routed issue
 
 class CustomerIssueCreate(BaseModel):
     product_id: str
@@ -50,3 +54,4 @@ class IssueUpdate(BaseModel):
     estimated_fix_time: Optional[str] = None  # For non-warranty
     estimated_cost: Optional[str] = None  # For non-warranty
     create_service_record: Optional[bool] = None  # Auto-create service record
+

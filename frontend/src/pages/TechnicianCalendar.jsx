@@ -574,80 +574,217 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
               })}
             </div>
           )}
-                            </Badge>
-                          );
-                        })()}
-                        {item.source === "auto_yearly" && (
-                          <Badge className="text-xs bg-emerald-100 text-emerald-800">Yearly</Badge>
-                        )}
-                        {/* Status Badge */}
-                        <Badge className={`text-xs ${
-                          item.status === "completed" ? "bg-slate-800 text-white" :
-                          item.status === "in_progress" ? "bg-blue-100 text-blue-800" :
-                          "bg-slate-100 text-slate-800"
-                        }`}>
-                          {item.status === "completed" && <CheckCircle size={10} className="mr-1" />}
-                          {item.status === "in_progress" && <Clock size={10} className="mr-1" />}
-                          {item.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Action Button - Mark as In Progress */}
-                  {item.source === "customer_issue" && item.status === "scheduled" && item.issue_id && (() => {
-                    const linkedIssue = getLinkedIssue(item);
-                    // Only show if issue exists and is not resolved
-                    if (linkedIssue && linkedIssue.status !== "resolved") {
-                      return (
-                        <Button
-                          size="sm"
-                          onClick={() => handleMarkInProgress(item)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          <Play size={14} className="mr-1" />
-                          Start Work
-                        </Button>
-                      );
-                    }
-                    return null;
-                  })()}
-                  
-                  {item.status === "in_progress" && (() => {
-                    const linkedIssue = getLinkedIssue(item);
-                    // Show "Working..." only if issue is still in progress
-                    if (linkedIssue && linkedIssue.status === "in_progress") {
-                      return (
-                        <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
-                          <Clock size={14} className="mr-1" />
-                          Working...
-                        </Badge>
-                      );
-                    }
-                    // Show "Resolved" if the linked issue is resolved
-                    if (linkedIssue && linkedIssue.status === "resolved") {
-                      return (
-                        <Badge className="bg-emerald-100 text-emerald-800 px-3 py-1">
-                          <CheckCircle size={14} className="mr-1" />
-                          Resolved
-                        </Badge>
-                      );
-                    }
-                    // Default to Working... if no linked issue found
-                    return (
-                      <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
-                        <Clock size={14} className="mr-1" />
-                        Working...
-                      </Badge>
-                    );
-                  })()}
-                </div>
-                );
-              })}
-            </div>
-          )}
         </CardContent>
       </Card>
+
+      {/* Day Popup Dialog */}
+      <Dialog open={dayPopupOpen} onOpenChange={setDayPopupOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              <CalendarDays size={20} className="text-emerald-600" />
+              {selectedDay && format(selectedDay, "EEEE, MMMM d, yyyy")}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-3 mt-4">
+            {selectedDayItems.map((item) => {
+              const product = products.find(p => p.id === item.product_id);
+              const linkedIssue = getLinkedIssue(item);
+              return (
+                <div 
+                  key={item.id} 
+                  className={`p-3 rounded-lg border-l-4 bg-slate-50 cursor-pointer hover:bg-slate-100 ${
+                    item.source === "customer_issue" ? "border-purple-500" :
+                    item.source === "auto_yearly" ? "border-emerald-500" :
+                    "border-blue-500"
+                  }`}
+                  onClick={() => {
+                    setDayPopupOpen(false);
+                    handleTaskClick(item);
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-slate-900">{product?.serial_number || "Unknown"}</span>
+                    <Badge className={`text-xs ${
+                      item.status === "completed" ? "bg-slate-800 text-white" :
+                      item.status === "in_progress" ? "bg-blue-500 text-white" :
+                      "bg-slate-200 text-slate-700"
+                    }`}>
+                      {item.status}
+                    </Badge>
+                  </div>
+                  <div className="text-sm text-slate-600 flex items-center gap-2">
+                    <MapPin size={14} />
+                    {product?.city || "Unknown"}
+                  </div>
+                  <div className={`text-sm font-medium mt-1 ${item.source === "customer_issue" ? "text-purple-700" : "text-slate-700"}`}>
+                    <Clock size={14} className="inline mr-1" />
+                    {format(parseISO(item.scheduled_date), "HH:mm")} - {item.source === "customer_issue" ? "Deadline" : "Scheduled"}
+                  </div>
+                  {linkedIssue?.issue_code && (
+                    <span className="mt-1 inline-block px-2 py-0.5 rounded bg-slate-200 text-slate-600 text-xs font-mono">
+                      {linkedIssue.issue_code}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="flex justify-end pt-4 border-t">
+            <Button variant="outline" onClick={() => setDayPopupOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Task Detail Popup Dialog */}
+      <Dialog open={taskDetailOpen} onOpenChange={setTaskDetailOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              <FileText size={20} className="text-blue-600" />
+              Task Details
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedTask && (() => {
+            const product = products.find(p => p.id === selectedTask.product_id);
+            const linkedIssue = getLinkedIssue(selectedTask);
+            return (
+              <div className="mt-4 space-y-4">
+                {/* Product Info */}
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <h4 className="font-semibold text-slate-900 mb-2">Product Information</h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-slate-500">Serial Number:</span>
+                      <p className="font-medium text-slate-900">{product?.serial_number || "Unknown"}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">City:</span>
+                      <p className="font-medium text-slate-900">{product?.city || "Unknown"}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Model:</span>
+                      <p className="font-medium text-slate-900">{product?.model_name || "N/A"}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Location:</span>
+                      <p className="font-medium text-slate-900">{product?.location_detail || "N/A"}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Task Info */}
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-semibold text-slate-900 mb-2">Task Information</h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-slate-500">Type:</span>
+                      <p className="font-medium text-slate-900 capitalize">{selectedTask.maintenance_type?.replace("_", " ")}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Status:</span>
+                      <Badge className={`${
+                        selectedTask.status === "completed" ? "bg-slate-800 text-white" :
+                        selectedTask.status === "in_progress" ? "bg-blue-500 text-white" :
+                        "bg-slate-200 text-slate-700"
+                      }`}>
+                        {selectedTask.status}
+                      </Badge>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Scheduled Date:</span>
+                      <p className="font-medium text-slate-900">{format(parseISO(selectedTask.scheduled_date), "MMM d, yyyy HH:mm")}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Priority:</span>
+                      <p className="font-medium text-slate-900">{selectedTask.priority || "Normal"}</p>
+                    </div>
+                  </div>
+                  {selectedTask.notes && (
+                    <div className="mt-3">
+                      <span className="text-slate-500 text-sm">Notes:</span>
+                      <p className="text-sm text-slate-700 mt-1">{selectedTask.notes}</p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Issue Info (if linked) */}
+                {linkedIssue && (
+                  <div className="p-4 bg-purple-50 rounded-lg">
+                    <h4 className="font-semibold text-slate-900 mb-2">Linked Issue</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-500">Issue Code:</span>
+                        <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-mono">
+                          {linkedIssue.issue_code || "N/A"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Title:</span>
+                        <p className="font-medium text-slate-900">{linkedIssue.title}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Description:</span>
+                        <p className="text-slate-700">{linkedIssue.description}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <span className="text-slate-500">Issue Type:</span>
+                          <p className="font-medium text-slate-900 capitalize">{linkedIssue.issue_type}</p>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">Severity:</span>
+                          <Badge className={`${
+                            linkedIssue.severity === "critical" ? "bg-red-500 text-white" :
+                            linkedIssue.severity === "high" ? "bg-orange-500 text-white" :
+                            linkedIssue.severity === "medium" ? "bg-yellow-500 text-white" :
+                            "bg-slate-200 text-slate-700"
+                          }`}>
+                            {linkedIssue.severity}
+                          </Badge>
+                        </div>
+                      </div>
+                      {linkedIssue.source === "customer" && (
+                        <div className="flex items-center gap-2 pt-2">
+                          <AlertTriangle size={16} className="text-purple-600" />
+                          <span className="text-purple-700 font-medium">Customer Reported Issue</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Action Buttons */}
+                {selectedTask.source === "customer_issue" && selectedTask.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved" && (
+                  <div className="flex justify-end pt-2">
+                    <Button 
+                      onClick={() => {
+                        handleMarkInProgress(selectedTask);
+                        setTaskDetailOpen(false);
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Play size={16} className="mr-2" />
+                      Start Work
+                    </Button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+          
+          <div className="flex justify-end pt-4 border-t mt-4">
+            <Button variant="outline" onClick={() => setTaskDetailOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

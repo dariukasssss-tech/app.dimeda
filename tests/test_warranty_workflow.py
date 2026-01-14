@@ -152,11 +152,12 @@ class TestWarrantyWorkflow:
         assert response.status_code == 200
         issues = response.json()
         
-        # Find warranty route issues with technicians
-        warranty_routes = [i for i in issues if i.get("is_warranty_route") and i.get("technician_name")]
+        # Find NON-RESOLVED warranty route issues with technicians
+        # Resolved issues don't need calendar entries
+        warranty_routes = [i for i in issues if i.get("is_warranty_route") and i.get("technician_name") and i.get("status") != "resolved"]
         
         if not warranty_routes:
-            pytest.skip("No warranty route issues with technicians found")
+            pytest.skip("No non-resolved warranty route issues with technicians found")
         
         # Get scheduled maintenance
         maint_response = self.session.get(f"{BASE_URL}/api/scheduled-maintenance")
@@ -171,16 +172,14 @@ class TestWarrantyWorkflow:
         for entry in warranty_service_entries:
             print(f"  - {entry.get('maintenance_type')}: {entry.get('technician_name')} - {entry.get('notes')}")
         
-        # Verify each warranty route issue has a calendar entry
+        # Verify each non-resolved warranty route issue has a calendar entry
         for issue in warranty_routes:
             issue_id = issue.get("id")
             matching_entries = [m for m in warranty_service_entries if m.get("issue_id") == issue_id]
-            print(f"\nIssue {issue.get('issue_code')} ({issue.get('technician_name')}): {len(matching_entries)} calendar entries")
+            print(f"\nIssue {issue.get('issue_code')} ({issue.get('technician_name')}, status={issue.get('status')}): {len(matching_entries)} calendar entries")
             
-            # Should have at least one calendar entry
+            # Should have at least one calendar entry for non-resolved issues
             assert len(matching_entries) >= 1, f"No calendar entry found for warranty issue {issue.get('issue_code')}"
-        
-        return warranty_service_entries
     
     def test_06_technician_can_see_warranty_tasks(self):
         """Test that technician can see warranty service tasks"""

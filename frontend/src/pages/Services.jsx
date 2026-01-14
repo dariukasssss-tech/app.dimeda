@@ -135,17 +135,49 @@ const Services = () => {
     }
   };
 
+  // State for technician assignment in track dialog
+  const [trackTechnicianAssigning, setTrackTechnicianAssigning] = useState(false);
+  const [selectedTrackTechnician, setSelectedTrackTechnician] = useState("");
+  
   // Fetch issue track data
   const fetchIssueTrack = async (issueId) => {
     setTrackLoading(true);
     try {
       const response = await axios.get(`${API}/issues/${issueId}/track`);
       setTrackData(response.data);
+      // Pre-select current technician if assigned
+      if (response.data.warranty_service_issue?.technician_name) {
+        setSelectedTrackTechnician(response.data.warranty_service_issue.technician_name);
+      } else {
+        setSelectedTrackTechnician("");
+      }
       setTrackDialogOpen(true);
     } catch (error) {
       toast.error("Failed to fetch issue track");
     } finally {
       setTrackLoading(false);
+    }
+  };
+  
+  // Handle technician assignment from track dialog
+  const handleTrackTechnicianAssign = async () => {
+    if (!trackData?.warranty_service_issue?.id || !selectedTrackTechnician) return;
+    
+    setTrackTechnicianAssigning(true);
+    try {
+      await axios.put(`${API}/issues/${trackData.warranty_service_issue.id}`, {
+        technician_name: selectedTrackTechnician,
+        status: "in_progress" // Also update status to in_progress when technician is assigned
+      });
+      toast.success(`Technician ${selectedTrackTechnician} assigned successfully`);
+      
+      // Refresh track data and main list
+      await fetchIssueTrack(trackData.original_issue?.id || trackData.current_issue?.id);
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to assign technician");
+    } finally {
+      setTrackTechnicianAssigning(false);
     }
   };
 

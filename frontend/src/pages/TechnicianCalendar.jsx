@@ -447,7 +447,9 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredMaintenance.map((item) => (
+              {filteredMaintenance.map((item) => {
+                const linkedIssue = getLinkedIssue(item);
+                return (
                 <div
                   key={item.id}
                   className={`flex items-center justify-between p-4 rounded-lg border-l-4 bg-white border ${
@@ -461,9 +463,16 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                   <div className="flex items-center gap-4">
                     <div className={`w-3 h-12 rounded-full ${getTaskColor(item)}`} />
                     <div>
-                      <p className="font-medium text-slate-900">
-                        S/N: {getProductSerial(item.product_id)}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-slate-900">
+                          S/N: {getProductSerial(item.product_id)}
+                        </p>
+                        {linkedIssue?.issue_code && (
+                          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
+                            {linkedIssue.issue_code}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-slate-600 capitalize">
                         {item.maintenance_type === "customer_issue" ? "Customer Issue" : item.maintenance_type.replace("_", " ")} • {item.source === "customer_issue" ? (
                           <span className="font-medium text-purple-700">

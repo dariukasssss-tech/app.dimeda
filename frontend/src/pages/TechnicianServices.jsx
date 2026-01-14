@@ -556,9 +556,9 @@ const TechnicianServices = ({ selectedTechnician }) => {
                 
                 {/* Resolution notes (if any) */}
                 {selectedIssue.resolution && (
-                  <div className="p-4 bg-purple-50 rounded-xl border border-purple-200">
-                    <h4 className="font-bold text-slate-900 mb-2">Resolution Notes</h4>
-                    <p className="text-slate-700">{selectedIssue.resolution}</p>
+                  <div className="p-4 bg-amber-50 rounded-xl border-2 border-amber-300">
+                    <h4 className="text-sm font-bold text-amber-800 uppercase tracking-wide">Resolution Notes</h4>
+                    <p className="text-base font-semibold text-slate-800 mt-2 whitespace-pre-line">{selectedIssue.resolution}</p>
                   </div>
                 )}
                 

@@ -962,9 +962,9 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                       <p className="text-slate-600 whitespace-pre-line">{linkedIssue.description}</p>
                       
                       {linkedIssue.resolution && (
-                        <div className="p-3 bg-white rounded-lg border">
-                          <span className="text-xs text-slate-500">Resolution Notes:</span>
-                          <p className="text-sm text-slate-700">{linkedIssue.resolution}</p>
+                        <div className="p-4 bg-amber-50 rounded-xl border-2 border-amber-300">
+                          <span className="text-sm font-bold text-amber-800 uppercase tracking-wide">Resolution Notes</span>
+                          <p className="text-base font-semibold text-slate-800 mt-2 whitespace-pre-line">{linkedIssue.resolution}</p>
                         </div>
                       )}
                       

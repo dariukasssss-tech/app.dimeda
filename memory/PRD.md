@@ -49,6 +49,26 @@ Three-portal system with role-based access:
 
 ## Recent Updates (January 2026)
 
+### Admin Portal Enhancements (Jan 14, 2026)
+1. **Dashboard Recent Services Improvements:**
+   - Now shows 10 records (was 5)
+   - Displays: Service type, Warranty status, S/N, City, Technician, Description preview, Date
+
+2. **Interactive Maintenance Calendar Stats:**
+   - "Upcoming (30 days)", "Overdue", "This Month" cards are now clickable
+   - Shows popup table with: Date, Product S/N, City, Type, Technician, Priority, Notes
+
+3. **Issue Code System Implemented:**
+   - Every new issue gets a unique code: `YYYY_SERIAL_MM_DD_ORDER`
+   - Example: `2026_VLN-00_01_14_1`
+   - Code visible across Admin, Technician, and Customer portals
+
+### Customer Portal Enhancements (Jan 14, 2026)
+- Added **Status/Condition Filter** (Filter #2): Reported, Registered, In Progress, Resolved
+- **3-Date Display** for resolved issues: Reported, Registered, Resolved dates
+- Issues sorted by latest date on top
+- Issue codes visible on all issues
+
 ### Major Refactoring Complete (Jan 14, 2026)
 **Backend Refactored:**
 - `server.py`: 960 lines → 71 lines (93% reduction)

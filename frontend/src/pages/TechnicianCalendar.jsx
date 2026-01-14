@@ -491,16 +491,16 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
               {filteredMaintenance.map((item) => {
                 const linkedIssue = getLinkedIssue(item);
                 const product = products.find(p => p.id === item.product_id);
+                const canStartWork = item.source === "customer_issue" && item.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved";
                 return (
                   <div
                     key={item.id}
-                    onClick={(e) => handleTaskClick(item, e)}
-                    className={`p-4 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer ${
+                    className={`p-4 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all ${
                       item.status === "completed" ? "border-slate-800 bg-slate-50" :
-                      item.source === "customer_issue" ? "border-purple-500 hover:bg-purple-50" :
-                      item.source === "auto_yearly" ? "border-emerald-500 hover:bg-emerald-50" :
-                      item.priority === "12h" ? "border-orange-500 hover:bg-orange-50" :
-                      "border-blue-500 hover:bg-blue-50"
+                      item.source === "customer_issue" ? "border-purple-500" :
+                      item.source === "auto_yearly" ? "border-emerald-500" :
+                      item.priority === "12h" ? "border-orange-500" :
+                      "border-blue-500"
                     }`}
                   >
                     {/* Header with S/N and Status */}
@@ -524,8 +524,11 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                       </Badge>
                     </div>
                     
-                    {/* City and Type */}
-                    <div className="flex items-center gap-3 text-sm text-slate-600 mb-2">
+                    {/* City and Type - clickable for details */}
+                    <div 
+                      className="flex items-center gap-3 text-sm text-slate-600 mb-2 cursor-pointer hover:text-slate-800"
+                      onClick={(e) => handleTaskClick(item, e)}
+                    >
                       <span className="flex items-center gap-1">
                         <MapPin size={14} className="text-slate-400" />
                         {product?.city || "Unknown"}
@@ -535,40 +538,76 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                       </span>
                     </div>
                     
-                    {/* Deadline */}
-                    <div className={`text-sm font-medium ${
-                      item.source === "customer_issue" ? "text-purple-700" : "text-slate-700"
-                    }`}>
+                    {/* Deadline - clickable for details */}
+                    <div 
+                      className={`text-sm font-medium cursor-pointer ${
+                        item.source === "customer_issue" ? "text-purple-700 hover:text-purple-900" : "text-slate-700 hover:text-slate-900"
+                      }`}
+                      onClick={(e) => handleTaskClick(item, e)}
+                    >
                       <Clock size={14} className="inline mr-1" />
                       {item.source === "customer_issue" ? "Solve by: " : ""}
                       {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
                     </div>
                     
-                    {/* Tags */}
-                    <div className="flex items-center gap-2 mt-2 flex-wrap">
-                      {item.source === "customer_issue" && (
-                        <Badge className="text-xs bg-purple-100 text-purple-800">
-                          <Users size={10} className="mr-1" />
-                          Customer
+                    {/* Tags and Action Button */}
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {item.source === "customer_issue" && (
+                          <Badge className="text-xs bg-purple-100 text-purple-800">
+                            <Users size={10} className="mr-1" />
+                            Customer
+                          </Badge>
+                        )}
+                        {item.source === "auto_yearly" && (
+                          <Badge className="text-xs bg-emerald-100 text-emerald-800">Yearly</Badge>
+                        )}
+                        {item.source === "customer_issue" && item.status !== "completed" && (() => {
+                          const sla = calculateSLARemaining(item);
+                          if (!sla) return null;
+                          return (
+                            <Badge className={`text-xs ${sla.expired ? "bg-red-500 text-white" : sla.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
+                              <Timer size={10} className="mr-1" />
+                              {sla.text}
+                            </Badge>
+                          );
+                        })()}
+                      </div>
+                      
+                      {/* Start Work Button - visible on card */}
+                      {canStartWork && (
+                        <Button
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMarkInProgress(item);
+                          }}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        >
+                          <Play size={14} className="mr-1" />
+                          Start Work
+                        </Button>
+                      )}
+                      
+                      {/* Show status badges for in_progress/resolved */}
+                      {item.status === "in_progress" && linkedIssue && linkedIssue.status === "in_progress" && (
+                        <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
+                          <Clock size={14} className="mr-1" />
+                          Working...
                         </Badge>
                       )}
-                      {item.source === "auto_yearly" && (
-                        <Badge className="text-xs bg-emerald-100 text-emerald-800">Yearly</Badge>
+                      {item.status === "in_progress" && linkedIssue && linkedIssue.status === "resolved" && (
+                        <Badge className="bg-emerald-100 text-emerald-800 px-3 py-1">
+                          <CheckCircle size={14} className="mr-1" />
+                          Resolved
+                        </Badge>
                       )}
-                      {item.source === "customer_issue" && item.status !== "completed" && (() => {
-                        const sla = calculateSLARemaining(item);
-                        if (!sla) return null;
-                        return (
-                          <Badge className={`text-xs ${sla.expired ? "bg-red-500 text-white" : sla.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
-                            <Timer size={10} className="mr-1" />
-                            {sla.text}
-                          </Badge>
-                        );
-                      })()}
                     </div>
                     
-                    {/* Click hint */}
-                    <p className="text-xs text-slate-400 mt-2 text-right">Click for details</p>
+                    {/* Click hint - only show if no action button */}
+                    {!canStartWork && item.status !== "in_progress" && (
+                      <p className="text-xs text-slate-400 mt-2 text-right cursor-pointer" onClick={(e) => handleTaskClick(item, e)}>Click for details</p>
+                    )}
                   </div>
                 );
               })}

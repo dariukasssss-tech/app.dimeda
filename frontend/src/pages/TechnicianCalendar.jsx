@@ -707,10 +707,6 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                           Repairing...
                         </Badge>
                       )}
-                          <Clock size={14} className="mr-1" />
-                          Working...
-                        </Badge>
-                      )}
                       {item.status === "in_progress" && linkedIssue && linkedIssue.status === "resolved" && (
                         <Badge className="bg-emerald-100 text-emerald-800 px-3 py-1">
                           <CheckCircle size={14} className="mr-1" />

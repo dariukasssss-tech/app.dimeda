@@ -32,6 +32,8 @@ import {
   MapPin,
   FileText,
   AlertTriangle,
+  Wrench,
+  Shield,
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, parseISO } from "date-fns";
 

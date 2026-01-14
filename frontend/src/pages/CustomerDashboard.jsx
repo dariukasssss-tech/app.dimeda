@@ -21,10 +21,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { AlertTriangle, Plus, CheckCircle, Clock, MapPin, Filter } from "lucide-react";
+import { AlertTriangle, Plus, CheckCircle, Clock, MapPin, Filter, Calendar } from "lucide-react";
 
 // Cities list
 const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
+
+// Status filter options for customer view
+const STATUS_FILTERS = [
+  { value: "all", label: "All Conditions" },
+  { value: "reported", label: "Reported" },
+  { value: "registered", label: "Registered" },
+  { value: "in_progress", label: "In Progress" },
+  { value: "resolved", label: "Resolved" },
+];
 
 const CustomerDashboard = () => {
   const [products, setProducts] = useState([]);
@@ -32,7 +41,8 @@ const CustomerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
-  const [issueFilter, setIssueFilter] = useState("all");
+  const [cityFilter, setCityFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [formData, setFormData] = useState({
     selected_city: "",
     product_id: "",

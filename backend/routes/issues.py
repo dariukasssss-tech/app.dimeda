@@ -42,13 +42,32 @@ async def create_issue(issue: IssueCreate):
     
     issue_obj = Issue(**issue.model_dump())
     issue_obj.issue_code = issue_code
+    
+    # Set technician_assigned_at if technician is provided at creation
+    if issue.technician_name:
+        issue_obj.technician_assigned_at = datetime.now(timezone.utc).isoformat()
+    
     doc = issue_obj.model_dump()
     await db.issues.insert_one(doc)
     
     # Auto-schedule maintenance based on issue type
     now = datetime.now(timezone.utc)
     
-    if issue.issue_type == "electrical":
+    # For customer issues with technician assigned, create a calendar entry
+    if issue.source == "customer" and issue.technician_name:
+        sla_deadline = now + timedelta(hours=12)
+        maintenance_obj = ScheduledMaintenance(
+            product_id=issue.product_id,
+            scheduled_date=sla_deadline.isoformat(),
+            maintenance_type="customer_issue",
+            technician_name=issue.technician_name,
+            notes=f"Customer Issue: {issue.title} - SLA: 12h from registration",
+            source="customer_issue",
+            issue_id=issue_obj.id,
+            priority="12h"
+        )
+        await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
+    elif issue.issue_type == "electrical":
         scheduled_time = now + timedelta(hours=12)
         maintenance_obj = ScheduledMaintenance(
             product_id=issue.product_id,

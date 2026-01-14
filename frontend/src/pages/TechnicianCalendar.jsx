@@ -790,12 +790,12 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
         </DialogContent>
       </Dialog>
 
-      {/* Task Detail Popup Dialog */}
+      {/* Task Detail Popup Dialog - Same style as Services page */}
       <Dialog open={taskDetailOpen} onOpenChange={setTaskDetailOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2" style={{ fontFamily: 'Manrope, sans-serif' }}>
-              <FileText size={20} className="text-blue-600" />
+            <DialogTitle className="flex items-center gap-2 text-xl" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              <FileText size={24} className="text-blue-600" />
               Task Details
             </DialogTitle>
           </DialogHeader>
@@ -803,198 +803,264 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
           {selectedTask && (() => {
             const product = products.find(p => p.id === selectedTask.product_id);
             const linkedIssue = getLinkedIssue(selectedTask);
-            const isWarrantyRepair = selectedTask.source === "warranty_service" || linkedIssue?.is_warranty_route;
-            const parentIssue = linkedIssue ? getParentIssue(linkedIssue) : null;
-            const repairTime = linkedIssue ? calculateRepairTimeRemaining(linkedIssue) : null;
+            const isWarrantyRepair = selectedTask.source === "warranty_service" || linkedIssue?.warranty_service_type === "warranty";
+            const isAwaitingRepair = linkedIssue?.status === "in_service";
+            const isRepairing = linkedIssue?.status === "in_progress" && linkedIssue?.warranty_service_type === "warranty";
+            const repairAttempts = linkedIssue?.repair_attempts || [];
+            
+            // Calculate repair time from warranty_repair_started_at
+            const calcRepairTime = () => {
+              if (!linkedIssue?.warranty_repair_started_at && !isWarrantyRepair) return null;
+              const startTime = linkedIssue?.warranty_repair_started_at || linkedIssue?.created_at;
+              if (!startTime) return null;
+              const startDate = new Date(startTime);
+              const deadline = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+              const now = new Date();
+              const diffMs = deadline - now;
+              
+              if (diffMs <= 0) return { expired: true, text: "Time Expired", urgent: true };
+              
+              const hours = Math.floor(diffMs / (1000 * 60 * 60));
+              const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+              return { 
+                expired: false, 
+                text: hours > 0 ? `${hours}h ${minutes}m left` : `${minutes}m left`, 
+                urgent: hours < 6 
+              };
+            };
+            const repairTime = calcRepairTime();
             
             return (
-              <div className="mt-4 space-y-4">
-                {/* Warranty Repair Banner */}
-                {isWarrantyRepair && linkedIssue && linkedIssue.status !== "resolved" && (
-                  <div className="p-4 bg-orange-100 rounded-lg border border-orange-300">
+              <div className="space-y-6 mt-4">
+                {/* Status Banner */}
+                {(isAwaitingRepair || isRepairing || isWarrantyRepair) && linkedIssue && linkedIssue.status !== "resolved" && (
+                  <div className={`p-4 rounded-xl border-2 ${
+                    isAwaitingRepair ? "bg-orange-100 border-orange-300" : 
+                    isRepairing ? "bg-blue-100 border-blue-300" : 
+                    "bg-orange-50 border-orange-200"
+                  }`}>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Wrench size={20} className="text-orange-600" />
-                        <span className="font-semibold text-orange-800">Warranty Repair Task</span>
+                      <div className="flex items-center gap-3">
+                        {isAwaitingRepair && <Timer size={24} className="text-orange-600" />}
+                        {isRepairing && <Wrench size={24} className="text-blue-600" />}
+                        {!isAwaitingRepair && !isRepairing && <Shield size={24} className="text-orange-600" />}
+                        <div>
+                          <h3 className="font-bold text-lg">
+                            {isAwaitingRepair ? "Awaiting Repair" : isRepairing ? "Repair In Progress" : "Warranty Repair Task"}
+                          </h3>
+                          <p className="text-sm text-slate-600">
+                            {isAwaitingRepair ? "Click Continue to start repair work" : 
+                             isRepairing ? "Complete the repair to resolve issue" : "Complete within 24 hours"}
+                          </p>
+                        </div>
                       </div>
                       {repairTime && (
-                        <Badge className={`${repairTime.expired ? "bg-red-500 text-white animate-pulse" : repairTime.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
-                          <Timer size={12} className="mr-1" />
+                        <Badge className={`text-lg px-4 py-2 ${repairTime.expired ? "bg-red-500 text-white animate-pulse" : repairTime.urgent ? "bg-orange-500 text-white" : "bg-amber-200 text-amber-900"}`}>
+                          <Timer size={16} className="mr-2" />
                           {repairTime.text}
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-orange-700 mt-2">
-                      This is a warranty repair task. Complete it within 24 hours of creation.
-                    </p>
                   </div>
                 )}
                 
                 {/* Product Info */}
-                <div className="p-4 bg-slate-50 rounded-lg">
-                  <h4 className="font-semibold text-slate-900 mb-2">Product Information</h4>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                    <Building2 size={18} />
+                    Product Information
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-slate-500">Serial Number:</span>
-                      <p className="font-medium text-slate-900">{product?.serial_number || "Unknown"}</p>
+                      <p className="font-bold text-slate-900">{product?.serial_number || "Unknown"}</p>
                     </div>
                     <div>
                       <span className="text-slate-500">City:</span>
-                      <p className="font-medium text-slate-900">{product?.city || "Unknown"}</p>
+                      <p className="font-bold text-slate-900">{product?.city || "Unknown"}</p>
                     </div>
                     <div>
                       <span className="text-slate-500">Model:</span>
-                      <p className="font-medium text-slate-900">{product?.model_name || "N/A"}</p>
+                      <p className="font-bold text-slate-900">{product?.model_name || "N/A"}</p>
                     </div>
                     <div>
                       <span className="text-slate-500">Location:</span>
-                      <p className="font-medium text-slate-900">{product?.location_detail || "N/A"}</p>
+                      <p className="font-bold text-slate-900">{linkedIssue?.product_location || product?.location_detail || "N/A"}</p>
                     </div>
                   </div>
                 </div>
                 
-                {/* Task Info */}
-                <div className={`p-4 rounded-lg ${isWarrantyRepair ? "bg-orange-50" : "bg-blue-50"}`}>
-                  <h4 className="font-semibold text-slate-900 mb-2">Task Information</h4>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
+                {/* Task/Schedule Info */}
+                <div className={`p-4 rounded-xl border ${isWarrantyRepair ? "bg-orange-50 border-orange-200" : "bg-slate-50 border-slate-200"}`}>
+                  <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                    <CalendarDays size={18} />
+                    Scheduled Task
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-slate-500">Type:</span>
-                      <p className="font-medium text-slate-900 capitalize">{selectedTask.maintenance_type?.replace("_", " ")}</p>
+                      <p className="font-bold text-slate-900 capitalize">{selectedTask.maintenance_type?.replace("_", " ")}</p>
                     </div>
                     <div>
                       <span className="text-slate-500">Status:</span>
                       <Badge className={`${
                         selectedTask.status === "completed" ? "bg-slate-800 text-white" :
-                        selectedTask.status === "in_progress" ? (isWarrantyRepair ? "bg-orange-500 text-white" : "bg-blue-500 text-white") :
+                        selectedTask.status === "in_progress" ? "bg-blue-500 text-white" :
                         "bg-slate-200 text-slate-700"
                       }`}>
                         {selectedTask.status}
                       </Badge>
                     </div>
                     <div>
-                      <span className="text-slate-500">Scheduled Date:</span>
-                      <p className="font-medium text-slate-900">{format(parseISO(selectedTask.scheduled_date), "MMM d, yyyy HH:mm")}</p>
+                      <span className="text-slate-500">Scheduled:</span>
+                      <p className="font-bold text-slate-900">{format(parseISO(selectedTask.scheduled_date), "MMM d, yyyy HH:mm")}</p>
                     </div>
                     <div>
                       <span className="text-slate-500">Priority:</span>
-                      <p className="font-medium text-slate-900">{selectedTask.priority || "Normal"}</p>
+                      <p className="font-bold text-slate-900">{selectedTask.priority || "Normal"}</p>
                     </div>
                   </div>
                   {selectedTask.notes && (
-                    <div className="mt-3">
-                      <span className="text-slate-500 text-sm">Notes:</span>
-                      <p className="text-sm text-slate-700 mt-1">{selectedTask.notes}</p>
+                    <div className="mt-3 p-3 bg-white rounded-lg">
+                      <span className="text-xs text-slate-500">Notes:</span>
+                      <p className="text-sm text-slate-700">{selectedTask.notes}</p>
                     </div>
                   )}
                 </div>
                 
-                {/* Issue Info (if linked) */}
+                {/* Linked Issue Info */}
                 {linkedIssue && (
-                  <div className={`p-4 rounded-lg ${isWarrantyRepair ? "bg-orange-50 border border-orange-200" : "bg-purple-50"}`}>
-                    <h4 className="font-semibold text-slate-900 mb-2">
-                      {isWarrantyRepair ? "Repair Issue Details" : "Linked Issue"}
+                  <div className={`p-4 rounded-xl border ${isWarrantyRepair ? "bg-orange-50 border-orange-200" : "bg-purple-50 border-purple-200"}`}>
+                    <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                      <AlertTriangle size={18} />
+                      {isWarrantyRepair ? "Issue Details" : "Linked Issue"}
                     </h4>
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-slate-500">Issue Code:</span>
-                        <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-mono">
-                          {linkedIssue.issue_code || "N/A"}
+                        <span className="px-3 py-1 rounded-lg bg-slate-200 text-slate-800 font-mono font-bold">
+                          {linkedIssue.issue_code}
                         </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500">Title:</span>
-                        <p className="font-medium text-slate-900">{linkedIssue.title}</p>
-                      </div>
-                      <div>
-                        <span className="text-slate-500">Description:</span>
-                        <p className="text-slate-700">{linkedIssue.description}</p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <span className="text-slate-500">Issue Type:</span>
-                          <p className="font-medium text-slate-900 capitalize">{linkedIssue.issue_type}</p>
-                        </div>
-                        <div>
-                          <span className="text-slate-500">Severity:</span>
-                          <Badge className={`${
-                            linkedIssue.severity === "critical" ? "bg-red-500 text-white" :
-                            linkedIssue.severity === "high" ? "bg-orange-500 text-white" :
-                            linkedIssue.severity === "medium" ? "bg-yellow-500 text-white" :
-                            "bg-slate-200 text-slate-700"
-                          }`}>
-                            {linkedIssue.severity}
+                        <Badge className={`${
+                          linkedIssue.severity === "critical" ? "bg-red-100 text-red-800" :
+                          linkedIssue.severity === "high" ? "bg-orange-100 text-orange-800" :
+                          linkedIssue.severity === "medium" ? "bg-amber-100 text-amber-800" :
+                          "bg-slate-100 text-slate-800"
+                        }`}>
+                          {linkedIssue.severity}
+                        </Badge>
+                        <Badge variant="outline">{linkedIssue.issue_type}</Badge>
+                        {linkedIssue.warranty_service_type === "warranty" && (
+                          <Badge className="bg-green-100 text-green-800">
+                            <Shield size={12} className="mr-1" />
+                            Warranty
                           </Badge>
-                        </div>
+                        )}
                       </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900">{linkedIssue.title}</h3>
+                      </div>
+                      <p className="text-slate-600 whitespace-pre-line">{linkedIssue.description}</p>
+                      
+                      {linkedIssue.resolution && (
+                        <div className="p-3 bg-white rounded-lg border">
+                          <span className="text-xs text-slate-500">Resolution Notes:</span>
+                          <p className="text-sm text-slate-700">{linkedIssue.resolution}</p>
+                        </div>
+                      )}
+                      
                       {linkedIssue.source === "customer" && (
-                        <div className="flex items-center gap-2 pt-2">
-                          <AlertTriangle size={16} className="text-purple-600" />
-                          <span className="text-purple-700 font-medium">Customer Reported Issue</span>
+                        <div className="flex items-center gap-2 pt-2 text-purple-700">
+                          <Users size={16} />
+                          <span className="font-medium">Customer Reported Issue</span>
                         </div>
                       )}
                     </div>
                   </div>
                 )}
                 
-                {/* Parent Issue Info (for warranty repairs) */}
-                {parentIssue && (
-                  <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
-                    <h4 className="font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                      <FileText size={16} className="text-amber-600" />
-                      Original Issue (Parent)
+                {/* Repair Attempts (if more than 1) */}
+                {repairAttempts.length > 1 && (
+                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
+                    <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                      <Wrench size={18} />
+                      Repair Attempts ({repairAttempts.length})
                     </h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-500">Issue Code:</span>
-                        <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-mono">
-                          {parentIssue.issue_code || "N/A"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500">Title:</span>
-                        <p className="font-medium text-slate-900">{parentIssue.title}</p>
-                      </div>
-                      <div>
-                        <span className="text-slate-500">Status:</span>
-                        <Badge className={parentIssue.status === "in_service" ? "bg-amber-500 text-white" : "bg-slate-200 text-slate-700"}>
-                          {parentIssue.status}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-amber-700 mt-2">
-                        This parent issue will be marked as resolved when the repair is completed.
-                      </p>
+                    <div className="space-y-2">
+                      {repairAttempts.map((repair, idx) => (
+                        <div key={repair.id} className="flex items-center justify-between p-2 bg-white rounded-lg border">
+                          <span className="font-medium">Repair #{idx + 1}</span>
+                          <Badge className={
+                            repair.status === "completed" ? "bg-emerald-100 text-emerald-800" :
+                            repair.status === "in_progress" ? "bg-blue-100 text-blue-800" :
+                            "bg-amber-100 text-amber-800"
+                          }>
+                            {repair.status}
+                          </Badge>
+                          <span className="text-xs text-slate-500">
+                            {new Date(repair.started_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
                 
+                {/* Timestamps */}
+                <div className="flex items-center gap-4 text-xs text-slate-400">
+                  {linkedIssue && <span>Issue Created: {new Date(linkedIssue.created_at).toLocaleString()}</span>}
+                  {linkedIssue?.warranty_repair_started_at && (
+                    <span>Repair Started: {new Date(linkedIssue.warranty_repair_started_at).toLocaleString()}</span>
+                  )}
+                </div>
+                
                 {/* Action Buttons */}
-                <div className="flex justify-end pt-2 gap-2">
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                  <Button variant="outline" onClick={() => setTaskDetailOpen(false)}>
+                    Close
+                  </Button>
+                  
                   {/* Start Work for customer issues */}
-                  {selectedTask.source === "customer_issue" && selectedTask.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved" && !isWarrantyRepair && (
+                  {selectedTask.source === "customer_issue" && selectedTask.status === "scheduled" && linkedIssue && linkedIssue.status === "open" && (
                     <Button 
                       onClick={() => {
                         handleMarkInProgress(selectedTask);
                         setTaskDetailOpen(false);
                       }}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6"
                       data-testid="popup-start-work-btn"
                     >
-                      <Play size={16} className="mr-2" />
+                      <Play size={18} className="mr-2" />
                       Start Work
                     </Button>
                   )}
                   
-                  {/* Continue for warranty repairs */}
-                  {isWarrantyRepair && selectedTask.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved" && (
+                  {/* Continue for warranty repairs awaiting */}
+                  {isAwaitingRepair && linkedIssue && (
                     <Button 
-                      onClick={() => {
-                        handleContinueRepair(selectedTask);
-                        setTaskDetailOpen(false);
+                      onClick={async () => {
+                        try {
+                          await axios.put(`${API}/issues/${linkedIssue.id}`, {
+                            start_repair: true,
+                            repair_id: linkedIssue.current_repair_id
+                          });
+                          
+                          if (selectedTask.id) {
+                            await axios.put(`${API}/scheduled-maintenance/${selectedTask.id}`, {
+                              status: "in_progress"
+                            });
+                          }
+                          
+                          toast.success("Started repair - visible in Services");
+                          setTaskDetailOpen(false);
+                          fetchData();
+                        } catch (error) {
+                          toast.error("Failed to start repair");
+                        }
                       }}
-                      className="bg-orange-600 hover:bg-orange-700 text-white"
+                      className="bg-orange-600 hover:bg-orange-700 text-white px-6"
                       data-testid="popup-continue-btn"
                     >
-                      <Play size={16} className="mr-2" />
+                      <Play size={18} className="mr-2" />
                       Continue
                     </Button>
                   )}

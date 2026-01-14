@@ -227,40 +227,71 @@ async def update_issue(issue_id: str, update: IssueUpdate):
     # Handle auto-create service record
     should_create_service = update_data.pop("create_service_record", None)
     
-    # Check if this is a warranty service resolution - create routed issue
+    # Handle repair actions
+    start_repair = update_data.pop("start_repair", None)
+    complete_repair = update_data.pop("complete_repair", None)
+    repair_notes = update_data.pop("repair_notes", None)
+    repair_id = update_data.pop("repair_id", None)
+    
+    # Check if this is a warranty service resolution
     is_warranty_service = update_data.get("warranty_service_type") == "warranty"
     
-    # If warranty service and trying to resolve, create a routed "Make Service" issue instead
+    # NEW WARRANTY FLOW: No child issues, track repairs on original issue
     if is_warranty_service and update_data.get("status") == "resolved" and not existing.get("is_warranty_route"):
-        # Don't mark as resolved yet - mark as "in_service"
+        # Don't mark as resolved yet - mark as "in_service" (Awaiting Repair)
         update_data["status"] = "in_service"
         update_data.pop("resolved_at", None)
         
-        # Generate issue code for routed issue
-        routed_issue_code = await generate_issue_code(existing["product_id"])
+        # Record warranty repair start time (24h countdown starts from here)
+        update_data["warranty_repair_started_at"] = datetime.now(timezone.utc).isoformat()
         
-        # Create the routed "Make Service" issue
-        routed_issue = Issue(
-            product_id=existing["product_id"],
-            issue_type="make_service",
-            severity=existing.get("severity", "medium"),
-            title=f"[Warranty Service] {existing.get('title', 'Service Required')}",
-            description=f"Warranty service for issue: {existing.get('title')}\n\nOriginal Description: {existing.get('description')}\n\nResolution Notes: {update_data.get('resolution', 'N/A')}",
-            technician_name=existing.get("technician_name"),
-            warranty_status="warranty",
-            issue_code=routed_issue_code,
-            parent_issue_id=issue_id,
-            is_warranty_route=True,
-            source=existing.get("source"),
-            product_location=existing.get("product_location"),
-        )
-        routed_doc = routed_issue.model_dump()
-        await db.issues.insert_one(routed_doc)
+        # Create first repair attempt
+        new_repair = {
+            "id": str(uuid.uuid4()),
+            "started_at": datetime.now(timezone.utc).isoformat(),
+            "completed_at": None,
+            "notes": update_data.get("resolution", "Warranty repair required"),
+            "status": "pending"
+        }
+        existing_repairs = existing.get("repair_attempts", [])
+        existing_repairs.append(new_repair)
+        update_data["repair_attempts"] = existing_repairs
+        update_data["current_repair_id"] = new_repair["id"]
+    
+    # Handle starting a repair (Continue button clicked)
+    if start_repair and existing.get("status") == "in_service":
+        repair_attempts = existing.get("repair_attempts", [])
+        current_repair_id = repair_id or existing.get("current_repair_id")
         
-        # Update the original issue with child reference
-        update_data["child_issue_id"] = routed_issue.id
+        # Find and update the repair attempt
+        for repair in repair_attempts:
+            if repair["id"] == current_repair_id:
+                repair["status"] = "in_progress"
+                break
         
-    # If this is a routed warranty issue being resolved, also resolve the parent
+        update_data["repair_attempts"] = repair_attempts
+        update_data["status"] = "in_progress"
+    
+    # Handle completing a repair
+    if complete_repair:
+        repair_attempts = existing.get("repair_attempts", [])
+        current_repair_id = repair_id or existing.get("current_repair_id")
+        
+        # Find and complete the repair attempt
+        for repair in repair_attempts:
+            if repair["id"] == current_repair_id:
+                repair["status"] = "completed"
+                repair["completed_at"] = datetime.now(timezone.utc).isoformat()
+                if repair_notes:
+                    repair["notes"] = repair_notes
+                break
+        
+        update_data["repair_attempts"] = repair_attempts
+        update_data["status"] = "resolved"
+        update_data["resolved_at"] = datetime.now(timezone.utc).isoformat()
+        update_data["current_repair_id"] = None
+    
+    # LEGACY: Handle old routed warranty issues being resolved
     if existing.get("is_warranty_route") and update_data.get("status") == "resolved":
         parent_id = existing.get("parent_issue_id")
         if parent_id:

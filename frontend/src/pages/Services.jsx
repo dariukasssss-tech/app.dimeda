@@ -866,7 +866,505 @@ const Services = () => {
             )}
           </div>
         </TabsContent>
+
+        {/* In Service Tab - Warranty issues waiting for service */}
+        <TabsContent value="in_service" className="mt-6">
+          <div className="space-y-6" data-testid="in-service-issues-list">
+            {/* Original issues marked as In Service */}
+            {inServiceIssues.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                  <Shield className="text-amber-500" size={20} />
+                  Awaiting Warranty Service ({inServiceIssues.length})
+                </h3>
+                <div className="space-y-4">
+                  {inServiceIssues.map((issue) => (
+                    <Card 
+                      key={issue.id} 
+                      className="border-l-4 border-amber-500 cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => fetchIssueTrack(issue.id)}
+                      data-testid={`in-service-${issue.id}`}
+                    >
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {issue.issue_code && (
+                                <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
+                                  {issue.issue_code}
+                                </span>
+                              )}
+                              <Badge className="bg-amber-100 text-amber-800">
+                                <Clock size={12} className="mr-1" />
+                                In Service
+                              </Badge>
+                              <Badge className="bg-green-100 text-green-800">
+                                <Shield size={12} className="mr-1" />
+                                Warranty
+                              </Badge>
+                            </div>
+                            <h3 className="text-lg font-semibold text-slate-900 mt-2">{issue.title}</h3>
+                            <div className="text-sm text-slate-500 mt-1">
+                              <span>S/N: {getProductSerial(issue.product_id)}</span>
+                              <span className="mx-2">•</span>
+                              <span>{getProductCity(issue.product_id)}</span>
+                            </div>
+                            {issue.resolution && (
+                              <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded">
+                                <strong>Resolution:</strong> {issue.resolution}
+                              </p>
+                            )}
+                            <p className="text-xs text-blue-600 mt-2">Click to view full track</p>
+                          </div>
+                          <Badge className="bg-amber-500 text-white">In Service</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Warranty Service Issues (Make Service) */}
+            {warrantyServiceIssues.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                  <Wrench className="text-purple-500" size={20} />
+                  Make Service Issues ({warrantyServiceIssues.length})
+                </h3>
+                <div className="space-y-4">
+                  {warrantyServiceIssues.map((issue) => (
+                    <Card 
+                      key={issue.id} 
+                      className="border-l-4 border-purple-500"
+                      data-testid={`warranty-service-${issue.id}`}
+                    >
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {issue.issue_code && (
+                                <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
+                                  {issue.issue_code}
+                                </span>
+                              )}
+                              <Badge className="bg-purple-100 text-purple-800">
+                                <Wrench size={12} className="mr-1" />
+                                Make Service
+                              </Badge>
+                              {issue.parent_issue_id && (
+                                <Badge variant="outline" className="text-xs">
+                                  Routed from warranty
+                                </Badge>
+                              )}
+                            </div>
+                            <h3 className="text-lg font-semibold text-slate-900 mt-2">{issue.title}</h3>
+                            <div className="text-sm text-slate-500 mt-1">
+                              <span>S/N: {getProductSerial(issue.product_id)}</span>
+                              <span className="mx-2">•</span>
+                              <span>{getProductCity(issue.product_id)}</span>
+                            </div>
+                            <p className="text-sm text-slate-600 mt-2 line-clamp-2">{issue.description}</p>
+                            <div className="flex items-center gap-3 mt-3">
+                              {issue.technician_name && (
+                                <span className="text-sm text-slate-600 flex items-center gap-1">
+                                  <User size={14} />
+                                  {issue.technician_name}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setSelectedIssue(issue);
+                                setResolveDialogOpen(true);
+                              }}
+                              className="bg-emerald-600 hover:bg-emerald-700"
+                            >
+                              <CheckCircle size={14} className="mr-1" />
+                              Complete Service
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => fetchIssueTrack(issue.id)}
+                            >
+                              View Track
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {inServiceIssues.length === 0 && warrantyServiceIssues.length === 0 && (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Shield className="mx-auto text-slate-300" size={48} />
+                  <p className="text-slate-500 mt-4">No issues in service</p>
+                  <p className="text-sm text-slate-400 mt-1">Warranty service issues will appear here</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Resolved Issues Tab - Grouped by Warranty/Non-Warranty */}
+        <TabsContent value="resolved" className="mt-6">
+          <div className="space-y-6" data-testid="resolved-issues-list">
+            {/* Resolved Warranty Issues */}
+            <div>
+              <h3 className="text-lg font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <Shield className="text-green-500" size={20} />
+                Warranty Services ({resolvedWarrantyIssues.length})
+              </h3>
+              {resolvedWarrantyIssues.length === 0 ? (
+                <Card>
+                  <CardContent className="py-8 text-center text-slate-500">
+                    No resolved warranty issues
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {resolvedWarrantyIssues.map((issue) => (
+                    <Card 
+                      key={issue.id} 
+                      className="border-l-4 border-green-500 cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => fetchIssueTrack(issue.id)}
+                      data-testid={`resolved-warranty-${issue.id}`}
+                    >
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {issue.issue_code && (
+                                <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
+                                  {issue.issue_code}
+                                </span>
+                              )}
+                              <Badge className="bg-emerald-100 text-emerald-800">
+                                <CheckCircle size={12} className="mr-1" />
+                                Resolved
+                              </Badge>
+                              <Badge className="bg-green-100 text-green-800">
+                                <Shield size={12} className="mr-1" />
+                                Warranty
+                              </Badge>
+                            </div>
+                            <h3 className="text-lg font-semibold text-slate-900 mt-2">{issue.title}</h3>
+                            <div className="text-sm text-slate-500 mt-1">
+                              <span>S/N: {getProductSerial(issue.product_id)}</span>
+                              <span className="mx-2">•</span>
+                              <span>{getProductCity(issue.product_id)}</span>
+                            </div>
+                            {issue.resolution && (
+                              <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded line-clamp-2">
+                                <strong>Resolution:</strong> {issue.resolution}
+                              </p>
+                            )}
+                            {issue.resolved_at && (
+                              <p className="text-xs text-slate-400 mt-2">
+                                Resolved: {new Date(issue.resolved_at).toLocaleString()}
+                              </p>
+                            )}
+                            <p className="text-xs text-blue-600 mt-1">Click to view full track</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Resolved Non-Warranty Issues */}
+            <div>
+              <h3 className="text-lg font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <ShieldOff className="text-gray-500" size={20} />
+                Non-Warranty Services ({resolvedNonWarrantyIssues.length})
+              </h3>
+              {resolvedNonWarrantyIssues.length === 0 ? (
+                <Card>
+                  <CardContent className="py-8 text-center text-slate-500">
+                    No resolved non-warranty issues
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {resolvedNonWarrantyIssues.map((issue) => (
+                    <Card 
+                      key={issue.id} 
+                      className="border-l-4 border-gray-400"
+                      data-testid={`resolved-non-warranty-${issue.id}`}
+                    >
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {issue.issue_code && (
+                                <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
+                                  {issue.issue_code}
+                                </span>
+                              )}
+                              <Badge className="bg-emerald-100 text-emerald-800">
+                                <CheckCircle size={12} className="mr-1" />
+                                Resolved
+                              </Badge>
+                              <Badge className="bg-gray-100 text-gray-800">
+                                <ShieldOff size={12} className="mr-1" />
+                                Non-Warranty
+                              </Badge>
+                            </div>
+                            <h3 className="text-lg font-semibold text-slate-900 mt-2">{issue.title}</h3>
+                            <div className="text-sm text-slate-500 mt-1">
+                              <span>S/N: {getProductSerial(issue.product_id)}</span>
+                              <span className="mx-2">•</span>
+                              <span>{getProductCity(issue.product_id)}</span>
+                            </div>
+                            {issue.resolution && (
+                              <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded line-clamp-2">
+                                <strong>Resolution:</strong> {issue.resolution}
+                              </p>
+                            )}
+                            {(issue.estimated_fix_time || issue.estimated_cost) && (
+                              <div className="flex gap-4 text-sm text-slate-600 mt-2">
+                                {issue.estimated_fix_time && <span>Time: {issue.estimated_fix_time}h</span>}
+                                {issue.estimated_cost && <span>Cost: {issue.estimated_cost} Eur</span>}
+                              </div>
+                            )}
+                            {issue.resolved_at && (
+                              <p className="text-xs text-slate-400 mt-2">
+                                Resolved: {new Date(issue.resolved_at).toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
+
+      {/* Issue Track Dialog */}
+      <Dialog open={trackDialogOpen} onOpenChange={setTrackDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" data-testid="track-dialog">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              <FileText size={20} className="text-blue-600" />
+              Issue Track
+            </DialogTitle>
+          </DialogHeader>
+          
+          {trackLoading ? (
+            <div className="py-8 text-center text-slate-500">Loading track...</div>
+          ) : trackData ? (
+            <div className="space-y-4 mt-4">
+              {/* Product Info */}
+              {trackData.product && (
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <h4 className="font-semibold text-slate-900 mb-2">Product Information</h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-slate-500">Serial Number:</span>
+                      <p className="font-medium">{trackData.product.serial_number}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">City:</span>
+                      <p className="font-medium">{trackData.product.city}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Model:</span>
+                      <p className="font-medium">{trackData.product.model_name}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Location:</span>
+                      <p className="font-medium">{trackData.product.location_detail || "N/A"}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Original Issue */}
+              {trackData.original_issue && (
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                    <AlertTriangle size={16} />
+                    Original Issue
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    {trackData.original_issue.issue_code && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-blue-700">Code:</span>
+                        <span className="px-2 py-0.5 rounded bg-blue-200 text-blue-800 font-mono">
+                          {trackData.original_issue.issue_code}
+                        </span>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-blue-700">Title:</span>
+                      <p className="font-medium text-blue-900">{trackData.original_issue.title}</p>
+                    </div>
+                    <div>
+                      <span className="text-blue-700">Description:</span>
+                      <p className="text-blue-800">{trackData.original_issue.description}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <span className="text-blue-700">Type:</span>
+                        <p className="font-medium capitalize">{trackData.original_issue.issue_type}</p>
+                      </div>
+                      <div>
+                        <span className="text-blue-700">Status:</span>
+                        <Badge className={
+                          trackData.original_issue.status === "resolved" ? "bg-emerald-500 text-white" :
+                          trackData.original_issue.status === "in_service" ? "bg-amber-500 text-white" :
+                          "bg-blue-500 text-white"
+                        }>
+                          {trackData.original_issue.status}
+                        </Badge>
+                      </div>
+                    </div>
+                    {trackData.original_issue.resolution && (
+                      <div>
+                        <span className="text-blue-700">Resolution:</span>
+                        <p className="text-blue-800 bg-blue-100 p-2 rounded mt-1">{trackData.original_issue.resolution}</p>
+                      </div>
+                    )}
+                    <div className="flex gap-4 text-xs text-blue-600 pt-2">
+                      <span>Created: {new Date(trackData.original_issue.created_at).toLocaleString()}</span>
+                      {trackData.original_issue.resolved_at && (
+                        <span>Resolved: {new Date(trackData.original_issue.resolved_at).toLocaleString()}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Arrow indicator for warranty flow */}
+              {trackData.is_warranty_flow && trackData.warranty_service_issue && (
+                <div className="flex justify-center">
+                  <ArrowRight size={24} className="text-purple-500" />
+                </div>
+              )}
+
+              {/* Warranty Service Issue */}
+              {trackData.warranty_service_issue && (
+                <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <h4 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
+                    <Wrench size={16} />
+                    Warranty Service Issue (Routed)
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    {trackData.warranty_service_issue.issue_code && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-purple-700">Code:</span>
+                        <span className="px-2 py-0.5 rounded bg-purple-200 text-purple-800 font-mono">
+                          {trackData.warranty_service_issue.issue_code}
+                        </span>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-purple-700">Title:</span>
+                      <p className="font-medium text-purple-900">{trackData.warranty_service_issue.title}</p>
+                    </div>
+                    <div>
+                      <span className="text-purple-700">Description:</span>
+                      <p className="text-purple-800">{trackData.warranty_service_issue.description}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <span className="text-purple-700">Status:</span>
+                        <Badge className={
+                          trackData.warranty_service_issue.status === "resolved" ? "bg-emerald-500 text-white" :
+                          "bg-purple-500 text-white"
+                        }>
+                          {trackData.warranty_service_issue.status}
+                        </Badge>
+                      </div>
+                      <div>
+                        <span className="text-purple-700">Technician:</span>
+                        <p className="font-medium">{trackData.warranty_service_issue.technician_name || "Unassigned"}</p>
+                      </div>
+                    </div>
+                    {trackData.warranty_service_issue.resolution && (
+                      <div>
+                        <span className="text-purple-700">Service Resolution:</span>
+                        <p className="text-purple-800 bg-purple-100 p-2 rounded mt-1">{trackData.warranty_service_issue.resolution}</p>
+                      </div>
+                    )}
+                    <div className="flex gap-4 text-xs text-purple-600 pt-2">
+                      <span>Created: {new Date(trackData.warranty_service_issue.created_at).toLocaleString()}</span>
+                      {trackData.warranty_service_issue.resolved_at && (
+                        <span>Resolved: {new Date(trackData.warranty_service_issue.resolved_at).toLocaleString()}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Current Issue (if viewing from child) */}
+              {!trackData.original_issue && trackData.current_issue && !trackData.current_issue.is_warranty_route && (
+                <div className="p-4 bg-slate-50 rounded-lg border">
+                  <h4 className="font-semibold text-slate-900 mb-2">Issue Details</h4>
+                  <div className="space-y-2 text-sm">
+                    {trackData.current_issue.issue_code && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-600">Code:</span>
+                        <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-mono">
+                          {trackData.current_issue.issue_code}
+                        </span>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-slate-600">Title:</span>
+                      <p className="font-medium">{trackData.current_issue.title}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-600">Description:</span>
+                      <p>{trackData.current_issue.description}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <span className="text-slate-600">Status:</span>
+                        <Badge className={
+                          trackData.current_issue.status === "resolved" ? "bg-emerald-500 text-white" :
+                          trackData.current_issue.status === "in_service" ? "bg-amber-500 text-white" :
+                          "bg-blue-500 text-white"
+                        }>
+                          {trackData.current_issue.status}
+                        </Badge>
+                      </div>
+                      <div>
+                        <span className="text-slate-600">Service Type:</span>
+                        <Badge className={trackData.current_issue.warranty_service_type === "warranty" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                          {trackData.current_issue.warranty_service_type || "N/A"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="py-8 text-center text-slate-500">No track data available</div>
+          )}
+          
+          <div className="flex justify-end pt-4 border-t mt-4">
+            <Button variant="outline" onClick={() => setTrackDialogOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Resolve Issue Dialog */}
       <Dialog open={resolveDialogOpen} onOpenChange={setResolveDialogOpen}>

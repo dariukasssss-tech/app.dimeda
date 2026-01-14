@@ -44,6 +44,7 @@ import {
   Timer,
   Users,
   User,
+  X,
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, isBefore, parseISO } from "date-fns";
 
@@ -63,6 +64,11 @@ const MaintenanceCalendar = () => {
   const [upcomingCount, setUpcomingCount] = useState({ upcoming: 0, overdue: 0 });
   const [cityFilter, setCityFilter] = useState("all");
   const [technicianFilter, setTechnicianFilter] = useState("all"); // OPTIMIZATION 5: My Tasks filter
+  // Stats popup state
+  const [statsPopupOpen, setStatsPopupOpen] = useState(false);
+  const [statsPopupType, setStatsPopupType] = useState(null);
+  const [statsPopupData, setStatsPopupData] = useState([]);
+  const [statsPopupLoading, setStatsPopupLoading] = useState(false);
   const [formData, setFormData] = useState({
     product_id: "",
     scheduled_date: "",

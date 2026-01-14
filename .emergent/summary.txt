@@ -1,65 +1,86 @@
-<analysis>**original_problem_statement:** The user wants a full-stack application for Dimeda.lt, a service partner for www.medirol.cz. The app is intended for technicians to manage the service and maintenance of Medirol Vivera Monobloc stretchers.
-
-A new parallel feature for a Customer Pro portal was requested, allowing customers to log in and register issues directly, which then appear in the Service Pro portal for technicians.
+<analysis>**original_problem_statement:** The user wants a full-stack application for Dimeda.lt, a service partner for www.medirol.cz. The app is intended for technicians to manage the service and maintenance of Medirol Vivera Monobloc stretchers. The application has evolved to include two main portals: a Service Pro portal for administrators/technicians and a Customer Pro portal for customers to register issues. The latest request is to split the Service Pro portal into two distinct roles: an Admin role with full access and a Technician role with a limited, read-only view of their assigned tasks. This Technician view should now be updated to allow interaction (marking tasks in progress and resolving them).
 
 **PRODUCT REQUIREMENTS:**
--   **Product Management:** Register, edit, and view products (serial number, model, registration date, location).
--   **Issue Tracking:** Technicians and Customers can report issues. Issues include title, description, type, severity, and responsible technician.
+-   **Product Management:** Register, edit, and view products.
+-   **Issue Tracking:** Technicians and Customers can report issues.
 -   **Service History:** Log service records for each product.
--   **Product Detail View:** A comprehensive view for each product showing its complete history.
--   **Maintenance Scheduling:** A calendar with automatic scheduling for yearly maintenance and urgent tasks based on issue type.
--   **Dashboard:** An overview of key stats and open issues for technicians.
--   **Reporting & Export:** Export product data to CSV and generate detailed PDF inspection reports.
--   **Dual Authentication:** The application is split into two portals:
-    -   **Service Pro Portal:** For technicians, protected by a shared password.
-    -   **Customer Pro Portal:** For customers, protected by a different shared password, for issue registration only.
--   **UI/Design:** A clean, professional look using a white, black, gray, and blue (#0066CC) color scheme with the Dimeda company logo.
--   **Conditional UI:** Various dynamic UI elements based on user selections (e.g., inspection checklists, filtered lists).
+-   **Maintenance Scheduling:** A calendar with automatic scheduling and task tracking.
+-   **Dashboard:** An overview of key stats and open issues.
+-   **Reporting & Export:** Export data to CSV and generate PDF inspection reports.
+-   **Multi-level Authentication:**
+    -   **Admin Portal:** Full access to all features.
+    -   **Technician Portal:** A restricted view showing only a specific technician's assigned tasks (Dashboard, Calendar, Services). Technicians can mark tasks as In Progress and Resolved.
+    -   **Customer Pro Portal:** A simple portal for customers to register issues.
+-   **SLA Management:** A 12-hour SLA timer for customer-reported issues, visible across the system.
+-   **UI/Design:** A clean, professional look with a white, black, gray, and blue (#0066CC) color scheme.
 
 **User's preferred language**: English
 
 **what currently exists?**
-A comprehensive full-stack application (FastAPI + React) for managing medical stretcher maintenance. The app is split into two portals:
-1.  **Service Pro Portal:** Features CRUD for products, issues, and services; a detailed maintenance calendar with technician-based statistics; an export page for CSVs and complex PDF reports; and a dashboard.
-2.  **Customer Pro Portal:** A simplified interface for customers to log in and report issues for their products. These issues are automatically flagged as high-priority in the Service Pro portal.
+A full-stack application (FastAPI + React) with three distinct portals based on role-based access control (RBAC):
+1.  **Admin Portal:** Fully-featured Service Pro portal with CRUD operations for products, issues, services, a maintenance calendar, a dashboard, and an export page. Accessed with an admin password.
+2.  **Technician Portal (New):** A simplified, read-only view for technicians, showing a dashboard, calendar, and service page filtered to their assigned tasks. Accessed with a technician password. The agent has just added code to make this portal interactive.
+3.  **Customer Pro Portal:** A simple interface for customers to log in and report issues.
 
-Both portals are functional and protected by separate, token-based authentication.
+The system includes a notification system for new customer issues, an SLA timer, and several workflow optimizations, like automatically setting an issue to In Progress when a technician is assigned.
 
 **Last working item**:
--   Last item agent was working: The agent just completed a feature to bridge the gap between the two portals. When a technician is assigned to a customer-reported issue in the Service Pro portal, the issue's status automatically updates to Registered in the Customer Pro portal, displaying the technician's name and the assignment time. Additionally, customer-reported issues are now visually distinct (gray background, Customer Reported badge) in the Service Pro issue list.
--   Status: USER VERIFICATION PENDING
--   Agent Testing Done: Y
--   Which testing method agent to use? Manual testing by the user is required to confirm the workflow between the Service and Customer portals.
+-   Last item agent was working: The agent was implementing a user request to make the new Technician Portal interactive. Specifically, allowing a logged-in technician to:
+    1.  Mark a scheduled issue as In Progress directly from their calendar view ().
+    2.  Resolve In Progress issues from their service view (), using the same resolution flow as the Admin portal.
+    The agent has written the code for these features across  and  but has not performed any testing to verify if the implementation works or if it introduced any bugs.
+-   Status: IN PROGRESS
+-   Agent Testing Done: N
+-   Which testing method agent to use? Frontend testing agent. The new functionality requires a thorough end-to-end test: log in as a technician, navigate to the calendar, mark an issue as In Progress, see it appear on the Services page, and then resolve it. The test must also verify these status changes are reflected correctly in the Admin and Customer portals.
 -   User Testing Done: N
 
 **All Pending/In progress Issue list**:
-There are no pending or in-progress issues. The last set of user requests has been fully implemented and is awaiting user verification.
+-   Issue 1: (P0) The newly added interactivity in the Technician Portal is completely untested. There is a high risk of frontend errors or incorrect backend state changes.
+
+  Issues Detail:
+  - Issue 1: **Technician Portal Interactivity Untested**
+     - Attempted fixes: None. The agent wrote the code and immediately stopped.
+     - Next debug checklist:
+        1.  Start by taking a screenshot of the technician login flow to ensure the app loads.
+        2.  Log in as a technician ().
+        3.  Navigate to the Technician Calendar. Verify the Mark In Progress button appears for scheduled, open issues.
+        4.  Click the button. Use  or check the Admin portal to confirm the issue's status is updated to  in the database.
+        5.  Navigate to the Technician Services page. Verify the newly In Progress issue appears there.
+        6.  Use the Resolve Issue flow on the Technician Services page to resolve the issue.
+        7.  Verify the issue is marked as Resolved across the entire system (Admin portal, Customer portal if applicable).
+     - Why fix this issue and what will be achieved with the fix? This is the final step to complete the user-requested technician role feature, enabling technicians to manage their workflow independently.
+     - Status: NOT STARTED
+     - Is recurring issue? N
+     - Should Test frontend/backend/both after fix? Both. Frontend for UI interaction and backend to confirm data integrity.
+     - Blocked on other issue: None.
 
 **In progress Task List**:
-There are no tasks currently in progress.
+-   Task 1: **Finalize and Verify Role-Based Access Control (RBAC) and Technician Portal**
+     - Where to resume: Begin testing the code written in the last steps. The primary files to verify are  and .
+     - What will be achieved with this? A fully functional, three-tiered application with distinct, working portals for Admins, Technicians, and Customers, as per the user's latest request.
+     - Status: IN PROGRESS
+     - Should Test frontend/backend/both after fix? Both.
+     - Blocked on something: None.
 
 **Upcoming and Future Tasks**
--   Upcoming Tasks:
-    -   (P0) **Service Pro Notifications:** Create a dedicated notification system (e.g., a bell icon with a dropdown) in the Service Pro portal to explicitly alert technicians about newly registered customer issues.
 -   Future Tasks:
     -   (P1) Implement email notifications for upcoming maintenance (e.g., 7 days in advance).
     -   (P2) Develop a feature to bulk import products from a CSV file.
     -   (P3) Create a Progressive Web App (PWA) for technicians to have offline access in the field.
 
 **Completed work in this session**
--   List of all completed tasks with file and method name:
-    -   **Conditional Issue Checklists:** Implemented conditional rendering for inspection checklists on the Report New Issue form, visible only for issue type Others. ()
-    -   **Dynamic Inspection Report:** The Device Inspection Report now automatically unchecks items based on unresolved Other type issues for a selected product. ()
-    -   **UI Text & Branding Update:** Updated various text labels and implemented a product model dropdown. (, , )
-    -   **Interactive Dashboard & Filters:** Made dashboard stat cards clickable links and converted the issue filter dropdown into button-style filters with counts. (, )
-    -   **Technician Assignment:** Added functionality to assign a technician to issues, services, and maintenance tasks, with dropdowns in all relevant forms. (, , , )
-    -   **Advanced Calendar Statistics:** Implemented a comprehensive statistics table on the Calendar page, filterable by technician, which sums up maintenance, issues, and services. ()
-    -   **Warranty Status:** Added a Warranty Status field to issues and services, visible across all relevant pages. (, , , )
-    -   **Enhanced CSV Export:** Updated the Issues CSV export to include new fields (technician, warranty, city, resolved date) and a dynamic filename. ()
-    -   **Customer Portal Scaffolding:** Implemented a dual-login page and a separate authenticated route for a new Customer Pro portal. (, , )
-    -   **Customer Issue Registration:** Built the customer portal UI allowing customers to register issues, which are automatically created with high severity. (, )
--   Recently completed:
-    -   **Customer/Service Portal Sync:** Linked the two portals by updating the customer issue status to Registered with a timestamp when a technician is assigned in the service portal. (, , )
+-   **Technician Assignment Locked:** Implemented logic to prevent re-assigning a technician unless the issue is first Marked as Open. The backend now clears the technician field when an issue's status is set back to .
+-   **Service Page Overhaul:** Moved the Resolve Issue functionality exclusively to the Services page. The resolution flow now requires selecting a Warranty or Non-Warranty service type, with conditional fields for Estimated Cost and Fix Time for non-warranty work.
+-   **Choose from Issue for Services:** The Add New Service dialog now has two modes: Log New Service (manual entry) and Choose Service (select from a list of resolved non-warranty issues to pre-fill the form).
+-   **System Optimizations Implemented:**
+    -   **Auto In Progress:** Issues are automatically set to In Progress when a technician is assigned.
+    -   **Auto-Create Service Record:** A checkbox in the Resolve Issue dialog (checked by default) automatically creates a corresponding service record when a non-warranty issue is resolved.
+    -   **Enhanced Notifications:** The notification dropdown now includes SLA urgency indicators (e.g., how much time is left).
+    -   **Calendar My Tasks Filter:** Added quick filter buttons by technician name on the main calendar, with a personal summary card.
+-   **Role-Based Access Control (Admin/Technician):**
+    -   Implemented a three-panel login page for Admin, Technician, and Customer roles.
+    -   Updated the backend to use separate passwords and issue JWTs with a  claim.
+    -   Created a new, restricted Technician Portal with three pages: , , and .
 
 **Earlier issues found/mentioned but not fixed**
    - None.
@@ -74,78 +95,79 @@ There are no tasks currently in progress.
 -   **Backend:** FastAPI
 -   **Frontend:** React, Tailwind CSS, Shadcn UI
 -   **Database:** MongoDB
--   **Authentication:** Dual token-based authentication (Service Pro & Customer) using middleware. Tokens are stored in .
+-   **Authentication:** Multi-level, token-based authentication. A JWT is issued upon login containing a  ('admin', 'technician', or 'customer'), which the frontend uses to render the appropriate portal.
 -   **PDF Generation:**  and  on the client-side.
 
 **key DB schema**
-  - : {serial_number, model_name, city, registration_date, location_detail, notes}
-  - : {product_id, title, description, issue_type, status, severity, created_at, technician_name, **warranty_status**, **source**, **product_location**, **technician_assigned_at**}
-  - : {product_id, scheduled_date, type, status, notes, **technician_name**}
-  - : {product_id, service_date, description, technician_name, **warranty_status**}
+  - : {serial_number, model_name, city, registration_date, ...}
+  - : {product_id, title, status, severity, source, technician_name, technician_assigned_at, **warranty_service_type**, **estimated_fix_time**, **estimated_cost**, ...}
+  - : {product_id, scheduled_date, type, status, technician_name, ...}
+  - : {product_id, service_date, description, technician_name, ...}
+  - : {technician_name, date}
 
 **changes in tech stack**
   - None.
 
 **All files of reference**
--   : Contains all backend logic. Significantly updated with customer auth, customer issue endpoints, and expanded data models.
--   : Main frontend component, handles dual authentication logic and routing for both service and customer portals.
--   : Updated to a two-panel login screen for Service Pro and Customer Pro.
--   : New file for the entire customer portal UI/UX.
--   : Heavily modified to handle technician assignment, warranty status, and special rendering for customer-reported issues.
--   : Overhauled to include a detailed, filterable statistics table for technicians.
--   : Now contains  (for service) and  (for customers).
+-   : Major overhaul to handle three separate authentication flows (admin, technician, customer) and return a  in the auth check. Added endpoints for technician unavailable days.
+-   : Now contains  and , replacing the old .
+-   : Significantly refactored to manage three authentication states () and render different portal layouts based on the logged-in user's role.
+-   : Completely rewritten to display a three-panel login UI for Admin, Technician, and Customer roles.
+-   : Heavily modified to be the primary location for resolving issues and creating service records from resolved issues.
+-   , , : New files created to build the technician-specific portal.
 
 **Areas that need refactoring**:
--   The monolithic  is becoming difficult to manage. Consider refactoring by splitting the code into a more modular structure (e.g., , , ).
+-    is now extremely large and complex. It urgently needs to be broken down into modules (e.g., , , ) to improve maintainability.
+-    contains the logic for all three portals. This could be refactored by creating separate parent components for each portal to simplify the main App component.
 
 **key api endpoints**
--   , , 
--    (POST): New endpoint for customer authentication.
--    (GET, POST),  (PUT, DELETE, GET)
--    (GET, POST),  (PUT, DELETE)
--    (POST): New endpoint for customers to create high-severity issues.
--    (GET, POST)
--   : Endpoint for exporting issues data.
+-    (POST): Authenticates an admin.
+-    (POST): Authenticates a technician.
+-    (POST): Authenticates a customer.
+-    (GET): Checks token validity and returns the user's role (, , or ).
+-    (PUT): Logic updated to handle auto-status changes and auto-creation of service records.
+-    (GET, POST, DELETE): Manages technician's off-days.
 
 **Critical Info for New Agent**
--   **Dual Portals:** The application now has two distinct user roles and portals. The token received upon login determines which portal is displayed.
-    -   **Service Pro:** Accessed with password . Full functionality.
-    -   **Customer Pro:** Accessed with password . Limited to reporting issues.
--   **Customer-Reported Issues:** Issues created via the customer portal () are automatically assigned  and . The frontend uses the  field to apply special styling.
--   **Technician Assignment Tracking:** When a technician is first assigned to an issue, the  timestamp is set in the database. The customer portal uses this field to change an issue's status from Open to Registered.
+-   **Three-Role System:** The application is now built around three distinct roles. The role is determined at login and stored in  as . The backend validates this with a  claim in the JWT.
+    -   **Admin:** . Full access.
+    -   **Technician:** . Limited view of assigned tasks.
+    -   **Customer:** . Issue registration only.
+-   **Technician Portal State:** The technician's selected name is persisted in  () so it doesn't need to be re-selected on every page load.
+-   **Workflow Centralization:** Issue resolution is now centralized on the **Services** page for both Admins and Technicians. The Issues page no longer has a Resolve option.
 
 **documents and test reports created in this job**
-  - 
-  - 
+  -  (updated to include comprehensive test cases for the entire workflow).
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **Request:** Add a second Customer Pro login area and portal for issue registration.
-2.  **User Clarification:** Use a shared password for customers and handle routing on the frontend.
-3.  **Agent Action:** Implemented the dual login system and initial customer portal.
-4.  **Request:** Refine the customer portal UI (city filters, location field, success message).
-5.  **Agent Action:** Implemented all UI refinements for the customer portal.
-6.  **Test:** Agent verified the new customer issue appears as high-priority in the service portal.
-7.  **Test:** Agent confirmed the system handles simultaneous issue registration from multiple devices.
-8.  **Request:** Visually distinguish customer issues in the service portal and update the customer portal status to Registered with a timestamp when a technician is assigned.
-9.  **Agent Action:** Implemented the status sync and UI changes.
-10. **Agent Summary:** Provided a final summary confirming all features were implemented and tested, now awaiting user verification.
+1.  **Request:** Evaluate the entire system and provide optimization suggestions.
+2.  **Agent Action:** Performed backend and frontend testing, then provided a list of 5 possible optimizations.
+3.  **User Response:** Implement 1, 3, 4, 5 optimizations except No. 2.
+4.  **Agent Action:** Implemented all four requested optimizations (Auto In Progress, auto-create service record, enhanced notifications, My Tasks calendar filter).
+5.  **Request:** Implement a new two-level password system (Admin vs. Technician) with a restricted, read-only portal for technicians.
+6.  **Agent Action:** Implemented the full RBAC system, including a new 3-panel login page and a read-only technician portal.
+7.  **User Response:** Verified the technician portal and requested it to be made interactive.
+8.  **Request:** Allow technicians to mark issues as In Progress from their calendar and resolve them from their service page.
+9.  **Agent Action:** Wrote the code to implement this interactivity in  and .
+10. **Agent Status:** The agent finished the coding for the interactive technician portal but did not proceed with any testing or verification.
 
 **Project Health Check:**
--   **Broken:** None
+-   **Broken:** None known, but the latest feature is untested and at high risk.
 -   **Mocked:** None
 
 **3rd Party Integrations**
 -    & : Used for client-side PDF generation in the reporting feature.
 
 **Testing status**
-  - Testing agent used after significant changes: NO (Agent used  and  for extensive manual testing).
+  - Testing agent used after significant changes: YES (for the system evaluation).
   - Troubleshoot agent used after agent stuck in loop: NO
   - Test files created: []
   - Known regressions: []
 
 **Credentials to test flow:**
--   **Service Pro Password:** 
+-   **Admin Password:** 
+-   **Technician Password:** 
 -   **Customer Pro Password:** 
 
 **What agent forgot to execute**
--   Nothing was forgotten. All user requests from this session have been addressed and implemented. The agent correctly identified and implemented the multi-select feature for checklists mentioned in the initial handoff.</analysis>
+-   The agent did not execute any testing or verification steps after implementing the interactive features for the Technician Portal. The immediate next step must be to thoroughly test this new functionality.</analysis>

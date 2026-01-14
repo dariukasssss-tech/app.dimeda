@@ -933,11 +933,11 @@ app.include_router(api_router)
 app.add_middleware(AuthMiddleware)
 
 # Get frontend URL from environment for CORS
-frontend_url = os.environ.get('FRONTEND_URL', 'https://service-bridge-22.preview.emergentagent.com')
+frontend_url = os.environ.get('FRONTEND_URL', 'https://medirol-service-hub.preview.emergentagent.com')
 cors_origins = [
     frontend_url,
     "http://localhost:3000",
-    "https://service-bridge-22.preview.emergentagent.com"
+    "https://medirol-service-hub.preview.emergentagent.com"
 ]
 
 app.add_middleware(

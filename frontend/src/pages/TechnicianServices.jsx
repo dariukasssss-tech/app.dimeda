@@ -391,7 +391,7 @@ const TechnicianServices = ({ selectedTechnician }) => {
                 />
               </div>
               
-              {/* Auto-create service record checkbox */}
+              {/* Auto-create service record checkbox - simplified for technicians */}
               {resolveData.warranty_service_type === "non_warranty" && (
                 <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <input
@@ -402,7 +402,7 @@ const TechnicianServices = ({ selectedTechnician }) => {
                     className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <label htmlFor="create_service_record" className="text-sm text-blue-800">
-                    Automatically create Service Record from this issue
+                    Create Service Record
                   </label>
                 </div>
               )}

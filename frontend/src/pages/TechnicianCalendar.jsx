@@ -518,23 +518,52 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                   </div>
                   
                   {/* Action Button - Mark as In Progress */}
-                  {item.source === "customer_issue" && item.status === "scheduled" && item.issue_id && (
-                    <Button
-                      size="sm"
-                      onClick={() => handleMarkInProgress(item)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      <Play size={14} className="mr-1" />
-                      Start Work
-                    </Button>
-                  )}
+                  {item.source === "customer_issue" && item.status === "scheduled" && item.issue_id && (() => {
+                    const linkedIssue = getLinkedIssue(item);
+                    // Only show if issue exists and is not resolved
+                    if (linkedIssue && linkedIssue.status !== "resolved") {
+                      return (
+                        <Button
+                          size="sm"
+                          onClick={() => handleMarkInProgress(item)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          <Play size={14} className="mr-1" />
+                          Start Work
+                        </Button>
+                      );
+                    }
+                    return null;
+                  })()}
                   
-                  {item.status === "in_progress" && (
-                    <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
-                      <Clock size={14} className="mr-1" />
-                      Working...
-                    </Badge>
-                  )}
+                  {item.status === "in_progress" && (() => {
+                    const linkedIssue = getLinkedIssue(item);
+                    // Show "Working..." only if issue is still in progress
+                    if (linkedIssue && linkedIssue.status === "in_progress") {
+                      return (
+                        <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
+                          <Clock size={14} className="mr-1" />
+                          Working...
+                        </Badge>
+                      );
+                    }
+                    // Show "Resolved" if the linked issue is resolved
+                    if (linkedIssue && linkedIssue.status === "resolved") {
+                      return (
+                        <Badge className="bg-emerald-100 text-emerald-800 px-3 py-1">
+                          <CheckCircle size={14} className="mr-1" />
+                          Resolved
+                        </Badge>
+                      );
+                    }
+                    // Default to Working... if no linked issue found
+                    return (
+                      <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
+                        <Clock size={14} className="mr-1" />
+                        Working...
+                      </Badge>
+                    );
+                  })()}
                 </div>
               ))}
             </div>

@@ -228,7 +228,7 @@ const TechnicianServices = ({ selectedTechnician }) => {
             <div className="py-8 text-center text-slate-500">
               <Clock className="mx-auto text-slate-300 mb-2" size={32} />
               <p>No issues in progress</p>
-              <p className="text-xs text-slate-400 mt-1">Click "Start Work" on Calendar tasks to begin working</p>
+              <p className="text-xs text-slate-400 mt-1">Click &quot;Start Work&quot; on Calendar tasks to begin working</p>
             </div>
           ) : (
             <div className="space-y-4">

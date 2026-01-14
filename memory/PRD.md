@@ -220,15 +220,21 @@ estimated_cost, product_location, source, created_at, resolution}
 4. Return message: "Issue and related entries deleted successfully"
 
 ### Technician Portal Workflow Update (Jan 14, 2026)
-**New Workflow:**
+**Simplified Warranty Flow (No Child Issues):**
 1. **Calendar Only First:** Assigned issues appear on technician's Calendar only (not in Services)
 2. **Start Work:** Clicking "Start Work" moves issue to Services "In Progress Issues" section
 3. **Two-Section Services Page:**
    - "In Progress Issues" - Active work items
-   - "Service Records" - Issues with service type (warranty/non-warranty)
-4. **Warranty Flow:**
-   - Resolving as "Warranty Service" creates child repair task with 24h timer
-   - Timer counts from resolve time
-   - Parent shows as "Awaiting Repair" until child is done
-5. **Continue Button:** Warranty repair tasks show "Continue" button instead of "Start Work"
-6. **Complete Repair:** Completing repair marks both parent and child as resolved
+   - "Service Records" - Issues with warranty/non-warranty service type
+4. **Simplified Warranty Flow:**
+   - Resolving as "Warranty Service" changes status to "in_service" (Awaiting Repair)
+   - NO child issue created - repairs tracked on original issue via `repair_attempts` array
+   - Same issue code throughout entire workflow
+   - 24h timer counts from warranty_repair_started_at timestamp
+5. **Detailed Popup Dialog:**
+   - Clicking any card opens large popup with ALL issue info (same in Services and Calendar)
+   - Shows: Status banner with timer, Issue details, Product info, Resolution notes, Timestamps
+   - "Continue" button for Awaiting Repair status
+   - "Complete Repair" button for in-progress repairs
+   - Dropdown for multiple repair attempts if >2
+6. **Complete Repair:** Completing repair marks issue as resolved

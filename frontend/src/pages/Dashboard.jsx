@@ -3,13 +3,14 @@ import axios from "axios";
 import { API } from "@/App";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, Wrench, AlertTriangle, CheckCircle, Plus, ArrowRight } from "lucide-react";
+import { Package, Wrench, AlertTriangle, CheckCircle, Plus, ArrowRight, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [recentServices, setRecentServices] = useState([]);
   const [openIssues, setOpenIssues] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -26,13 +27,23 @@ const Dashboard = () => {
         axios.get(`${API}/products`),
       ]);
       setStats(statsRes.data);
-      setRecentServices(servicesRes.data.slice(0, 5));
+      setProducts(productsRes.data);
+      
+      // Add product info to services - show all records (up to 10)
+      const servicesWithProduct = servicesRes.data.map(service => {
+        const product = productsRes.data.find(p => p.id === service.product_id);
+        return {
+          ...service,
+          product_serial: product?.serial_number || "Unknown",
+          product_city: product?.city || "Unknown"
+        };
+      });
+      setRecentServices(servicesWithProduct.slice(0, 10));
       
       // Add product serial to issues
-      const products = productsRes.data;
       const issuesWithSerial = issuesRes.data.map(issue => ({
         ...issue,
-        product_serial: products.find(p => p.id === issue.product_id)?.serial_number || "Unknown"
+        product_serial: productsRes.data.find(p => p.id === issue.product_id)?.serial_number || "Unknown"
       }));
       setOpenIssues(issuesWithSerial.slice(0, 8));
     } catch (error) {
@@ -40,6 +51,11 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getProductSerial = (productId) => {
+    const product = products.find(p => p.id === productId);
+    return product?.serial_number || "Unknown";
   };
 
   const StatCard = ({ title, value, icon: Icon, color, testId, onClick }) => (

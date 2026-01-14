@@ -1288,6 +1288,42 @@ const Services = () => {
                         <p className="font-medium">{trackData.warranty_service_issue.technician_name || "Unassigned"}</p>
                       </div>
                     </div>
+                    
+                    {/* Technician Assignment Section - Only for non-resolved issues */}
+                    {trackData.warranty_service_issue.status !== "resolved" && (
+                      <div className="mt-4 p-3 bg-purple-100 rounded-lg border border-purple-300">
+                        <Label className="text-purple-800 font-medium">Assign/Re-assign Technician</Label>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Select
+                            value={selectedTrackTechnician}
+                            onValueChange={setSelectedTrackTechnician}
+                          >
+                            <SelectTrigger className="flex-1 bg-white" data-testid="track-technician-select">
+                              <SelectValue placeholder="Select technician" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {TECHNICIANS.map((tech) => (
+                                <SelectItem key={tech} value={tech}>
+                                  {tech}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            size="sm"
+                            onClick={handleTrackTechnicianAssign}
+                            disabled={!selectedTrackTechnician || trackTechnicianAssigning || selectedTrackTechnician === trackData.warranty_service_issue.technician_name}
+                            className="bg-purple-600 hover:bg-purple-700"
+                            data-testid="assign-technician-btn"
+                          >
+                            {trackTechnicianAssigning ? "Assigning..." : "Assign"}
+                          </Button>
+                        </div>
+                        <p className="text-xs text-purple-600 mt-2">
+                          Assigning a technician will add this task to their calendar and service list.
+                        </p>
+                      </div>
+                    )}
                     {trackData.warranty_service_issue.resolution && (
                       <div>
                         <span className="text-purple-700">Service Resolution:</span>

@@ -17,6 +17,13 @@ class IssueCreate(IssueBase):
     product_location: Optional[str] = None  # Address/location info from customer
     source: Optional[str] = None  # "customer" for customer-reported issues
 
+class RepairAttempt(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    started_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    completed_at: Optional[str] = None
+    notes: Optional[str] = None
+    status: str = "pending"  # pending, in_progress, completed
+
 class Issue(IssueBase):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -34,7 +41,11 @@ class Issue(IssueBase):
     source: Optional[str] = None  # "customer" for customer-reported issues
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     resolved_at: Optional[str] = None
-    # Warranty service routing fields
+    # Warranty repair tracking (no child issues)
+    warranty_repair_started_at: Optional[str] = None  # When warranty repair was initiated
+    repair_attempts: List[RepairAttempt] = []  # Track multiple repair attempts
+    current_repair_id: Optional[str] = None  # Currently active repair attempt
+    # Legacy fields (kept for backwards compatibility)
     parent_issue_id: Optional[str] = None  # If this is a routed warranty service issue
     child_issue_id: Optional[str] = None  # If this issue has a routed warranty service issue
     is_warranty_route: bool = False  # True if this is a "Make Service" routed issue

@@ -1,0 +1,168 @@
+from fastapi import APIRouter, HTTPException
+from typing import List, Optional
+from datetime import datetime, timezone, timedelta
+from models.issue import IssueCreate, Issue, CustomerIssueCreate, IssueUpdate
+from models.maintenance import ScheduledMaintenance
+from models.service import ServiceRecord
+from core.database import db
+
+router = APIRouter(prefix="/issues", tags=["issues"])
+
+@router.post("", response_model=Issue)
+async def create_issue(issue: IssueCreate):
+    product = await db.products.find_one({"id": issue.product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    issue_obj = Issue(**issue.model_dump())
+    doc = issue_obj.model_dump()
+    await db.issues.insert_one(doc)
+    
+    # Auto-schedule maintenance based on issue type
+    now = datetime.now(timezone.utc)
+    
+    if issue.issue_type == "electrical":
+        scheduled_time = now + timedelta(hours=12)
+        maintenance_obj = ScheduledMaintenance(
+            product_id=issue.product_id,
+            scheduled_date=scheduled_time.isoformat(),
+            maintenance_type="issue_replacement",
+            notes=f"Spare unit replacement - {issue.title}",
+            source="issue",
+            issue_id=issue_obj.id,
+            priority="12h"
+        )
+        await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
+    else:
+        inspection_time = now + timedelta(hours=12)
+        inspection_obj = ScheduledMaintenance(
+            product_id=issue.product_id,
+            scheduled_date=inspection_time.isoformat(),
+            maintenance_type="issue_inspection",
+            notes=f"Inspection for issue - {issue.title}",
+            source="issue",
+            issue_id=issue_obj.id,
+            priority="12h"
+        )
+        await db.scheduled_maintenance.insert_one(inspection_obj.model_dump())
+        
+        service_time = now + timedelta(hours=24)
+        service_obj = ScheduledMaintenance(
+            product_id=issue.product_id,
+            scheduled_date=service_time.isoformat(),
+            maintenance_type="issue_service",
+            notes=f"Service for issue - {issue.title}",
+            source="issue",
+            issue_id=issue_obj.id,
+            priority="24h"
+        )
+        await db.scheduled_maintenance.insert_one(service_obj.model_dump())
+    
+    return issue_obj
+
+@router.get("", response_model=List[Issue])
+async def get_issues(product_id: Optional[str] = None, status: Optional[str] = None):
+    query = {}
+    if product_id:
+        query["product_id"] = product_id
+    if status:
+        query["status"] = status
+    issues = await db.issues.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return issues
+
+@router.get("/{issue_id}", response_model=Issue)
+async def get_issue(issue_id: str):
+    issue = await db.issues.find_one({"id": issue_id}, {"_id": 0})
+    if not issue:
+        raise HTTPException(status_code=404, detail="Issue not found")
+    return issue
+
+@router.put("/{issue_id}", response_model=Issue)
+async def update_issue(issue_id: str, update: IssueUpdate):
+    existing = await db.issues.find_one({"id": issue_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Issue not found")
+    
+    update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    
+    # When marking as "open", clear the technician assignment
+    if update_data.get("status") == "open" and existing.get("technician_name"):
+        update_data["technician_name"] = None
+        update_data["technician_assigned_at"] = None
+        if existing.get("source") == "customer":
+            await db.scheduled_maintenance.delete_many({
+                "issue_id": issue_id,
+                "source": "customer_issue"
+            })
+    
+    # Track when technician was assigned
+    if update_data.get("technician_name") and not existing.get("technician_name"):
+        update_data["technician_assigned_at"] = datetime.now(timezone.utc).isoformat()
+        
+        # Auto-set status to "in_progress" when technician is assigned
+        if existing.get("status") == "open":
+            update_data["status"] = "in_progress"
+        
+        # Create calendar entry for customer issues
+        if existing.get("source") == "customer":
+            created_at = datetime.fromisoformat(existing["created_at"].replace("Z", "+00:00"))
+            sla_deadline = created_at + timedelta(hours=12)
+            
+            maintenance_obj = ScheduledMaintenance(
+                product_id=existing["product_id"],
+                scheduled_date=sla_deadline.isoformat(),
+                maintenance_type="customer_issue",
+                technician_name=update_data["technician_name"],
+                notes=f"Customer Issue: {existing.get('title', 'N/A')} - SLA: 12h from registration",
+                source="customer_issue",
+                issue_id=issue_id,
+                priority="12h"
+            )
+            await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
+    
+    if update_data.get("status") == "resolved":
+        update_data["resolved_at"] = datetime.now(timezone.utc).isoformat()
+    
+    # Handle auto-create service record
+    should_create_service = update_data.pop("create_service_record", None)
+    
+    await db.issues.update_one({"id": issue_id}, {"$set": update_data})
+    updated = await db.issues.find_one({"id": issue_id}, {"_id": 0})
+    
+    # Auto-create service record for non-warranty resolved issues
+    if should_create_service and update_data.get("status") == "resolved" and update_data.get("warranty_service_type") == "non_warranty":
+        service_obj = ServiceRecord(
+            product_id=existing["product_id"],
+            technician_name=updated.get("technician_name") or existing.get("technician_name") or "Unknown",
+            service_type="repair",
+            description=f"{existing.get('title', 'Issue')}\n\nResolution: {update_data.get('resolution', 'N/A')}\n\nEstimated Fix Time: {update_data.get('estimated_fix_time', 'N/A')} hours\nEstimated Cost: {update_data.get('estimated_cost', 'N/A')} Eur",
+            issues_found=existing.get("description", ""),
+            warranty_status="non_warranty",
+            service_date=datetime.now(timezone.utc).isoformat(),
+        )
+        await db.services.insert_one(service_obj.model_dump())
+    
+    return updated
+
+@router.delete("/{issue_id}")
+async def delete_issue(issue_id: str):
+    result = await db.issues.delete_one({"id": issue_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Issue not found")
+    return {"message": "Issue deleted successfully"}
+
+@router.post("/customer", response_model=Issue)
+async def create_customer_issue(issue: CustomerIssueCreate):
+    product = await db.products.find_one({"id": issue.product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    issue_data = issue.model_dump()
+    issue_data["severity"] = "high"
+    issue_data["source"] = "customer"
+    issue_data["photos"] = []
+    
+    issue_obj = Issue(**issue_data)
+    doc = issue_obj.model_dump()
+    await db.issues.insert_one(doc)
+    return issue_obj

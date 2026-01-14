@@ -24,7 +24,7 @@ async def create_product(product: ProductCreate):
     if product_data.get("registration_date"):
         try:
             reg_date = datetime.fromisoformat(product_data["registration_date"].replace("Z", "+00:00"))
-        except:
+        except (ValueError, TypeError):
             reg_date = datetime.strptime(product_data["registration_date"][:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
     else:
         reg_date = datetime.now(timezone.utc)

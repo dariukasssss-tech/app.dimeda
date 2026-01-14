@@ -65,7 +65,7 @@ async def export_csv(data_type: str = "services"):
             if resolved_date:
                 try:
                     resolved_date = datetime.fromisoformat(resolved_date.replace("Z", "+00:00")).strftime("%Y-%m-%d")
-                except:
+                except (ValueError, TypeError):
                     pass
             else:
                 resolved_date = "N/A"
@@ -74,7 +74,7 @@ async def export_csv(data_type: str = "services"):
             if created_date:
                 try:
                     created_date = datetime.fromisoformat(created_date.replace("Z", "+00:00")).strftime("%Y-%m-%d")
-                except:
+                except (ValueError, TypeError):
                     pass
             
             warranty = record.get("warranty_status", "")

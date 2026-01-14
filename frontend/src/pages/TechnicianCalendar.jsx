@@ -132,6 +132,23 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
     return issues.find(i => i.id === maintenanceItem.issue_id);
   };
 
+  // Handle day click - show popup with day's tasks
+  const handleDayClick = (day, dayItems, e) => {
+    e.stopPropagation();
+    if (dayItems.length > 0) {
+      setSelectedDay(day);
+      setSelectedDayItems(dayItems);
+      setDayPopupOpen(true);
+    }
+  };
+
+  // Handle task click - show detailed popup
+  const handleTaskClick = (item, e) => {
+    if (e) e.stopPropagation();
+    setSelectedTask(item);
+    setTaskDetailOpen(true);
+  };
+
   const toggleUnavailableDay = async (date) => {
     const dateStr = format(date, "yyyy-MM-dd");
     const isUnavailable = unavailableDays.includes(dateStr);

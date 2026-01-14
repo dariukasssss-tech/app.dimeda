@@ -267,6 +267,11 @@ const Dashboard = () => {
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
+                        {issue.issue_code && (
+                          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
+                            {issue.issue_code}
+                          </span>
+                        )}
                         <p className="font-medium text-slate-900">{issue.title}</p>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           issue.status === "open" ? "bg-amber-100 text-amber-800" :

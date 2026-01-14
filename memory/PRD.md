@@ -49,6 +49,29 @@ Three-portal system with role-based access:
 
 ## Recent Updates (January 2026)
 
+### Warranty Service Workflow (Jan 14, 2026)
+1. **Warranty Service Routing:**
+   - When issue is resolved as "Warranty Service", a routed "Make Service" issue is created
+   - Original issue status changes to "in_service" (not resolved yet)
+   - Routed issue type is "make_service" with `[Warranty Service]` prefix
+
+2. **Services Page Restructured:**
+   - 4 tabs: In Progress, In Service, Resolved, Records
+   - "In Service" tab shows:
+     - Awaiting Warranty Service (parent issues)
+     - Make Service Issues (routed warranty issues)
+   - "Resolved" tab shows issues grouped by Warranty/Non-Warranty
+
+3. **Issue Tracking Popup:**
+   - Full track of warranty flow: Original Issue → Warranty Service Issue
+   - Shows product info, issue details, resolution notes, timestamps
+   - Accessible from both In Service and Resolved tabs
+
+4. **Complete Workflow:**
+   - Issue reported → In Progress → Resolve as Warranty → Creates Make Service issue
+   - Original issue: "in_service" status, waiting
+   - When Make Service resolved → Both issues marked "resolved"
+
 ### Admin Portal Enhancements (Jan 14, 2026)
 1. **Dashboard Recent Services Improvements:**
    - Now shows 10 records (was 5)

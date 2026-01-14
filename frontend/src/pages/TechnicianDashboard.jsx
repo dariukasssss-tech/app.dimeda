@@ -75,7 +75,8 @@ const TechnicianDashboard = ({ selectedTechnician, onTechnicianChange }) => {
         totalProducts: productsRes.data.length,
         totalIssues: technicianIssues.length,
         openIssues: technicianIssues.filter(i => i.status === "open").length,
-        inProgressIssues: technicianIssues.filter(i => i.status === "in_progress").length,
+        // Count both in_progress AND in_service as "in progress" (active work)
+        inProgressIssues: technicianIssues.filter(i => i.status === "in_progress" || i.status === "in_service").length,
         resolvedIssues: technicianIssues.filter(i => i.status === "resolved").length,
         scheduledMaintenance: technicianMaintenance.filter(m => m.status === "scheduled").length,
         servicesThisMonth,

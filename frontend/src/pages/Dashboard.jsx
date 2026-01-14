@@ -204,11 +204,34 @@ const Dashboard = () => {
                     className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
                     data-testid={`service-item-${service.id}`}
                   >
-                    <div>
-                      <p className="font-medium text-slate-900">{service.service_type}</p>
-                      <p className="text-sm text-slate-500">{service.technician_name}</p>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-medium text-slate-900">{service.service_type}</p>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          service.warranty_status === "warranty" 
+                            ? "bg-green-100 text-green-800" 
+                            : service.warranty_status === "non_warranty"
+                            ? "bg-gray-100 text-gray-800"
+                            : "bg-slate-100 text-slate-600"
+                        }`}>
+                          {service.warranty_status === "warranty" ? "Warranty" : 
+                           service.warranty_status === "non_warranty" ? "Non Warranty" : 
+                           "N/A"}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-500">
+                        S/N: {service.product_serial} • {service.product_city}
+                        {service.technician_name && (
+                          <span className="ml-2 text-[#0066CC]">• {service.technician_name}</span>
+                        )}
+                      </p>
+                      {service.description && (
+                        <p className="text-xs text-slate-400 mt-1 truncate max-w-xs">
+                          {service.description.substring(0, 50)}{service.description.length > 50 ? "..." : ""}
+                        </p>
+                      )}
                     </div>
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-slate-500 whitespace-nowrap">
                       {new Date(service.service_date).toLocaleDateString()}
                     </span>
                   </div>

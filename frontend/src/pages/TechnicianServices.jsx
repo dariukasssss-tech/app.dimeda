@@ -241,9 +241,16 @@ const TechnicianServices = ({ selectedTechnician }) => {
                           );
                         })()}
                       </div>
-                      <h3 className="text-lg font-semibold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                        {issue.title}
-                      </h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        {issue.issue_code && (
+                          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
+                            {issue.issue_code}
+                          </span>
+                        )}
+                        <h3 className="text-lg font-semibold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
+                          {issue.title}
+                        </h3>
+                      </div>
                       <div className="text-sm text-slate-500 mt-1">
                         <span>S/N: {getProductSerial(issue.product_id)}</span>
                         <span className="mx-2">•</span>

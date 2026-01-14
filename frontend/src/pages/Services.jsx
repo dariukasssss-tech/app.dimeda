@@ -34,7 +34,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Plus, Wrench, CalendarIcon, User, FileText, Trash2, AlertTriangle, Clock, CheckCircle, Timer, Shield, ShieldOff, FileCheck } from "lucide-react";
+import { Plus, Wrench, CalendarIcon, User, FileText, Trash2, AlertTriangle, Clock, CheckCircle, Timer, Shield, ShieldOff, FileCheck, ArrowRight, MapPin } from "lucide-react";
 import { format } from "date-fns";
 
 // Beta version technician list
@@ -43,6 +43,10 @@ const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];
 const Services = () => {
   const [services, setServices] = useState([]);
   const [inProgressIssues, setInProgressIssues] = useState([]);
+  const [inServiceIssues, setInServiceIssues] = useState([]); // Warranty issues waiting for service
+  const [warrantyServiceIssues, setWarrantyServiceIssues] = useState([]); // Make Service routed issues
+  const [resolvedWarrantyIssues, setResolvedWarrantyIssues] = useState([]); // Resolved warranty issues
+  const [resolvedNonWarrantyIssues, setResolvedNonWarrantyIssues] = useState([]); // Resolved non-warranty issues
   const [nonWarrantyIssues, setNonWarrantyIssues] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +57,10 @@ const Services = () => {
   const [activeTab, setActiveTab] = useState("issues");
   const [serviceMode, setServiceMode] = useState("new"); // "new" or "from_issue"
   const [selectedNonWarrantyIssue, setSelectedNonWarrantyIssue] = useState("");
+  // Track popup state
+  const [trackDialogOpen, setTrackDialogOpen] = useState(false);
+  const [trackData, setTrackData] = useState(null);
+  const [trackLoading, setTrackLoading] = useState(false);
   const [formData, setFormData] = useState({
     product_id: "",
     technician_name: "",

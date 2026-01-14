@@ -11,6 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   CalendarDays,
@@ -23,6 +29,9 @@ import {
   X,
   Users,
   Play,
+  MapPin,
+  FileText,
+  AlertTriangle,
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, parseISO } from "date-fns";
 
@@ -35,6 +44,13 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
   const [loading, setLoading] = useState(true);
   const [monthlyStats, setMonthlyStats] = useState(null);
   const [selectedMonthForStats, setSelectedMonthForStats] = useState(format(new Date(), "yyyy-MM"));
+  // Day popup state
+  const [dayPopupOpen, setDayPopupOpen] = useState(false);
+  const [selectedDayItems, setSelectedDayItems] = useState([]);
+  const [selectedDay, setSelectedDay] = useState(null);
+  // Task detail popup state
+  const [taskDetailOpen, setTaskDetailOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
     if (selectedTechnician) {

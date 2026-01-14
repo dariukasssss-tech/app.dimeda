@@ -576,7 +576,7 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                 </div>
               </div>
               );
-              })}
+            })}
             </div>
           )}
         </CardContent>

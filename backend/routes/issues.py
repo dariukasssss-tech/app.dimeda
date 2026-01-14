@@ -146,6 +146,40 @@ async def update_issue(issue_id: str, update: IssueUpdate):
                 priority="12h"
             )
             await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
+        
+        # Create calendar entry for warranty service (routed) issues
+        if existing.get("is_warranty_route"):
+            # Schedule warranty service for 24h from now
+            scheduled_time = datetime.now(timezone.utc) + timedelta(hours=24)
+            
+            maintenance_obj = ScheduledMaintenance(
+                product_id=existing["product_id"],
+                scheduled_date=scheduled_time.isoformat(),
+                maintenance_type="warranty_service",
+                technician_name=update_data["technician_name"],
+                notes=f"Warranty Service: {existing.get('title', 'N/A')}",
+                source="warranty_service",
+                issue_id=issue_id,
+                priority="24h"
+            )
+            await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
+    
+    # Handle re-assignment of technician (when technician already assigned)
+    if update_data.get("technician_name") and existing.get("technician_name") and update_data.get("technician_name") != existing.get("technician_name"):
+        update_data["technician_assigned_at"] = datetime.now(timezone.utc).isoformat()
+        
+        # Update existing calendar entries for warranty service issues
+        if existing.get("is_warranty_route"):
+            await db.scheduled_maintenance.update_many(
+                {"issue_id": issue_id, "source": "warranty_service"},
+                {"$set": {"technician_name": update_data["technician_name"]}}
+            )
+        # Update existing calendar entries for customer issues
+        if existing.get("source") == "customer":
+            await db.scheduled_maintenance.update_many(
+                {"issue_id": issue_id, "source": "customer_issue"},
+                {"$set": {"technician_name": update_data["technician_name"]}}
+            )
     
     if update_data.get("status") == "resolved":
         update_data["resolved_at"] = datetime.now(timezone.utc).isoformat()

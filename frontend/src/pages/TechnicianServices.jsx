@@ -20,14 +20,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Wrench, CalendarIcon, Clock, CheckCircle, Shield, ShieldOff, Timer, FileText, Play, AlertTriangle } from "lucide-react";
+import { 
+  Wrench, CalendarIcon, Clock, CheckCircle, Shield, ShieldOff, Timer, 
+  FileText, Play, AlertTriangle, MapPin, User, ChevronDown, Eye
+} from "lucide-react";
 
 const TechnicianServices = ({ selectedTechnician }) => {
   const [issues, setIssues] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Dialog states
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState(null);
+  const [selectedRepairId, setSelectedRepairId] = useState("");
+  
   const [resolveData, setResolveData] = useState({
     warranty_service_type: "",
     resolution: "",
@@ -47,10 +55,10 @@ const TechnicianServices = ({ selectedTechnician }) => {
         axios.get(`${API}/products`),
       ]);
       
-      // Filter by selected technician - include in_progress, in_service, and warranty route issues
+      // Filter by selected technician
       const technicianIssues = issuesRes.data.filter(
         i => i.technician_name === selectedTechnician && 
-        (i.status === "in_progress" || i.status === "in_service" || i.is_warranty_route)
+        (i.status === "in_progress" || i.status === "in_service")
       );
       
       setIssues(technicianIssues);
@@ -62,23 +70,18 @@ const TechnicianServices = ({ selectedTechnician }) => {
     }
   };
 
-  const getProductSerial = (productId) => {
-    const product = products.find((p) => p.id === productId);
-    return product?.serial_number || "Unknown";
-  };
+  const getProduct = (productId) => products.find((p) => p.id === productId);
+  const getProductSerial = (productId) => getProduct(productId)?.serial_number || "Unknown";
+  const getProductCity = (productId) => getProduct(productId)?.city || "Unknown";
 
-  const getProductCity = (productId) => {
-    const product = products.find((p) => p.id === productId);
-    return product?.city || "Unknown";
-  };
-
-  // Calculate warranty repair time remaining (24h from when issue was resolved as warranty)
+  // Calculate warranty repair time remaining (24h from warranty_repair_started_at)
   const calculateRepairTimeRemaining = (issue) => {
-    if (!issue.is_warranty_route || issue.status === "resolved") return null;
+    if (issue.status !== "in_service" && issue.status !== "in_progress") return null;
+    if (!issue.warranty_repair_started_at && !issue.warranty_service_type) return null;
     
-    // Get the created_at time of the warranty route issue (when parent was resolved as warranty)
-    const createdAt = new Date(issue.created_at);
-    const deadline = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+    const startTime = issue.warranty_repair_started_at || issue.created_at;
+    const startDate = new Date(startTime);
+    const deadline = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
     const now = new Date();
     const diffMs = deadline - now;
     
@@ -89,10 +92,11 @@ const TechnicianServices = ({ selectedTechnician }) => {
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
     const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
     
-    if (hours > 0) {
-      return { expired: false, text: `${hours}h ${minutes}m left`, urgent: hours < 6 };
-    }
-    return { expired: false, text: `${minutes}m left`, urgent: true };
+    return { 
+      expired: false, 
+      text: hours > 0 ? `${hours}h ${minutes}m left` : `${minutes}m left`, 
+      urgent: hours < 6 
+    };
   };
 
   // Calculate SLA time remaining for customer issues
@@ -112,10 +116,17 @@ const TechnicianServices = ({ selectedTechnician }) => {
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
     const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
     
-    if (hours > 0) {
-      return { expired: false, text: `${hours}h ${minutes}m left`, urgent: hours < 2 };
-    }
-    return { expired: false, text: `${minutes}m left`, urgent: true };
+    return { 
+      expired: false, 
+      text: hours > 0 ? `${hours}h ${minutes}m left` : `${minutes}m left`, 
+      urgent: hours < 2 
+    };
+  };
+
+  const openDetailDialog = (issue) => {
+    setSelectedIssue(issue);
+    setSelectedRepairId(issue.current_repair_id || (issue.repair_attempts?.[0]?.id) || "");
+    setDetailDialogOpen(true);
   };
 
   const openResolveDialog = (issue) => {
@@ -126,6 +137,39 @@ const TechnicianServices = ({ selectedTechnician }) => {
       create_service_record: true,
     });
     setResolveDialogOpen(true);
+  };
+
+  // Start/Continue repair work
+  const handleStartRepair = async () => {
+    if (!selectedIssue) return;
+    try {
+      await axios.put(`${API}/issues/${selectedIssue.id}`, {
+        start_repair: true,
+        repair_id: selectedRepairId
+      });
+      toast.success("Started working on repair");
+      setDetailDialogOpen(false);
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to start repair");
+    }
+  };
+
+  // Complete repair work
+  const handleCompleteRepair = async (notes) => {
+    if (!selectedIssue) return;
+    try {
+      await axios.put(`${API}/issues/${selectedIssue.id}`, {
+        complete_repair: true,
+        repair_id: selectedRepairId,
+        repair_notes: notes
+      });
+      toast.success("Repair completed - Issue resolved");
+      setDetailDialogOpen(false);
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to complete repair");
+    }
   };
 
   const handleResolveIssue = async () => {
@@ -139,20 +183,12 @@ const TechnicianServices = ({ selectedTechnician }) => {
       });
       
       let successMsg = "Issue resolved successfully";
-      if (resolveData.warranty_service_type === "warranty" && !selectedIssue.is_warranty_route) {
-        successMsg = "Issue moved to Service Records - Repair task created with 24h deadline";
-      } else if (resolveData.warranty_service_type === "non_warranty" && resolveData.create_service_record) {
-        successMsg = "Issue resolved & service record created";
+      if (resolveData.warranty_service_type === "warranty") {
+        successMsg = "Issue moved to Awaiting Repair - Click to continue working";
       }
       
       toast.success(successMsg);
       setResolveDialogOpen(false);
-      setSelectedIssue(null);
-      setResolveData({
-        warranty_service_type: "",
-        resolution: "",
-        create_service_record: true,
-      });
       fetchData();
     } catch (error) {
       toast.error("Failed to resolve issue");
@@ -166,19 +202,14 @@ const TechnicianServices = ({ selectedTechnician }) => {
     critical: "bg-red-100 text-red-800",
   };
 
-  // Separate issues into In Progress and Service Records
+  // Separate issues
   const inProgressIssues = issues.filter(i => 
-    i.status === "in_progress" && 
-    !i.is_warranty_route && 
-    !i.warranty_service_type // No service type yet
+    i.status === "in_progress" && !i.warranty_service_type
   );
 
-  // Service Records: Issues that have been given a service type (warranty - now waiting for repair, or non-warranty resolved)
-  // Also includes warranty route (repair) issues that are still open/in_progress
   const serviceRecordIssues = issues.filter(i => 
-    i.is_warranty_route || // Warranty repair tasks
-    i.status === "in_service" || // Parent issues waiting for child repair
-    (i.warranty_service_type && i.status === "resolved") // Fully resolved with service type
+    i.status === "in_service" || 
+    (i.status === "in_progress" && i.warranty_service_type === "warranty")
   );
 
   if (!selectedTechnician) {
@@ -198,6 +229,127 @@ const TechnicianServices = ({ selectedTechnician }) => {
       </div>
     );
   }
+
+  // Render issue card
+  const renderIssueCard = (issue, isServiceRecord = false) => {
+    const product = getProduct(issue.product_id);
+    const slaTime = calculateSLARemaining(issue);
+    const repairTime = calculateRepairTimeRemaining(issue);
+    const isAwaitingRepair = issue.status === "in_service";
+    const isRepairing = issue.status === "in_progress" && issue.warranty_service_type === "warranty";
+    const repairAttempts = issue.repair_attempts || [];
+    
+    return (
+      <div
+        key={issue.id}
+        className={`p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-lg ${
+          isAwaitingRepair 
+            ? "bg-orange-50 border-orange-300 hover:border-orange-500" 
+            : isRepairing
+            ? "bg-blue-50 border-blue-300 hover:border-blue-500"
+            : issue.source === "customer" 
+            ? "bg-purple-50 border-purple-200 hover:border-purple-400" 
+            : "bg-white border-slate-200 hover:border-slate-400"
+        }`}
+        onClick={() => isServiceRecord ? openDetailDialog(issue) : openResolveDialog(issue)}
+        data-testid={`issue-card-${issue.id}`}
+      >
+        <div className="flex flex-col gap-3">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {isAwaitingRepair && (
+                <Badge className="bg-orange-500 text-white">
+                  <Timer size={12} className="mr-1" />
+                  Awaiting Repair
+                </Badge>
+              )}
+              {isRepairing && (
+                <Badge className="bg-blue-500 text-white">
+                  <Wrench size={12} className="mr-1" />
+                  Repairing
+                </Badge>
+              )}
+              {!isServiceRecord && (
+                <Badge className="bg-blue-100 text-blue-800">
+                  <Clock size={12} className="mr-1" />
+                  In Progress
+                </Badge>
+              )}
+              {issue.warranty_service_type === "warranty" && (
+                <Badge className="bg-green-100 text-green-800">
+                  <Shield size={12} className="mr-1" />
+                  Warranty
+                </Badge>
+              )}
+              {issue.source === "customer" && !isServiceRecord && (
+                <Badge className="bg-purple-100 text-purple-800">Customer</Badge>
+              )}
+            </div>
+            
+            {/* Timer badges */}
+            <div className="flex items-center gap-2">
+              {repairTime && (
+                <Badge className={`${repairTime.expired ? "bg-red-500 text-white animate-pulse" : repairTime.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
+                  <Timer size={12} className="mr-1" />
+                  {repairTime.text}
+                </Badge>
+              )}
+              {slaTime && !repairTime && (
+                <Badge className={`${slaTime.expired ? "bg-red-500 text-white" : slaTime.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
+                  <Timer size={12} className="mr-1" />
+                  {slaTime.text}
+                </Badge>
+              )}
+            </div>
+          </div>
+          
+          {/* Issue Info */}
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
+                {issue.issue_code}
+              </span>
+              <Badge className={severityColors[issue.severity] || "bg-slate-100"} variant="outline">
+                {issue.severity}
+              </Badge>
+            </div>
+            <h3 className="text-lg font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              {issue.title}
+            </h3>
+          </div>
+          
+          {/* Product Info */}
+          <div className="flex items-center gap-4 text-sm text-slate-600">
+            <span className="flex items-center gap-1">
+              <FileText size={14} />
+              S/N: {product?.serial_number || "Unknown"}
+            </span>
+            <span className="flex items-center gap-1">
+              <MapPin size={14} />
+              {product?.city || "Unknown"}
+            </span>
+          </div>
+          
+          {/* Repair attempts indicator */}
+          {repairAttempts.length > 0 && (
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <Wrench size={12} />
+              <span>{repairAttempts.length} repair attempt{repairAttempts.length > 1 ? 's' : ''}</span>
+            </div>
+          )}
+          
+          {/* Click hint */}
+          <div className="flex items-center justify-end">
+            <span className="text-xs text-slate-400 flex items-center gap-1">
+              <Eye size={12} />
+              Click for details
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6 animate-fade-in" data-testid="technician-services">
@@ -231,77 +383,8 @@ const TechnicianServices = ({ selectedTechnician }) => {
               <p className="text-xs text-slate-400 mt-1">Click &quot;Start Work&quot; on Calendar tasks to begin working</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {inProgressIssues.map((issue) => (
-                <div
-                  key={issue.id}
-                  className={`p-4 rounded-lg border ${issue.source === "customer" ? "bg-purple-50 border-purple-200" : "bg-white border-slate-200"}`}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        {issue.source === "customer" && (
-                          <Badge className="bg-purple-100 text-purple-800">Customer Reported</Badge>
-                        )}
-                        <Badge className="bg-blue-100 text-blue-800">
-                          <Clock size={12} className="mr-1" />
-                          In Progress
-                        </Badge>
-                        <Badge className={severityColors[issue.severity] || "bg-slate-100"}>
-                          {issue.severity}
-                        </Badge>
-                        <Badge variant="outline">{issue.issue_type}</Badge>
-                        
-                        {/* SLA Timer for customer issues */}
-                        {issue.source === "customer" && (() => {
-                          const sla = calculateSLARemaining(issue);
-                          if (!sla) return null;
-                          return (
-                            <Badge className={`${sla.expired ? "bg-red-500 text-white" : sla.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
-                              <Timer size={12} className="mr-1" />
-                              {sla.text}
-                            </Badge>
-                          );
-                        })()}
-                      </div>
-                      <div className="flex items-center gap-2 mt-1">
-                        {issue.issue_code && (
-                          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
-                            {issue.issue_code}
-                          </span>
-                        )}
-                        <h3 className="text-lg font-semibold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                          {issue.title}
-                        </h3>
-                      </div>
-                      <div className="text-sm text-slate-500 mt-1">
-                        <span>S/N: {getProductSerial(issue.product_id)}</span>
-                        <span className="mx-2">•</span>
-                        <span>{getProductCity(issue.product_id)}</span>
-                      </div>
-                      {issue.product_location && (
-                        <p className="text-sm text-slate-500 mt-1">
-                          <span className="font-medium">Location:</span> {issue.product_location}
-                        </p>
-                      )}
-                      <p className="text-slate-600 mt-2 whitespace-pre-line">{issue.description}</p>
-                      <div className="flex items-center gap-4 mt-3 text-xs text-slate-400">
-                        <span>Created: {new Date(issue.created_at).toLocaleString()}</span>
-                      </div>
-                    </div>
-                    
-                    {/* Resolve Button */}
-                    <Button
-                      onClick={() => openResolveDialog(issue)}
-                      className="bg-emerald-600 hover:bg-emerald-700"
-                      data-testid="resolve-issue-btn"
-                    >
-                      <CheckCircle size={16} className="mr-2" />
-                      Resolve Issue
-                    </Button>
-                  </div>
-                </div>
-              ))}
+            <div className="grid gap-4 md:grid-cols-2">
+              {inProgressIssues.map((issue) => renderIssueCard(issue, false))}
             </div>
           )}
         </CardContent>
@@ -325,162 +408,207 @@ const TechnicianServices = ({ selectedTechnician }) => {
               <p className="text-xs text-slate-400 mt-1">Resolve issues with a service type to create records</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {serviceRecordIssues.map((issue) => {
-                const repairTime = calculateRepairTimeRemaining(issue);
-                const isRepairTask = issue.is_warranty_route;
-                const isAwaitingRepair = issue.status === "in_service";
-                const isResolved = issue.status === "resolved";
-                
-                return (
-                  <div
-                    key={issue.id}
-                    className={`p-4 rounded-lg border ${
-                      isRepairTask && !isResolved
-                        ? "bg-orange-50 border-orange-300"
-                        : isAwaitingRepair
-                        ? "bg-amber-50 border-amber-300"
-                        : isResolved
-                        ? "bg-emerald-50 border-emerald-200"
-                        : "bg-white border-slate-200"
-                    }`}
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                      <div className="flex-1">
-                        {/* Status badges */}
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                          {isRepairTask && !isResolved && (
-                            <Badge className="bg-orange-500 text-white">
-                              <Wrench size={12} className="mr-1" />
-                              Repair Task
-                            </Badge>
-                          )}
-                          {isAwaitingRepair && (
-                            <Badge className="bg-amber-500 text-white">
-                              <Timer size={12} className="mr-1" />
-                              Awaiting Repair
-                            </Badge>
-                          )}
-                          {isResolved && (
-                            <Badge className="bg-emerald-500 text-white">
-                              <CheckCircle size={12} className="mr-1" />
-                              Resolved
-                            </Badge>
-                          )}
-                          
-                          {/* Warranty Type Badge */}
-                          {(issue.warranty_status === "warranty" || issue.warranty_service_type === "warranty") && (
-                            <Badge className="bg-green-100 text-green-800">
-                              <Shield size={12} className="mr-1" />
-                              Warranty
-                            </Badge>
-                          )}
-                          {issue.warranty_service_type === "non_warranty" && (
-                            <Badge className="bg-gray-100 text-gray-800">
-                              <ShieldOff size={12} className="mr-1" />
-                              Non-Warranty
-                            </Badge>
-                          )}
-                          
-                          {/* 24h Timer for warranty repair tasks */}
-                          {repairTime && (
-                            <Badge className={`${repairTime.expired ? "bg-red-500 text-white animate-pulse" : repairTime.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
-                              <Timer size={12} className="mr-1" />
-                              {repairTime.text}
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        {/* Issue info */}
-                        <div className="flex items-center gap-2 mt-1">
-                          {issue.issue_code && (
-                            <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
-                              {issue.issue_code}
-                            </span>
-                          )}
-                          <h3 className="text-lg font-semibold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                            {issue.title}
-                          </h3>
-                        </div>
-                        <div className="text-sm text-slate-500 mt-1">
-                          <span>S/N: {getProductSerial(issue.product_id)}</span>
-                          <span className="mx-2">•</span>
-                          <span>{getProductCity(issue.product_id)}</span>
-                        </div>
-                        {issue.product_location && (
-                          <p className="text-sm text-slate-500 mt-1">
-                            <span className="font-medium">Location:</span> {issue.product_location}
-                          </p>
-                        )}
-                        <p className="text-slate-600 mt-2 whitespace-pre-line line-clamp-2">{issue.description}</p>
-                        
-                        {/* Resolution info */}
-                        {issue.resolution && (
-                          <div className="mt-3 p-2 bg-white/50 rounded border border-slate-200">
-                            <span className="text-xs text-slate-500">Resolution:</span>
-                            <p className="text-sm text-slate-700">{issue.resolution}</p>
-                          </div>
-                        )}
-                        
-                        {/* Timestamps */}
-                        <div className="flex items-center gap-4 mt-3 text-xs text-slate-400">
-                          <span>Created: {new Date(issue.created_at).toLocaleString()}</span>
-                          {issue.resolved_at && (
-                            <span>Resolved: {new Date(issue.resolved_at).toLocaleString()}</span>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Actions */}
-                      <div className="flex flex-col gap-2">
-                        {/* Resolve button for warranty repair tasks that aren't resolved yet */}
-                        {isRepairTask && !isResolved && issue.status === "in_progress" && (
-                          <Button
-                            onClick={() => openResolveDialog(issue)}
-                            className="bg-emerald-600 hover:bg-emerald-700"
-                            data-testid="resolve-repair-btn"
-                          >
-                            <CheckCircle size={16} className="mr-2" />
-                            Complete Repair
-                          </Button>
-                        )}
-                        
-                        {/* Continue button for repair tasks that are open */}
-                        {isRepairTask && issue.status === "open" && (
-                          <Button
-                            onClick={async () => {
-                              try {
-                                await axios.put(`${API}/issues/${issue.id}`, { status: "in_progress" });
-                                toast.success("Started working on repair task");
-                                fetchData();
-                              } catch (error) {
-                                toast.error("Failed to start repair");
-                              }
-                            }}
-                            className="bg-blue-600 hover:bg-blue-700"
-                            data-testid="continue-repair-btn"
-                          >
-                            <Play size={16} className="mr-2" />
-                            Continue
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="grid gap-4 md:grid-cols-2">
+              {serviceRecordIssues.map((issue) => renderIssueCard(issue, true))}
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Resolve Issue Dialog */}
+      {/* Issue Detail Dialog (for Service Records / Awaiting Repair) */}
+      <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              <FileText size={24} className="text-blue-600" />
+              Issue Details
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedIssue && (() => {
+            const product = getProduct(selectedIssue.product_id);
+            const repairTime = calculateRepairTimeRemaining(selectedIssue);
+            const repairAttempts = selectedIssue.repair_attempts || [];
+            const isAwaitingRepair = selectedIssue.status === "in_service";
+            const isRepairing = selectedIssue.status === "in_progress" && selectedIssue.warranty_service_type === "warranty";
+            
+            return (
+              <div className="space-y-6 mt-4">
+                {/* Status Banner */}
+                <div className={`p-4 rounded-xl ${
+                  isAwaitingRepair ? "bg-orange-100 border-2 border-orange-300" : 
+                  isRepairing ? "bg-blue-100 border-2 border-blue-300" : 
+                  "bg-slate-100 border-2 border-slate-300"
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {isAwaitingRepair && <Timer size={24} className="text-orange-600" />}
+                      {isRepairing && <Wrench size={24} className="text-blue-600" />}
+                      <div>
+                        <h3 className="font-bold text-lg">
+                          {isAwaitingRepair ? "Awaiting Repair" : isRepairing ? "Repair In Progress" : "In Progress"}
+                        </h3>
+                        <p className="text-sm text-slate-600">
+                          {isAwaitingRepair ? "Click Continue to start repair work" : 
+                           isRepairing ? "Complete the repair to resolve issue" : "Working on issue"}
+                        </p>
+                      </div>
+                    </div>
+                    {repairTime && (
+                      <Badge className={`text-lg px-4 py-2 ${repairTime.expired ? "bg-red-500 text-white animate-pulse" : repairTime.urgent ? "bg-orange-500 text-white" : "bg-amber-200 text-amber-900"}`}>
+                        <Timer size={16} className="mr-2" />
+                        {repairTime.text}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Issue Info */}
+                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="px-3 py-1 rounded-lg bg-slate-200 text-slate-800 font-mono font-bold">
+                      {selectedIssue.issue_code}
+                    </span>
+                    <Badge className={severityColors[selectedIssue.severity]}>
+                      {selectedIssue.severity}
+                    </Badge>
+                    <Badge variant="outline">{selectedIssue.issue_type}</Badge>
+                    {selectedIssue.warranty_service_type === "warranty" && (
+                      <Badge className="bg-green-100 text-green-800">
+                        <Shield size={12} className="mr-1" />
+                        Warranty
+                      </Badge>
+                    )}
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Manrope, sans-serif' }}>
+                    {selectedIssue.title}
+                  </h2>
+                  <p className="text-slate-600 whitespace-pre-line">{selectedIssue.description}</p>
+                </div>
+                
+                {/* Product Info */}
+                <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                    <FileText size={18} />
+                    Product Information
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-slate-500">Serial Number:</span>
+                      <p className="font-bold text-slate-900">{product?.serial_number || "Unknown"}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">City:</span>
+                      <p className="font-bold text-slate-900">{product?.city || "Unknown"}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Model:</span>
+                      <p className="font-bold text-slate-900">{product?.model_name || "N/A"}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Location:</span>
+                      <p className="font-bold text-slate-900">{selectedIssue.product_location || product?.location_detail || "N/A"}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Repair Attempts (if more than 1) */}
+                {repairAttempts.length > 1 && (
+                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
+                    <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                      <Wrench size={18} />
+                      Repair Attempts ({repairAttempts.length})
+                    </h4>
+                    <Select value={selectedRepairId} onValueChange={setSelectedRepairId}>
+                      <SelectTrigger className="w-full bg-white" data-testid="repair-select">
+                        <SelectValue placeholder="Select repair attempt" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {repairAttempts.map((repair, idx) => (
+                          <SelectItem key={repair.id} value={repair.id}>
+                            <div className="flex items-center gap-2">
+                              <span>Repair #{idx + 1}</span>
+                              <Badge className={
+                                repair.status === "completed" ? "bg-emerald-100 text-emerald-800" :
+                                repair.status === "in_progress" ? "bg-blue-100 text-blue-800" :
+                                "bg-amber-100 text-amber-800"
+                              }>
+                                {repair.status}
+                              </Badge>
+                              <span className="text-xs text-slate-500">
+                                {new Date(repair.started_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    {/* Show selected repair notes */}
+                    {selectedRepairId && repairAttempts.find(r => r.id === selectedRepairId)?.notes && (
+                      <div className="mt-3 p-3 bg-white rounded-lg border border-amber-200">
+                        <span className="text-xs text-slate-500">Notes:</span>
+                        <p className="text-sm text-slate-700">{repairAttempts.find(r => r.id === selectedRepairId)?.notes}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Resolution notes (if any) */}
+                {selectedIssue.resolution && (
+                  <div className="p-4 bg-purple-50 rounded-xl border border-purple-200">
+                    <h4 className="font-bold text-slate-900 mb-2">Resolution Notes</h4>
+                    <p className="text-slate-700">{selectedIssue.resolution}</p>
+                  </div>
+                )}
+                
+                {/* Timestamps */}
+                <div className="flex items-center gap-4 text-xs text-slate-400">
+                  <span>Created: {new Date(selectedIssue.created_at).toLocaleString()}</span>
+                  {selectedIssue.warranty_repair_started_at && (
+                    <span>Repair Started: {new Date(selectedIssue.warranty_repair_started_at).toLocaleString()}</span>
+                  )}
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                  <Button variant="outline" onClick={() => setDetailDialogOpen(false)}>
+                    Close
+                  </Button>
+                  
+                  {isAwaitingRepair && (
+                    <Button 
+                      onClick={handleStartRepair}
+                      className="bg-orange-600 hover:bg-orange-700 text-white px-6"
+                      data-testid="continue-btn"
+                    >
+                      <Play size={18} className="mr-2" />
+                      Continue
+                    </Button>
+                  )}
+                  
+                  {isRepairing && (
+                    <Button 
+                      onClick={() => handleCompleteRepair(selectedIssue.resolution)}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-6"
+                      data-testid="complete-repair-btn"
+                    >
+                      <CheckCircle size={18} className="mr-2" />
+                      Complete Repair
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Resolve Issue Dialog (for In Progress issues) */}
       <Dialog open={resolveDialogOpen} onOpenChange={setResolveDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>
-              {selectedIssue?.is_warranty_route ? "Complete Repair" : "Resolve Issue"}
-            </DialogTitle>
+            <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Resolve Issue</DialogTitle>
           </DialogHeader>
           {selectedIssue && (
             <div className="space-y-4 mt-4">
@@ -495,45 +623,43 @@ const TechnicianServices = ({ selectedTechnician }) => {
                 )}
               </div>
               
-              {/* Warranty Service Type - only for non-warranty-route issues */}
-              {!selectedIssue.is_warranty_route && (
-                <div>
-                  <Label>Service Type *</Label>
-                  <Select
-                    value={resolveData.warranty_service_type}
-                    onValueChange={(value) => setResolveData({ ...resolveData, warranty_service_type: value })}
-                  >
-                    <SelectTrigger className="mt-1" data-testid="service-type-select">
-                      <SelectValue placeholder="Select service type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="warranty">
-                        <div className="flex items-center gap-2">
-                          <Shield size={14} className="text-green-600" />
-                          Warranty Service
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="non_warranty">
-                        <div className="flex items-center gap-2">
-                          <ShieldOff size={14} className="text-gray-600" />
-                          Non-Warranty Service
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              {/* Service Type */}
+              <div>
+                <Label>Service Type *</Label>
+                <Select
+                  value={resolveData.warranty_service_type}
+                  onValueChange={(value) => setResolveData({ ...resolveData, warranty_service_type: value })}
+                >
+                  <SelectTrigger className="mt-1" data-testid="service-type-select">
+                    <SelectValue placeholder="Select service type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="warranty">
+                      <div className="flex items-center gap-2">
+                        <Shield size={14} className="text-green-600" />
+                        Warranty Service
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="non_warranty">
+                      <div className="flex items-center gap-2">
+                        <ShieldOff size={14} className="text-gray-600" />
+                        Non-Warranty Service
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               
               {/* Warranty Service Info */}
-              {resolveData.warranty_service_type === "warranty" && !selectedIssue.is_warranty_route && (
-                <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
-                  <div className="flex items-center gap-2 text-orange-800">
-                    <AlertTriangle size={16} />
-                    <span className="font-medium">Warranty Service</span>
+              {resolveData.warranty_service_type === "warranty" && (
+                <div className="p-4 bg-orange-50 rounded-xl border border-orange-200">
+                  <div className="flex items-center gap-2 text-orange-800 mb-2">
+                    <AlertTriangle size={18} />
+                    <span className="font-bold">Warranty Service</span>
                   </div>
-                  <p className="text-sm text-orange-700 mt-1">
-                    This will create a <strong>Repair Task</strong> with a <strong>24-hour deadline</strong>.
-                    The original issue will remain in &quot;Service Records&quot; until the repair is completed.
+                  <p className="text-sm text-orange-700">
+                    This will move the issue to <strong>Awaiting Repair</strong> with a <strong>24-hour deadline</strong>.
+                    No new issue code is generated - repair is tracked on this issue.
                   </p>
                 </div>
               )}
@@ -547,19 +673,6 @@ const TechnicianServices = ({ selectedTechnician }) => {
                 </div>
               )}
               
-              {/* For warranty repair tasks - pre-select warranty */}
-              {selectedIssue.is_warranty_route && (
-                <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                  <div className="flex items-center gap-2 text-green-800">
-                    <Shield size={16} />
-                    <span className="font-medium">Warranty Repair Task</span>
-                  </div>
-                  <p className="text-sm text-green-700 mt-1">
-                    Completing this repair will mark both the repair task and the original issue as resolved.
-                  </p>
-                </div>
-              )}
-              
               {/* Resolution Note */}
               <div>
                 <Label htmlFor="resolution">Resolution Note *</Label>
@@ -567,14 +680,14 @@ const TechnicianServices = ({ selectedTechnician }) => {
                   id="resolution"
                   value={resolveData.resolution}
                   onChange={(e) => setResolveData({ ...resolveData, resolution: e.target.value })}
-                  placeholder="Describe how the issue was resolved..."
+                  placeholder="Describe the issue diagnosis and resolution..."
                   className="mt-1"
                   rows={4}
                   data-testid="resolution-textarea"
                 />
               </div>
               
-              {/* Auto-create service record checkbox - for non-warranty only */}
+              {/* Service record checkbox for non-warranty */}
               {resolveData.warranty_service_type === "non_warranty" && (
                 <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <input
@@ -596,15 +709,11 @@ const TechnicianServices = ({ selectedTechnician }) => {
                 </Button>
                 <Button
                   onClick={handleResolveIssue}
-                  className="bg-emerald-600 hover:bg-emerald-700"
-                  disabled={
-                    (!selectedIssue.is_warranty_route && !resolveData.warranty_service_type) || 
-                    !resolveData.resolution.trim()
-                  }
+                  className={resolveData.warranty_service_type === "warranty" ? "bg-orange-600 hover:bg-orange-700" : "bg-emerald-600 hover:bg-emerald-700"}
+                  disabled={!resolveData.warranty_service_type || !resolveData.resolution.trim()}
                   data-testid="confirm-resolve-btn"
                 >
-                  {selectedIssue.is_warranty_route ? "Complete Repair" : 
-                   resolveData.warranty_service_type === "warranty" ? "Create Repair Task" : "Resolve Issue"}
+                  {resolveData.warranty_service_type === "warranty" ? "Start Warranty Repair" : "Resolve Issue"}
                 </Button>
               </div>
             </div>

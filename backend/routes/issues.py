@@ -168,12 +168,32 @@ async def update_issue(issue_id: str, update: IssueUpdate):
     if update_data.get("technician_name") and existing.get("technician_name") and update_data.get("technician_name") != existing.get("technician_name"):
         update_data["technician_assigned_at"] = datetime.now(timezone.utc).isoformat()
         
-        # Update existing calendar entries for warranty service issues
+        # Update or create calendar entries for warranty service issues
         if existing.get("is_warranty_route"):
-            await db.scheduled_maintenance.update_many(
-                {"issue_id": issue_id, "source": "warranty_service"},
-                {"$set": {"technician_name": update_data["technician_name"]}}
+            existing_entry = await db.scheduled_maintenance.find_one(
+                {"issue_id": issue_id, "source": "warranty_service"}
             )
+            if existing_entry:
+                # Update existing entry
+                await db.scheduled_maintenance.update_many(
+                    {"issue_id": issue_id, "source": "warranty_service"},
+                    {"$set": {"technician_name": update_data["technician_name"]}}
+                )
+            else:
+                # Create new entry since none exists
+                scheduled_time = datetime.now(timezone.utc) + timedelta(hours=24)
+                maintenance_obj = ScheduledMaintenance(
+                    product_id=existing["product_id"],
+                    scheduled_date=scheduled_time.isoformat(),
+                    maintenance_type="warranty_service",
+                    technician_name=update_data["technician_name"],
+                    notes=f"Warranty Service: {existing.get('title', 'N/A')}",
+                    source="warranty_service",
+                    issue_id=issue_id,
+                    priority="24h"
+                )
+                await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
+        
         # Update existing calendar entries for customer issues
         if existing.get("source") == "customer":
             await db.scheduled_maintenance.update_many(

@@ -132,6 +132,63 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
     return issues.find(i => i.id === maintenanceItem.issue_id);
   };
 
+  // Get parent issue for a warranty route issue
+  const getParentIssue = (issue) => {
+    if (!issue?.parent_issue_id) return null;
+    return issues.find(i => i.id === issue.parent_issue_id);
+  };
+
+  // Get child repair issues for a parent issue
+  const getChildIssues = (issue) => {
+    if (!issue?.child_issue_id) return [];
+    return issues.filter(i => i.parent_issue_id === issue.id);
+  };
+
+  // Calculate warranty repair time remaining (24h from creation)
+  const calculateRepairTimeRemaining = (issue) => {
+    if (!issue?.is_warranty_route || issue.status === "resolved") return null;
+    
+    const createdAt = new Date(issue.created_at);
+    const deadline = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+    const now = new Date();
+    const diffMs = deadline - now;
+    
+    if (diffMs <= 0) {
+      return { expired: true, text: "Time Expired", urgent: true };
+    }
+    
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return { expired: false, text: `${hours}h ${minutes}m left`, urgent: hours < 6 };
+    }
+    return { expired: false, text: `${minutes}m left`, urgent: true };
+  };
+
+  // Handle continue for warranty repair tasks
+  const handleContinueRepair = async (maintenanceItem) => {
+    if (!maintenanceItem.issue_id) {
+      toast.error("No linked issue found");
+      return;
+    }
+    
+    try {
+      await axios.put(`${API}/issues/${maintenanceItem.issue_id}`, {
+        status: "in_progress"
+      });
+      
+      await axios.put(`${API}/scheduled-maintenance/${maintenanceItem.id}`, {
+        status: "in_progress"
+      });
+      
+      toast.success("Continuing repair task - visible in Services");
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to continue repair");
+    }
+  };
+
   // Handle day click - show popup with day's tasks
   const handleDayClick = (day, dayItems, e) => {
     e.stopPropagation();

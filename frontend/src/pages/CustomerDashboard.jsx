@@ -446,10 +446,14 @@ const CustomerDashboard = () => {
             <div className="text-center py-8">
               <AlertTriangle className="mx-auto text-slate-300" size={48} />
               <p className="text-slate-500 mt-4">
-                {issueFilter === "all" ? "No issues reported yet" : `No issues reported in ${issueFilter}`}
+                {cityFilter === "all" && statusFilter === "all" 
+                  ? "No issues reported yet" 
+                  : `No issues found with current filters`}
               </p>
               <p className="text-sm text-slate-400 mt-1">
-                {issueFilter === "all" ? 'Click "Report New Issue" to get started' : "Try selecting a different city"}
+                {cityFilter === "all" && statusFilter === "all" 
+                  ? 'Click "Report New Issue" to get started' 
+                  : "Try adjusting your filters"}
               </p>
             </div>
           ) : (
@@ -460,6 +464,7 @@ const CustomerDashboard = () => {
                   <div 
                     key={issue.id} 
                     className="p-4 border rounded-lg hover:bg-slate-50 transition-colors"
+                    data-testid={`issue-card-${issue.id}`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -484,8 +489,8 @@ const CustomerDashboard = () => {
                         )}
                         <p className="text-sm text-slate-600 mt-2">{issue.description}</p>
                         
-                        {/* Technician assignment info */}
-                        {issue.technician_name && (
+                        {/* Technician assignment info for registered/in_progress issues */}
+                        {issue.technician_name && displayStatus !== "resolved" && (
                           <div className="mt-2 p-2 bg-blue-50 rounded text-sm text-blue-800">
                             <strong>Assigned to:</strong> {issue.technician_name}
                             {issue.technician_assigned_at && (
@@ -496,14 +501,42 @@ const CustomerDashboard = () => {
                           </div>
                         )}
                         
-                        {issue.resolution && (
-                          <div className="mt-2 p-2 bg-emerald-50 rounded text-sm text-emerald-800">
-                            <strong>Resolution:</strong> {issue.resolution}
+                        {/* Resolution info for resolved issues */}
+                        {displayStatus === "resolved" && (
+                          <div className="mt-2 p-3 bg-emerald-50 rounded border border-emerald-100">
+                            {issue.resolution && (
+                              <p className="text-sm text-emerald-800 mb-2">
+                                <strong>Resolution:</strong> {issue.resolution}
+                              </p>
+                            )}
+                            {/* Show all 3 dates for resolved issues */}
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-emerald-700">
+                              <span className="inline-flex items-center gap-1">
+                                <Calendar size={12} />
+                                <strong>Reported:</strong> {new Date(issue.created_at).toLocaleString()}
+                              </span>
+                              {issue.technician_assigned_at && (
+                                <span className="inline-flex items-center gap-1">
+                                  <Calendar size={12} />
+                                  <strong>Registered:</strong> {new Date(issue.technician_assigned_at).toLocaleString()}
+                                </span>
+                              )}
+                              {issue.resolved_at && (
+                                <span className="inline-flex items-center gap-1">
+                                  <Calendar size={12} />
+                                  <strong>Resolved:</strong> {new Date(issue.resolved_at).toLocaleString()}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         )}
-                        <p className="text-xs text-slate-400 mt-2">
-                          Reported: {new Date(issue.created_at).toLocaleString()}
-                        </p>
+                        
+                        {/* Show reported date for non-resolved issues */}
+                        {displayStatus !== "resolved" && (
+                          <p className="text-xs text-slate-400 mt-2">
+                            Reported: {new Date(issue.created_at).toLocaleString()}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>

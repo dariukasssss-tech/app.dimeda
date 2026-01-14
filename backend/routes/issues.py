@@ -305,10 +305,35 @@ async def get_issue_track(issue_id: str):
 
 @router.delete("/{issue_id}")
 async def delete_issue(issue_id: str):
+    # First check if issue exists
+    existing = await db.issues.find_one({"id": issue_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Issue not found")
+    
+    # Delete all related scheduled maintenance entries
+    await db.scheduled_maintenance.delete_many({"issue_id": issue_id})
+    
+    # If this is a parent issue with a warranty child, also delete the child
+    if existing.get("child_issue_id"):
+        child_id = existing["child_issue_id"]
+        # Delete child's maintenance entries
+        await db.scheduled_maintenance.delete_many({"issue_id": child_id})
+        # Delete the child issue
+        await db.issues.delete_one({"id": child_id})
+    
+    # If this is a warranty route (child) issue, update the parent to remove child reference
+    if existing.get("parent_issue_id"):
+        await db.issues.update_one(
+            {"id": existing["parent_issue_id"]},
+            {"$unset": {"child_issue_id": ""}}
+        )
+    
+    # Delete the issue itself
     result = await db.issues.delete_one({"id": issue_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Issue not found")
-    return {"message": "Issue deleted successfully"}
+    
+    return {"message": "Issue and related entries deleted successfully"}
 
 @router.post("/customer", response_model=Issue)
 async def create_customer_issue(issue: CustomerIssueCreate):

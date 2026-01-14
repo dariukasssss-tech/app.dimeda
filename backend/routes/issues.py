@@ -184,10 +184,14 @@ async def create_customer_issue(issue: CustomerIssueCreate):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
+    # Generate issue code
+    issue_code = await generate_issue_code(issue.product_id)
+    
     issue_data = issue.model_dump()
     issue_data["severity"] = "high"
     issue_data["source"] = "customer"
     issue_data["photos"] = []
+    issue_data["issue_code"] = issue_code
     
     issue_obj = Issue(**issue_data)
     doc = issue_obj.model_dump()

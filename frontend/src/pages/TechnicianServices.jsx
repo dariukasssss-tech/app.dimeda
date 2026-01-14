@@ -533,7 +533,7 @@ const TechnicianServices = ({ selectedTechnician }) => {
                   </div>
                   <p className="text-sm text-orange-700 mt-1">
                     This will create a <strong>Repair Task</strong> with a <strong>24-hour deadline</strong>.
-                    The original issue will remain in "Service Records" until the repair is completed.
+                    The original issue will remain in &quot;Service Records&quot; until the repair is completed.
                   </p>
                 </div>
               )}

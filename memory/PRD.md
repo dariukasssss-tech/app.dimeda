@@ -58,19 +58,26 @@ Three-portal system with role-based access:
 2. **Services Page Restructured:**
    - 4 tabs: In Progress, In Service, Resolved, Records
    - "In Service" tab shows:
-     - Awaiting Warranty Service (parent issues)
-     - Make Service Issues (routed warranty issues)
+     - Awaiting Warranty Service (parent issues) - **NO DUPLICATES**
+     - Action buttons: "Complete Service" and "View Track"
    - "Resolved" tab shows issues grouped by Warranty/Non-Warranty
 
-3. **Issue Tracking Popup:**
+3. **Issue Tracking Popup (View Track):**
    - Full track of warranty flow: Original Issue → Warranty Service Issue
    - Shows product info, issue details, resolution notes, timestamps
+   - **Technician Assignment Feature:** Admin can assign/re-assign technician directly from popup
    - Accessible from both In Service and Resolved tabs
 
-4. **Complete Workflow:**
+4. **Technician Calendar Integration:**
+   - When technician is assigned to warranty service issue, calendar entry is created
+   - Entry source: "warranty_service", priority: "24h"
+   - Task appears on assigned technician's calendar and Services page
+
+5. **Complete Workflow:**
    - Issue reported → In Progress → Resolve as Warranty → Creates Make Service issue
    - Original issue: "in_service" status, waiting
-   - When Make Service resolved → Both issues marked "resolved"
+   - Admin assigns technician via View Track popup → Calendar entry created
+   - Technician completes service → Both issues marked "resolved"
 
 ### Admin Portal Enhancements (Jan 14, 2026)
 1. **Dashboard Recent Services Improvements:**

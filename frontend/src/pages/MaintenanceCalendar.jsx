@@ -108,6 +108,37 @@ const MaintenanceCalendar = () => {
     }
   };
 
+  // Fetch stats popup data
+  const openStatsPopup = async (type) => {
+    setStatsPopupType(type);
+    setStatsPopupLoading(true);
+    setStatsPopupOpen(true);
+    
+    try {
+      let endpoint = "";
+      if (type === "upcoming") endpoint = "/scheduled-maintenance/upcoming/list";
+      else if (type === "overdue") endpoint = "/scheduled-maintenance/overdue/list";
+      else if (type === "this-month") endpoint = "/scheduled-maintenance/this-month/list";
+      
+      const response = await axios.get(`${API}${endpoint}`);
+      setStatsPopupData(response.data);
+    } catch (error) {
+      toast.error("Failed to fetch data");
+      setStatsPopupData([]);
+    } finally {
+      setStatsPopupLoading(false);
+    }
+  };
+
+  const getStatsPopupTitle = () => {
+    switch(statsPopupType) {
+      case "upcoming": return "Upcoming Maintenance (30 days)";
+      case "overdue": return "Overdue Maintenance";
+      case "this-month": return "This Month's Maintenance";
+      default: return "Maintenance";
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

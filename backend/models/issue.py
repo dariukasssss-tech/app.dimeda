@@ -14,6 +14,8 @@ class IssueBase(BaseModel):
 
 class IssueCreate(IssueBase):
     photos: Optional[List[str]] = []  # base64 encoded images
+    product_location: Optional[str] = None  # Address/location info from customer
+    source: Optional[str] = None  # "customer" for customer-reported issues
 
 class Issue(IssueBase):
     model_config = ConfigDict(extra="ignore")

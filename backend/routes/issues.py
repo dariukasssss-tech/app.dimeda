@@ -146,9 +146,8 @@ async def update_issue(issue_id: str, update: IssueUpdate):
     if update_data.get("technician_name") and not existing.get("technician_name"):
         update_data["technician_assigned_at"] = datetime.now(timezone.utc).isoformat()
         
-        # Auto-set status to "in_progress" when technician is assigned
-        if existing.get("status") == "open":
-            update_data["status"] = "in_progress"
+        # NOTE: Status stays "open" until technician clicks "Start Work"
+        # Do NOT auto-set to "in_progress" here
         
         # Create calendar entry for customer issues
         if existing.get("source") == "customer":

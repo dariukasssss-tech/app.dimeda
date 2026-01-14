@@ -201,8 +201,10 @@ estimated_cost, product_location, source, created_at, resolution}
 - Progressive Web App (PWA) for offline technician access
 
 ## Test Reports
-- `/app/test_reports/iteration_3.json` - Latest warranty workflow test (100% pass, 8/8 backend tests)
+- `/app/test_reports/iteration_4.json` - Latest technician workflow test (100% pass, 11/11 backend tests)
+- `/app/test_reports/iteration_3.json` - Warranty workflow test (100% pass, 8/8 backend tests)
 - `/app/test_reports/iteration_2.json` - Previous comprehensive test (100% pass)
+- `/app/tests/test_technician_workflow_v2.py` - Full technician workflow tests
 - `/app/tests/test_warranty_workflow.py` - Warranty workflow API tests
 - `/app/tests/test_technician_customer_portals.py` - API tests for portals
 
@@ -216,3 +218,17 @@ estimated_cost, product_location, source, created_at, resolution}
 2. If parent issue with warranty child - also delete child issue and its maintenance entries
 3. If child (warranty route) issue - update parent to remove `child_issue_id` reference
 4. Return message: "Issue and related entries deleted successfully"
+
+### Technician Portal Workflow Update (Jan 14, 2026)
+**New Workflow:**
+1. **Calendar Only First:** Assigned issues appear on technician's Calendar only (not in Services)
+2. **Start Work:** Clicking "Start Work" moves issue to Services "In Progress Issues" section
+3. **Two-Section Services Page:**
+   - "In Progress Issues" - Active work items
+   - "Service Records" - Issues with service type (warranty/non-warranty)
+4. **Warranty Flow:**
+   - Resolving as "Warranty Service" creates child repair task with 24h timer
+   - Timer counts from resolve time
+   - Parent shows as "Awaiting Repair" until child is done
+5. **Continue Button:** Warranty repair tasks show "Continue" button instead of "Start Work"
+6. **Complete Repair:** Completing repair marks both parent and child as resolved

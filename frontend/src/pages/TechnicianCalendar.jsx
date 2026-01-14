@@ -552,11 +552,16 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                 const linkedIssue = getLinkedIssue(item);
                 const product = products.find(p => p.id === item.product_id);
                 const canStartWork = item.source === "customer_issue" && item.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved";
+                const isWarrantyRepair = item.source === "warranty_service" || linkedIssue?.is_warranty_route;
+                const canContinueRepair = isWarrantyRepair && item.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved";
+                const repairTime = linkedIssue ? calculateRepairTimeRemaining(linkedIssue) : null;
+                
                 return (
                   <div
                     key={item.id}
                     className={`p-4 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all ${
                       item.status === "completed" ? "border-slate-800 bg-slate-50" :
+                      isWarrantyRepair ? "border-orange-500 bg-orange-50" :
                       item.source === "customer_issue" ? "border-purple-500" :
                       item.source === "auto_yearly" ? "border-emerald-500" :
                       item.priority === "12h" ? "border-orange-500" :
@@ -584,6 +589,20 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                       </Badge>
                     </div>
                     
+                    {/* Warranty Repair indicator */}
+                    {isWarrantyRepair && item.status !== "completed" && (
+                      <div className="flex items-center gap-2 mb-2 p-2 bg-orange-100 rounded-lg">
+                        <Wrench size={14} className="text-orange-600" />
+                        <span className="text-sm font-medium text-orange-800">Warranty Repair Task</span>
+                        {repairTime && (
+                          <Badge className={`text-xs ml-auto ${repairTime.expired ? "bg-red-500 text-white animate-pulse" : repairTime.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
+                            <Timer size={10} className="mr-1" />
+                            {repairTime.text}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                    
                     {/* City and Type - clickable for details */}
                     <div 
                       className="flex items-center gap-3 text-sm text-slate-600 mb-2 cursor-pointer hover:text-slate-800"
@@ -601,19 +620,26 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                     {/* Deadline - clickable for details */}
                     <div 
                       className={`text-sm font-medium cursor-pointer ${
+                        isWarrantyRepair ? "text-orange-700 hover:text-orange-900" :
                         item.source === "customer_issue" ? "text-purple-700 hover:text-purple-900" : "text-slate-700 hover:text-slate-900"
                       }`}
                       onClick={(e) => handleTaskClick(item, e)}
                     >
                       <Clock size={14} className="inline mr-1" />
-                      {item.source === "customer_issue" ? "Solve by: " : ""}
+                      {isWarrantyRepair ? "Repair by: " : item.source === "customer_issue" ? "Solve by: " : ""}
                       {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
                     </div>
                     
                     {/* Tags and Action Button */}
                     <div className="flex items-center justify-between mt-3">
                       <div className="flex items-center gap-2 flex-wrap">
-                        {item.source === "customer_issue" && (
+                        {isWarrantyRepair && (
+                          <Badge className="text-xs bg-orange-100 text-orange-800">
+                            <Shield size={10} className="mr-1" />
+                            Warranty
+                          </Badge>
+                        )}
+                        {item.source === "customer_issue" && !isWarrantyRepair && (
                           <Badge className="text-xs bg-purple-100 text-purple-800">
                             <Users size={10} className="mr-1" />
                             Customer

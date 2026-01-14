@@ -60,6 +60,50 @@ async def get_upcoming_maintenance_count():
     
     return {"upcoming": upcoming, "overdue": overdue}
 
+@router.get("/upcoming/list")
+async def get_upcoming_maintenance_list():
+    """Get detailed list of upcoming maintenance within 30 days"""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    next_30_days = (datetime.now(timezone.utc) + timedelta(days=30)).strftime("%Y-%m-%d")
+    
+    upcoming = await db.scheduled_maintenance.find({
+        "status": "scheduled",
+        "scheduled_date": {"$gte": today, "$lte": next_30_days}
+    }, {"_id": 0}).sort("scheduled_date", 1).to_list(100)
+    
+    return upcoming
+
+@router.get("/overdue/list")
+async def get_overdue_maintenance_list():
+    """Get detailed list of overdue maintenance"""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    
+    overdue = await db.scheduled_maintenance.find({
+        "status": "scheduled",
+        "scheduled_date": {"$lt": today}
+    }, {"_id": 0}).sort("scheduled_date", 1).to_list(100)
+    
+    return overdue
+
+@router.get("/this-month/list")
+async def get_this_month_maintenance_list():
+    """Get detailed list of this month's scheduled maintenance"""
+    now = datetime.now(timezone.utc)
+    start_of_month = now.replace(day=1).strftime("%Y-%m-%d")
+    
+    # Calculate end of month
+    if now.month == 12:
+        end_of_month = f"{now.year + 1}-01-01"
+    else:
+        end_of_month = f"{now.year}-{now.month + 1:02d}-01"
+    
+    this_month = await db.scheduled_maintenance.find({
+        "status": "scheduled",
+        "scheduled_date": {"$gte": start_of_month, "$lt": end_of_month}
+    }, {"_id": 0}).sort("scheduled_date", 1).to_list(100)
+    
+    return this_month
+
 @router.get("/{maintenance_id}", response_model=ScheduledMaintenance)
 async def get_scheduled_maintenance_by_id(maintenance_id: str):
     maintenance = await db.scheduled_maintenance.find_one({"id": maintenance_id}, {"_id": 0})

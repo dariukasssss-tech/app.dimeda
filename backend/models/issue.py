@@ -18,6 +18,7 @@ class IssueCreate(IssueBase):
 class Issue(IssueBase):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    issue_code: Optional[str] = None  # Unique code: YYYY_SN_MM_DD_ORDER
     status: str = "open"  # open, in_progress, resolved
     photos: List[str] = []
     resolution: Optional[str] = None

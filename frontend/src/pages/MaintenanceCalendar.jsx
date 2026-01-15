@@ -948,7 +948,7 @@ const MaintenanceCalendar = () => {
                           </Badge>
                         )}
                         {/* SLA Time Remaining for customer issues */}
-                        {item.source === "customer_issue" && item.status !== "completed" && (() => {
+                        {item.source === "customer_issue" && item.status !== "completed" && linkedIssue?.status !== "resolved" && (() => {
                           const sla = calculateSLARemaining(item);
                           if (!sla) return null;
                           return (
@@ -958,6 +958,13 @@ const MaintenanceCalendar = () => {
                             </Badge>
                           );
                         })()}
+                        {/* Show Resolved badge for resolved linked issues */}
+                        {item.source === "customer_issue" && linkedIssue?.status === "resolved" && (
+                          <Badge className="text-xs bg-emerald-100 text-emerald-800">
+                            <CheckCircle size={10} className="mr-1" />
+                            Resolved
+                          </Badge>
+                        )}
                         {item.priority && item.source !== "customer_issue" && (
                           <Badge className={`text-xs ${item.priority === "12h" ? "bg-orange-100 text-orange-800" : "bg-red-100 text-red-800"}`}>
                             {item.priority}

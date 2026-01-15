@@ -574,7 +574,7 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
             </div>
 
             {monthlyStats && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
                 <div className="text-center p-3 bg-slate-50 rounded-lg">
                   <p className="text-xl font-bold text-slate-700">{monthlyStats.total}</p>
                   <p className="text-xs text-slate-500">Total Tasks</p>
@@ -587,6 +587,12 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                   <p className="text-xl font-bold text-blue-600">{monthlyStats.scheduled}</p>
                   <p className="text-xs text-slate-500">Scheduled</p>
                 </div>
+                {monthlyStats.pendingSchedule > 0 && (
+                  <div className="text-center p-3 bg-teal-50 rounded-lg border-2 border-teal-300">
+                    <p className="text-xl font-bold text-teal-600">{monthlyStats.pendingSchedule}</p>
+                    <p className="text-xs text-teal-700 font-medium">Needs Scheduling</p>
+                  </div>
+                )}
                 <div className="text-center p-3 bg-amber-50 rounded-lg">
                   <p className="text-xl font-bold text-amber-600">{monthlyStats.inProgress}</p>
                   <p className="text-xs text-slate-500">In Progress</p>

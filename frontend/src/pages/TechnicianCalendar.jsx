@@ -705,7 +705,6 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                         Please schedule this task
                       </div>
                     )}
-                    </div>
                     
                     {/* Tags and Action Button */}
                     <div className="flex items-center justify-between mt-3">

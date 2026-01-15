@@ -584,11 +584,12 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                         )}
                       </div>
                       <Badge className={`text-xs ${
+                        linkedIssue?.status === "resolved" ? "bg-emerald-500 text-white" :
                         item.status === "completed" ? "bg-slate-800 text-white" :
                         item.status === "in_progress" ? "bg-blue-500 text-white" :
                         "bg-slate-100 text-slate-700"
                       }`}>
-                        {item.status}
+                        {linkedIssue?.status === "resolved" ? "resolved" : item.status}
                       </Badge>
                     </div>
                     

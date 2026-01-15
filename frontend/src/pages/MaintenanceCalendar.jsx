@@ -223,7 +223,7 @@ const MaintenanceCalendar = () => {
 
   const getMaintenanceForDate = (date) => {
     const dateStr = format(date, "yyyy-MM-dd");
-    return filteredMaintenance.filter((item) => item.scheduled_date.startsWith(dateStr));
+    return filteredMaintenance.filter((item) => item.scheduled_date && item.scheduled_date.startsWith(dateStr));
   };
 
   // Filter maintenance by city

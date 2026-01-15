@@ -14,7 +14,13 @@
     "error": "Įvyko klaida",
     "success": "Sėkmingai",
     "warning": "Įspėjimas",
-    "actions": "Veiksmai"
+    "actions": "Veiksmai",
+    "product": "Produktas",
+    "selectProduct": "Pasirinkite produktą",
+    "chooseProduct": "Pasirinkite produktą",
+    "filterByCity": "Filtruoti pagal miestą",
+    "allCities": "Visi miestai",
+    "retry": "Bandyti dar kartą"
   },
   "auth": {
     "login": "Prisijungti",

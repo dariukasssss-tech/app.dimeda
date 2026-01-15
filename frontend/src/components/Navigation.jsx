@@ -4,7 +4,32 @@ import axios from "axios";
 import { API, clearAuthToken } from "@/App";
 import { toast } from "sonner";
 import { useTranslation } from "@/contexts/TranslationContext";
-import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X, CalendarDays, LogOut, Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X, CalendarDays, LogOut, Bell, MoreVertical, Users, UserPlus } from "lucide-react";
+
+const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
 
 const Navigation = ({ onLogout }) => {
   const { t } = useTranslation();
@@ -12,6 +37,15 @@ const Navigation = ({ onLogout }) => {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [customerIssues, setCustomerIssues] = useState([]);
   const [products, setProducts] = useState([]);
+  const [addCustomerOpen, setAddCustomerOpen] = useState(false);
+  const [customerFormData, setCustomerFormData] = useState({
+    name: "",
+    city: "",
+    address: "",
+    contact_person: "",
+    phone: "",
+    email: "",
+  });
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -23,6 +57,29 @@ const Navigation = ({ onLogout }) => {
     { path: "/issues", label: t("navigation.issues"), icon: AlertTriangle },
     { path: "/export", label: t("navigation.reports"), icon: Download },
   ];
+
+  const resetCustomerForm = () => {
+    setCustomerFormData({
+      name: "",
+      city: "",
+      address: "",
+      contact_person: "",
+      phone: "",
+      email: "",
+    });
+  };
+
+  const handleAddCustomer = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API}/customers`, customerFormData);
+      toast.success(t("customers.customerCreated") || "Customer added successfully");
+      setAddCustomerOpen(false);
+      resetCustomerForm();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || t("common.error"));
+    }
+  };
 
   const fetchNotifications = async () => {
     try {

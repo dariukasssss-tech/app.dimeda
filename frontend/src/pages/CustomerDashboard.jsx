@@ -74,10 +74,12 @@ const CustomerDashboard = () => {
     }
   };
 
-  // Filter products by selected city
-  const filteredProducts = formData.selected_city
-    ? products.filter(p => p.city === formData.selected_city)
-    : [];
+  // Filter products by selected city and model type
+  const filteredProducts = products.filter(p => {
+    if (formData.selected_city && p.city !== formData.selected_city) return false;
+    if (selectedModelType && p.model_type !== selectedModelType) return false;
+    return true;
+  }).filter(p => formData.selected_city ? p.city === formData.selected_city : true);
 
   // Get display status for customer - "Registered" when technician assigned
   const getDisplayStatus = (issue) => {

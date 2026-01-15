@@ -3,9 +3,12 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API, clearAuthToken } from "@/App";
 import { toast } from "sonner";
+import { useTranslation } from "@/contexts/TranslationContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { LayoutDashboard, Package, Wrench, AlertTriangle, Download, Menu, X, CalendarDays, LogOut, Bell } from "lucide-react";
 
 const Navigation = ({ onLogout }) => {
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [customerIssues, setCustomerIssues] = useState([]);
@@ -14,12 +17,12 @@ const Navigation = ({ onLogout }) => {
   const navigate = useNavigate();
 
   const navItems = [
-    { path: "/", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/products", label: "Products", icon: Package },
-    { path: "/calendar", label: "Calendar", icon: CalendarDays },
-    { path: "/services", label: "Services", icon: Wrench },
-    { path: "/issues", label: "Issues", icon: AlertTriangle },
-    { path: "/export", label: "Export", icon: Download },
+    { path: "/", label: t("navigation.dashboard"), icon: LayoutDashboard },
+    { path: "/products", label: t("navigation.products"), icon: Package },
+    { path: "/calendar", label: t("navigation.calendar"), icon: CalendarDays },
+    { path: "/services", label: t("navigation.services"), icon: Wrench },
+    { path: "/issues", label: t("navigation.issues"), icon: AlertTriangle },
+    { path: "/export", label: t("navigation.reports"), icon: Download },
   ];
 
   const fetchNotifications = async () => {
@@ -50,12 +53,12 @@ const Navigation = ({ onLogout }) => {
 
   const getProductSerial = (productId) => {
     const product = products.find(p => p.id === productId);
-    return product?.serial_number || "Unknown";
+    return product?.serial_number || t("common.noData");
   };
 
   const getProductCity = (productId) => {
     const product = products.find(p => p.id === productId);
-    return product?.city || "Unknown";
+    return product?.city || t("common.noData");
   };
 
   const calculateSLARemaining = (issue) => {
@@ -65,7 +68,7 @@ const Navigation = ({ onLogout }) => {
     const diffMs = slaDeadline - now;
     
     if (diffMs <= 0) {
-      return { expired: true, text: "EXPIRED", urgency: "critical" };
+      return { expired: true, text: t("time.slaExpired"), urgency: "critical" };
     }
     
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -76,9 +79,9 @@ const Navigation = ({ onLogout }) => {
     else if (hours < 6) urgency = "warning";
     
     if (hours > 0) {
-      return { expired: false, text: `${hours}h ${minutes}m`, urgency };
+      return { expired: false, text: t("time.hoursLeft", { hours, minutes }), urgency };
     }
-    return { expired: false, text: `${minutes}m`, urgency };
+    return { expired: false, text: t("time.minutesLeft", { minutes }), urgency };
   };
 
   const handleNotificationClick = (issueId) => {
@@ -93,7 +96,7 @@ const Navigation = ({ onLogout }) => {
       console.error("Logout error:", error);
     }
     clearAuthToken();
-    toast.success("Logged out successfully");
+    toast.success(t("auth.loginSuccess").replace("successful", "out"));
     onLogout();
   };
 
@@ -110,7 +113,7 @@ const Navigation = ({ onLogout }) => {
                 className="h-10 w-auto"
               />
               <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-[#0066CC]" style={{ fontFamily: 'Manrope, sans-serif' }}>Dimeda Service Pro</h1>
+                <h1 className="text-lg font-bold text-[#0066CC]" style={{ fontFamily: 'Manrope, sans-serif' }}>{t("common.appName")}</h1>
                 <p className="text-xs text-slate-500">Medirol service partner</p>
               </div>
             </div>
@@ -122,7 +125,7 @@ const Navigation = ({ onLogout }) => {
               <NavLink
                 key={item.path}
                 to={item.path}
-                data-testid={`nav-${item.label.toLowerCase()}`}
+                data-testid={`nav-${item.path === "/" ? "dashboard" : item.path.slice(1)}`}
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     isActive
@@ -156,16 +159,16 @@ const Navigation = ({ onLogout }) => {
                 <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-lg shadow-lg z-50" data-testid="notification-dropdown">
                   <div className="p-3 border-b border-slate-200">
                     <h3 className="font-semibold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                      Customer Issues
+                      {t("customer.myIssues")}
                     </h3>
                     <p className="text-xs text-slate-500">
-                      {customerIssues.length} unassigned issue{customerIssues.length !== 1 ? 's' : ''}
+                      {customerIssues.length} {t("issues.noIssues").replace("No issues found", "unassigned issue(s)")}
                     </p>
                   </div>
                   <div className="max-h-80 overflow-y-auto">
                     {customerIssues.length === 0 ? (
                       <div className="p-4 text-center text-slate-500 text-sm">
-                        No unassigned customer issues
+                        {t("issues.noIssues")}
                       </div>
                     ) : (
                       customerIssues.map((issue) => {
@@ -217,7 +220,7 @@ const Navigation = ({ onLogout }) => {
                         }}
                         className="w-full text-center text-sm text-[#0066CC] hover:text-[#0052A3] font-medium py-2"
                       >
-                        View all issues
+                        {t("issues.title")}
                       </button>
                     </div>
                   )}
@@ -225,13 +228,16 @@ const Navigation = ({ onLogout }) => {
               )}
             </div>
             
+            {/* Language Switcher */}
+            <LanguageSwitcher className="ml-2" />
+            
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all ml-2"
               data-testid="logout-btn"
             >
               <LogOut size={18} />
-              Logout
+              {t("auth.logout")}
             </button>
           </div>
 
@@ -256,7 +262,7 @@ const Navigation = ({ onLogout }) => {
               <NavLink
                 key={item.path}
                 to={item.path}
-                data-testid={`mobile-nav-${item.label.toLowerCase()}`}
+                data-testid={`mobile-nav-${item.path === "/" ? "dashboard" : item.path.slice(1)}`}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                     isActive
@@ -269,13 +275,16 @@ const Navigation = ({ onLogout }) => {
                 {item.label}
               </NavLink>
             ))}
+            <div className="px-4 py-2">
+              <LanguageSwitcher />
+            </div>
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full"
               data-testid="mobile-logout-btn"
             >
               <LogOut size={20} />
-              Logout
+              {t("auth.logout")}
             </button>
           </div>
         </div>

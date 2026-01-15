@@ -816,7 +816,7 @@ const Services = () => {
                         data-testid={`resolve-issue-${issue.id}`}
                       >
                         <CheckCircle size={16} className="mr-2" />
-                        Resolve Issue
+                        {t("issues.resolveIssue") || "Resolve Issue"}
                       </Button>
                     </div>
                   </CardContent>

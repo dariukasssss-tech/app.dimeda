@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { API } from "@/App";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,16 +27,8 @@ import { AlertTriangle, Plus, CheckCircle, Clock, MapPin, Filter, Calendar } fro
 // Cities list
 const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
 
-// Status filter options for customer view
-const STATUS_FILTERS = [
-  { value: "all", label: "All Conditions" },
-  { value: "reported", label: "Reported" },
-  { value: "registered", label: "Registered" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "resolved", label: "Resolved" },
-];
-
 const CustomerDashboard = () => {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [myIssues, setMyIssues] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +45,15 @@ const CustomerDashboard = () => {
     product_location: "",
   });
 
+  // Status filter options for customer view
+  const STATUS_FILTERS = [
+    { value: "all", label: t("common.filter") },
+    { value: "reported", label: t("issues.status.open") },
+    { value: "registered", label: t("calendar.scheduled") },
+    { value: "in_progress", label: t("issues.status.inProgress") },
+    { value: "resolved", label: t("issues.status.resolved") },
+  ];
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -65,7 +67,7 @@ const CustomerDashboard = () => {
       setProducts(productsRes.data);
       setMyIssues(issuesRes.data.filter(i => i.source === "customer"));
     } catch (error) {
-      toast.error("Failed to fetch data");
+      toast.error(t("common.error"));
     } finally {
       setLoading(false);
     }
@@ -140,12 +142,12 @@ const CustomerDashboard = () => {
       // Show success message
       setSuccessMessage({
         title: formData.title,
-        serial: selectedProduct?.serial_number || "Unknown",
-        city: selectedProduct?.city || "Unknown",
+        serial: selectedProduct?.serial_number || t("common.noData"),
+        city: selectedProduct?.city || t("common.noData"),
         time: new Date().toLocaleString(),
       });
       
-      toast.success("Issue reported successfully! Our team will be notified.");
+      toast.success(t("customer.issueReported"));
       setDialogOpen(false);
       setFormData({
         selected_city: "",
@@ -160,18 +162,18 @@ const CustomerDashboard = () => {
       // Clear success message after 30 seconds
       setTimeout(() => setSuccessMessage(null), 30000);
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Failed to report issue");
+      toast.error(error.response?.data?.detail || t("common.error"));
     }
   };
 
   const getProductSerial = (productId) => {
     const product = products.find((p) => p.id === productId);
-    return product?.serial_number || "Unknown";
+    return product?.serial_number || t("common.noData");
   };
 
   const getProductCity = (productId) => {
     const product = products.find((p) => p.id === productId);
-    return product?.city || "Unknown";
+    return product?.city || t("common.noData");
   };
 
   const statusIcons = {
@@ -188,10 +190,20 @@ const CustomerDashboard = () => {
     resolved: "bg-emerald-100 text-emerald-800",
   };
 
+  const getStatusLabel = (status) => {
+    switch(status) {
+      case "reported": return t("issues.status.open");
+      case "registered": return t("calendar.scheduled");
+      case "in_progress": return t("issues.status.inProgress");
+      case "resolved": return t("issues.status.resolved");
+      default: return status;
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-slate-500">Loading...</div>
+        <div className="text-slate-500">{t("common.loading")}</div>
       </div>
     );
   }
@@ -202,35 +214,35 @@ const CustomerDashboard = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-            Issue Registration
+            {t("customer.reportIssue")}
           </h1>
           <p className="text-slate-500 mt-1">
-            Report issues with your Medirol equipment
+            {t("issues.description")}
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-[#0066CC] hover:bg-[#0052A3]">
               <Plus size={18} className="mr-2" />
-              Report New Issue
+              {t("customer.reportIssue")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-[#0066CC]" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                Report New Issue
+                {t("customer.reportIssue")}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               {/* Place (City) - First field */}
               <div>
-                <Label>Place (City) *</Label>
+                <Label>{t("products.city")} *</Label>
                 <Select
                   value={formData.selected_city}
                   onValueChange={handleCityChange}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select city" />
+                    <SelectValue placeholder={t("products.city")} />
                   </SelectTrigger>
                   <SelectContent>
                     {CITIES.map((city) => (
@@ -244,19 +256,19 @@ const CustomerDashboard = () => {
 
               {/* Product - Filtered by city */}
               <div>
-                <Label>Product (Serial Number) *</Label>
+                <Label>{t("products.serialNumber")} *</Label>
                 <Select
                   value={formData.product_id}
                   onValueChange={(value) => setFormData({ ...formData, product_id: value })}
                   disabled={!formData.selected_city}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder={formData.selected_city ? "Select product" : "Select city first"} />
+                    <SelectValue placeholder={formData.selected_city ? t("products.serialNumber") : t("products.city")} />
                   </SelectTrigger>
                   <SelectContent>
                     {filteredProducts.length === 0 ? (
                       <SelectItem value="none" disabled>
-                        No products in this city
+                        {t("products.noProducts")}
                       </SelectItem>
                     ) : (
                       filteredProducts.map((product) => (
@@ -268,49 +280,49 @@ const CustomerDashboard = () => {
                   </SelectContent>
                 </Select>
                 {formData.selected_city && filteredProducts.length === 0 && (
-                  <p className="text-xs text-amber-600 mt-1">No products registered in {formData.selected_city}</p>
+                  <p className="text-xs text-amber-600 mt-1">{t("products.noProducts")} {formData.selected_city}</p>
                 )}
               </div>
 
               {/* Issue Type */}
               <div>
-                <Label>Issue Type *</Label>
+                <Label>{t("issues.issueType")} *</Label>
                 <Select
                   value={formData.issue_type}
                   onValueChange={(value) => setFormData({ ...formData, issue_type: value })}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select issue type" />
+                    <SelectValue placeholder={t("issues.issueType")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="mechanical">Mechanical</SelectItem>
-                    <SelectItem value="electrical">Electrical</SelectItem>
+                    <SelectItem value="mechanical">{t("issues.types.mechanical")}</SelectItem>
+                    <SelectItem value="electrical">{t("issues.types.electrical")}</SelectItem>
                     <SelectItem value="cosmetic">Cosmetic</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="other">{t("issues.types.other")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Product Location - Text input instead of warranty dropdown */}
               <div>
-                <Label htmlFor="product_location">Product Location</Label>
+                <Label htmlFor="product_location">{t("customer.productLocation")}</Label>
                 <Input
                   id="product_location"
                   value={formData.product_location}
                   onChange={(e) => setFormData({ ...formData, product_location: e.target.value })}
-                  placeholder="Enter product location address"
+                  placeholder={t("customer.productLocation")}
                   className="mt-1"
                 />
               </div>
 
               {/* Issue Title */}
               <div>
-                <Label htmlFor="title">Issue Title *</Label>
+                <Label htmlFor="title">{t("issues.title")} *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Brief description of the issue"
+                  placeholder={t("issues.description")}
                   required
                   className="mt-1"
                 />
@@ -318,12 +330,12 @@ const CustomerDashboard = () => {
 
               {/* Detailed Description */}
               <div>
-                <Label htmlFor="description">Detailed Description *</Label>
+                <Label htmlFor="description">{t("issues.description")} *</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe the issue in detail..."
+                  placeholder={t("issues.description")}
                   required
                   rows={4}
                   className="mt-1"
@@ -337,14 +349,14 @@ const CustomerDashboard = () => {
                   onClick={() => setDialogOpen(false)}
                   className="flex-1"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   type="submit"
                   className="flex-1 bg-[#0066CC] hover:bg-[#0052A3]"
                   disabled={!formData.product_id || !formData.issue_type || !formData.title || !formData.description}
                 >
-                  Submit Issue
+                  {t("common.confirm")}
                 </Button>
               </div>
             </form>
@@ -358,11 +370,9 @@ const CustomerDashboard = () => {
           <div className="flex items-start gap-3">
             <AlertTriangle className="text-blue-600 mt-0.5" size={20} />
             <div>
-              <p className="font-medium text-blue-900">How it works</p>
+              <p className="font-medium text-blue-900">{t("common.warning")}</p>
               <p className="text-sm text-blue-700 mt-1">
-                When you submit an issue, our service team will be notified immediately. 
-                All customer-reported issues are automatically marked as high priority. 
-                You can track the status of your issues below.
+                {t("messages.issueCreated")}
               </p>
             </div>
           </div>
@@ -376,16 +386,13 @@ const CustomerDashboard = () => {
             <div className="flex items-start gap-3">
               <CheckCircle className="text-emerald-600 mt-0.5" size={20} />
               <div className="flex-1">
-                <p className="font-medium text-emerald-900">Issue Registered Successfully!</p>
+                <p className="font-medium text-emerald-900">{t("common.success")}!</p>
                 <div className="text-sm text-emerald-700 mt-2 space-y-1">
-                  <p><strong>Issue:</strong> {successMessage.title}</p>
-                  <p><strong>Product S/N:</strong> {successMessage.serial}</p>
-                  <p><strong>City:</strong> {successMessage.city}</p>
+                  <p><strong>{t("issues.title")}:</strong> {successMessage.title}</p>
+                  <p><strong>{t("products.serialNumber")}:</strong> {successMessage.serial}</p>
+                  <p><strong>{t("products.city")}:</strong> {successMessage.city}</p>
                   <p><strong>Submitted:</strong> {successMessage.time}</p>
                 </div>
-                <p className="text-xs text-emerald-600 mt-2">
-                  Our service team has been notified and will review your issue shortly.
-                </p>
               </div>
               <Button
                 variant="ghost"
@@ -393,7 +400,7 @@ const CustomerDashboard = () => {
                 onClick={() => setSuccessMessage(null)}
                 className="text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100"
               >
-                Dismiss
+                {t("common.close")}
               </Button>
             </div>
           </CardContent>
@@ -405,8 +412,8 @@ const CustomerDashboard = () => {
         <CardHeader>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <CardTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Reported Issues</CardTitle>
-              <CardDescription>Track the status of your submitted issues</CardDescription>
+              <CardTitle style={{ fontFamily: 'Manrope, sans-serif' }}>{t("customer.myIssues")}</CardTitle>
+              <CardDescription>{t("customer.trackIssue")}</CardDescription>
             </div>
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-2">
@@ -414,10 +421,10 @@ const CustomerDashboard = () => {
               {/* City Filter */}
               <Select value={cityFilter} onValueChange={setCityFilter}>
                 <SelectTrigger className="w-36" data-testid="city-filter">
-                  <SelectValue placeholder="Filter by city" />
+                  <SelectValue placeholder={t("products.city")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Cities</SelectItem>
+                  <SelectItem value="all">{t("common.filter")}</SelectItem>
                   {CITIES.map((city) => (
                     <SelectItem key={city} value={city}>
                       {city}
@@ -428,7 +435,7 @@ const CustomerDashboard = () => {
               {/* Status/Condition Filter */}
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40" data-testid="status-filter">
-                  <SelectValue placeholder="Filter by condition" />
+                  <SelectValue placeholder={t("common.filter")} />
                 </SelectTrigger>
                 <SelectContent>
                   {STATUS_FILTERS.map((status) => (
@@ -446,14 +453,10 @@ const CustomerDashboard = () => {
             <div className="text-center py-8">
               <AlertTriangle className="mx-auto text-slate-300" size={48} />
               <p className="text-slate-500 mt-4">
-                {cityFilter === "all" && statusFilter === "all" 
-                  ? "No issues reported yet" 
-                  : `No issues found with current filters`}
+                {t("issues.noIssues")}
               </p>
               <p className="text-sm text-slate-400 mt-1">
-                {cityFilter === "all" && statusFilter === "all" 
-                  ? 'Click "Report New Issue" to get started' 
-                  : "Try adjusting your filters"}
+                {t("customer.reportIssue")}
               </p>
             </div>
           ) : (
@@ -477,7 +480,7 @@ const CustomerDashboard = () => {
                           )}
                           <h3 className="font-medium text-slate-900">{issue.title}</h3>
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[displayStatus]}`}>
-                            {displayStatus.replace("_", " ")}
+                            {getStatusLabel(displayStatus)}
                           </span>
                         </div>
                         <p className="text-sm text-slate-500 mt-1">
@@ -489,7 +492,7 @@ const CustomerDashboard = () => {
                         </p>
                         {issue.product_location && (
                           <p className="text-xs text-slate-400 mt-1">
-                            Location: {issue.product_location}
+                            {t("products.location")}: {issue.product_location}
                           </p>
                         )}
                         <p className="text-sm text-slate-600 mt-2">{issue.description}</p>
@@ -497,10 +500,10 @@ const CustomerDashboard = () => {
                         {/* Technician assignment info for registered/in_progress issues */}
                         {issue.technician_name && displayStatus !== "resolved" && (
                           <div className="mt-2 p-2 bg-blue-50 rounded text-sm text-blue-800">
-                            <strong>Assigned to:</strong> {issue.technician_name}
+                            <strong>{t("technician.assignedTo")}:</strong> {issue.technician_name}
                             {issue.technician_assigned_at && (
                               <span className="ml-2 text-blue-600">
-                                (Registered: {new Date(issue.technician_assigned_at).toLocaleString()})
+                                ({t("calendar.scheduled")}: {new Date(issue.technician_assigned_at).toLocaleString()})
                               </span>
                             )}
                           </div>
@@ -511,7 +514,7 @@ const CustomerDashboard = () => {
                           <div className="mt-2 p-3 bg-emerald-50 rounded border border-emerald-100">
                             {issue.resolution && (
                               <p className="text-sm text-emerald-800 mb-2">
-                                <strong>Resolution:</strong> {issue.resolution}
+                                <strong>{t("issues.resolution")}:</strong> {issue.resolution}
                               </p>
                             )}
                             {/* Show all 3 dates for resolved issues */}
@@ -523,13 +526,13 @@ const CustomerDashboard = () => {
                               {issue.technician_assigned_at && (
                                 <span className="inline-flex items-center gap-1">
                                   <Calendar size={12} />
-                                  <strong>Registered:</strong> {new Date(issue.technician_assigned_at).toLocaleString()}
+                                  <strong>{t("calendar.scheduled")}:</strong> {new Date(issue.technician_assigned_at).toLocaleString()}
                                 </span>
                               )}
                               {issue.resolved_at && (
                                 <span className="inline-flex items-center gap-1">
                                   <Calendar size={12} />
-                                  <strong>Resolved:</strong> {new Date(issue.resolved_at).toLocaleString()}
+                                  <strong>{t("issues.status.resolved")}:</strong> {new Date(issue.resolved_at).toLocaleString()}
                                 </span>
                               )}
                             </div>

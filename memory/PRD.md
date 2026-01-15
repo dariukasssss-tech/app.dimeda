@@ -49,6 +49,33 @@ Three-portal system with role-based access:
 
 ## Recent Updates (January 2026)
 
+### Customer Management Feature (Jan 15, 2026)
+**Backend:**
+- Created `/backend/models/customer.py` - Customer data model
+- Created `/backend/routes/customers.py` - CRUD API endpoints
+- Endpoints: GET/POST `/api/customers`, GET/PUT/DELETE `/api/customers/{id}`, GET `/api/customers/by-city/{city}`
+
+**Frontend:**
+- Created `/pages/Customers.jsx` - Full customer management page with:
+  - City statistics cards (clickable filters)
+  - Search and city filter
+  - Customer table with edit/delete actions
+  - Add Customer dialog
+- Updated Navigation component with 3-dot menu (⋮):
+  - "Customers" - navigates to /customers page
+  - "Add Customer" - opens Add Customer dialog directly
+- Added route `/customers` to AdminLayout
+
+**Customer Fields:**
+- Name (company/institution name) - required
+- City (main connection point in system) - required
+- Address
+- Contact Person
+- Phone
+- Email
+
+**i18n Support:** Full English and Lithuanian translations for all customer-related text
+
 ### Warranty Service Workflow (Jan 14, 2026)
 1. **Warranty Service Routing:**
    - When issue is resolved as "Warranty Service", a routed "Make Service" issue is created

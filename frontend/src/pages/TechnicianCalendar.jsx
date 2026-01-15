@@ -1025,8 +1025,47 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                 <div className={`p-4 rounded-xl border ${isWarrantyRepair ? "bg-orange-50 border-orange-200" : "bg-slate-50 border-slate-200"}`}>
                   <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
                     <CalendarDays size={18} />
-                    Scheduled Task
+                    {selectedTask.status === "pending_schedule" ? "Schedule Task" : "Scheduled Task"}
                   </h4>
+                  
+                  {/* Schedule Picker for Roll-in pending tasks */}
+                  {selectedTask.status === "pending_schedule" && (
+                    <div className="space-y-4 mb-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                      <div className="flex items-center gap-2 text-amber-800">
+                        <AlertTriangle size={18} />
+                        <span className="font-medium">This Roll-in Stretcher task needs scheduling</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm text-slate-600">Select Date</Label>
+                          <Input
+                            type="date"
+                            value={scheduleDate ? format(scheduleDate, "yyyy-MM-dd") : ""}
+                            onChange={(e) => setScheduleDate(e.target.value ? new Date(e.target.value) : null)}
+                            min={format(new Date(), "yyyy-MM-dd")}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm text-slate-600">Select Time</Label>
+                          <Input
+                            type="time"
+                            value={scheduleTime}
+                            onChange={(e) => setScheduleTime(e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        onClick={handleScheduleRollIn}
+                        disabled={!scheduleDate || isScheduling}
+                        className="w-full bg-amber-600 hover:bg-amber-700"
+                      >
+                        {isScheduling ? "Scheduling..." : "Confirm Schedule"}
+                      </Button>
+                    </div>
+                  )}
+                  
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-slate-500">Type:</span>
@@ -1037,18 +1076,21 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                       <Badge className={`${
                         selectedTask.status === "completed" ? "bg-slate-800 text-white" :
                         selectedTask.status === "in_progress" ? "bg-blue-500 text-white" :
+                        selectedTask.status === "pending_schedule" ? "bg-amber-500 text-white" :
                         "bg-slate-200 text-slate-700"
                       }`}>
-                        {selectedTask.status}
+                        {selectedTask.status === "pending_schedule" ? "Needs Scheduling" : selectedTask.status}
                       </Badge>
                     </div>
-                    <div>
-                      <span className="text-slate-500">Scheduled:</span>
-                      <p className="font-bold text-slate-900">{format(parseISO(selectedTask.scheduled_date), "MMM d, yyyy HH:mm")}</p>
-                    </div>
+                    {selectedTask.scheduled_date && (
+                      <div>
+                        <span className="text-slate-500">Scheduled:</span>
+                        <p className="font-bold text-slate-900">{format(parseISO(selectedTask.scheduled_date), "MMM d, yyyy HH:mm")}</p>
+                      </div>
+                    )}
                     <div>
                       <span className="text-slate-500">Priority:</span>
-                      <p className="font-bold text-slate-900">{selectedTask.priority || "Normal"}</p>
+                      <p className="font-bold text-slate-900">{selectedTask.priority || (selectedTask.status === "pending_schedule" ? "No SLA" : "Normal")}</p>
                     </div>
                   </div>
                   {selectedTask.notes && (

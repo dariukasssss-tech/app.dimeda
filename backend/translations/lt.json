@@ -1,0 +1,202 @@
+{
+  "common": {
+    "appName": "Dimeda Service Pro",
+    "loading": "Kraunama...",
+    "save": "Išsaugoti",
+    "cancel": "Atšaukti",
+    "delete": "Ištrinti",
+    "edit": "Redaguoti",
+    "close": "Uždaryti",
+    "confirm": "Patvirtinti",
+    "search": "Ieškoti",
+    "filter": "Filtruoti",
+    "noData": "Nėra duomenų",
+    "error": "Įvyko klaida",
+    "success": "Sėkmingai",
+    "warning": "Įspėjimas",
+    "actions": "Veiksmai"
+  },
+  "auth": {
+    "login": "Prisijungti",
+    "logout": "Atsijungti",
+    "password": "Slaptažodis",
+    "enterPassword": "Įveskite slaptažodį",
+    "adminLogin": "Prisijungti kaip administratorius",
+    "technicianLogin": "Prisijungti kaip technikas",
+    "customerLogin": "Prisijungti kaip klientas",
+    "adminPassword": "Įveskite administratoriaus slaptažodį",
+    "technicianPassword": "Įveskite techniko slaptažodį",
+    "customerPassword": "Įveskite kliento slaptažodį",
+    "loginSuccess": "Prisijungimas sėkmingas",
+    "loginFailed": "Prisijungimas nepavyko",
+    "unauthorized": "Neautorizuota prieiga"
+  },
+  "navigation": {
+    "dashboard": "Pradžia",
+    "products": "Produktai",
+    "issues": "Problemos",
+    "services": "Paslaugos",
+    "calendar": "Kalendorius",
+    "maintenance": "Priežiūra",
+    "reports": "Ataskaitos",
+    "settings": "Nustatymai"
+  },
+  "dashboard": {
+    "title": "Pradžia",
+    "welcome": "Sveiki",
+    "stats": {
+      "totalProducts": "Viso produktų",
+      "scheduledTasks": "Suplanuotos užduotys",
+      "inProgress": "Vykdoma",
+      "servicesThisMonth": "Paslaugos šį mėnesį",
+      "openIssues": "Atviros problemos",
+      "resolvedIssues": "Išspręstos problemos"
+    },
+    "recentServices": "Paskutinės paslaugos",
+    "issuesSummary": "Problemų santrauka",
+    "upcomingMaintenance": "Artėjanti priežiūra"
+  },
+  "products": {
+    "title": "Produktai",
+    "addProduct": "Pridėti produktą",
+    "editProduct": "Redaguoti produktą",
+    "deleteProduct": "Ištrinti produktą",
+    "serialNumber": "Serijos numeris",
+    "modelName": "Modelio pavadinimas",
+    "city": "Miestas",
+    "location": "Vieta",
+    "installDate": "Įrengimo data",
+    "warrantyExpiry": "Garantijos pabaiga",
+    "status": "Būsena",
+    "active": "Aktyvus",
+    "inactive": "Neaktyvus",
+    "noProducts": "Produktų nerasta"
+  },
+  "issues": {
+    "title": "Problemos",
+    "addIssue": "Pranešti problemą",
+    "editIssue": "Redaguoti problemą",
+    "deleteIssue": "Ištrinti problemą",
+    "issueCode": "Problemos kodas",
+    "issueType": "Problemos tipas",
+    "severity": "Svarba",
+    "description": "Aprašymas",
+    "status": {
+      "open": "Atvira",
+      "inProgress": "Vykdoma",
+      "inService": "Aptarnaujama",
+      "resolved": "Išspręsta"
+    },
+    "severityLevels": {
+      "low": "Žema",
+      "medium": "Vidutinė",
+      "high": "Aukšta",
+      "critical": "Kritinė"
+    },
+    "types": {
+      "mechanical": "Mechaninė",
+      "electrical": "Elektrinė",
+      "software": "Programinė",
+      "other": "Kita"
+    },
+    "assignTechnician": "Priskirti techniką",
+    "resolution": "Sprendimas",
+    "resolutionNotes": "Sprendimo pastabos",
+    "resolveIssue": "Išspręsti problemą",
+    "noIssues": "Problemų nerasta"
+  },
+  "services": {
+    "title": "Paslaugos",
+    "inProgressIssues": "Vykdomos problemos",
+    "serviceRecords": "Paslaugų įrašai",
+    "serviceType": "Paslaugos tipas",
+    "warranty": "Garantija",
+    "nonWarranty": "Be garantijos",
+    "warrantyService": "Garantinis aptarnavimas",
+    "nonWarrantyService": "Negarantinis aptarnavimas",
+    "awaitingRepair": "Laukia remonto",
+    "repairing": "Remontuojama",
+    "repairTask": "Remonto užduotis",
+    "repairAttempts": "Remonto bandymai",
+    "completeRepair": "Užbaigti remontą",
+    "startWork": "Pradėti darbą",
+    "continue": "Tęsti",
+    "clickForDetails": "Paspauskite detalėms",
+    "noInProgress": "Nėra vykdomų problemų",
+    "noServiceRecords": "Nėra paslaugų įrašų",
+    "clickStartWork": "Paspauskite 'Pradėti darbą' kalendoriuje",
+    "resolveWithServiceType": "Išspręskite problemas su paslaugos tipu"
+  },
+  "calendar": {
+    "title": "Kalendorius",
+    "today": "Šiandien",
+    "month": "Mėnuo",
+    "week": "Savaitė",
+    "day": "Diena",
+    "scheduled": "Suplanuota",
+    "completed": "Užbaigta",
+    "overdue": "Vėluojama",
+    "upcoming": "Artėjanti",
+    "noTasks": "Nėra suplanuotų užduočių",
+    "taskDetails": "Užduoties detalės",
+    "scheduledDate": "Suplanuota data",
+    "priority": "Prioritetas",
+    "monthlySummary": "Mėnesio santrauka",
+    "totalTasks": "Viso užduočių",
+    "customerIssues": "Klientų problemos",
+    "yearlyMaintenance": "Metinė priežiūra",
+    "legend": "Legenda",
+    "solveBy": "Išspręsti iki"
+  },
+  "maintenance": {
+    "title": "Priežiūra",
+    "scheduleMaintenance": "Planuoti priežiūrą",
+    "maintenanceType": "Priežiūros tipas",
+    "routine": "Įprastinė",
+    "inspection": "Patikra",
+    "repair": "Remontas",
+    "customerIssue": "Kliento problema",
+    "warrantyService": "Garantinis aptarnavimas"
+  },
+  "technician": {
+    "title": "Techniko portalas",
+    "selectTechnician": "Pasirinkti techniką",
+    "noTechnicianSelected": "Nepasirinktas technikas",
+    "selectFromDashboard": "Pasirinkite techniką iš pradžios puslapio",
+    "assignedTo": "Priskirta",
+    "technician": "Technikas"
+  },
+  "customer": {
+    "title": "Kliento portalas",
+    "reportIssue": "Pranešti problemą",
+    "myIssues": "Mano problemos",
+    "trackIssue": "Sekti problemą",
+    "issueReported": "Problema sėkmingai pranešta",
+    "productLocation": "Produkto vieta"
+  },
+  "time": {
+    "hoursLeft": "Liko {hours}val. {minutes}min.",
+    "minutesLeft": "Liko {minutes}min.",
+    "timeExpired": "Laikas baigėsi",
+    "slaExpired": "SLA baigėsi",
+    "deadline24h": "24 valandų terminas"
+  },
+  "messages": {
+    "issueCreated": "Problema sėkmingai sukurta",
+    "issueUpdated": "Problema sėkmingai atnaujinta",
+    "issueDeleted": "Problema sėkmingai ištrinta",
+    "issueResolved": "Problema sėkmingai išspręsta",
+    "repairStarted": "Pradėtas remontas",
+    "repairCompleted": "Remontas užbaigtas - Problema išspręsta",
+    "movedToServiceRecords": "Problema perkelta į paslaugų įrašus",
+    "technicianAssigned": "Technikas sėkmingai priskirtas",
+    "taskMarkedInProgress": "Užduotis pažymėta kaip vykdoma",
+    "confirmDelete": "Ar tikrai norite ištrinti šį elementą?"
+  },
+  "validation": {
+    "required": "Šis laukas privalomas",
+    "invalidEmail": "Neteisingas el. pašto adresas",
+    "minLength": "Mažiausiai {min} simbolių",
+    "maxLength": "Daugiausiai {max} simbolių"
+  }
+}

@@ -350,10 +350,21 @@ const MaintenanceCalendar = () => {
     return "bg-blue-100 text-blue-800"; // Default blue
   };
 
-  const getTaskBorderColor = (item) => {
+  // Get border color for task items
+  // Also considers linked issue status and product model type
+  const getTaskBorderColor = (item, linkedIssue = null) => {
+    // Resolved linked issue gets dark border (like completed)
+    if (linkedIssue?.status === "resolved") return "border-slate-800";
     if (item.status === "completed") return "border-slate-800";
     if (item.status === "in_progress") return "border-blue-500";
-    if (item.source === "customer_issue") return "border-purple-500";
+    
+    // Roll-in Stretchers get teal/cyan border
+    if (item.source === "customer_issue") {
+      const modelType = getProductModelType(item.product_id);
+      if (modelType === "roll_in") return "border-teal-500";
+      return "border-purple-500"; // Powered Stretchers keep purple
+    }
+    
     if (item.source === "auto_yearly" || item.maintenance_type === "routine") return "border-emerald-500";
     if (item.priority === "12h") return "border-orange-500";
     if (item.priority === "24h") return "border-red-500";

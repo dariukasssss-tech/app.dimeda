@@ -180,16 +180,6 @@
     "legend": "Legend",
     "solveBy": "Solve by"
   },
-  "maintenance": {
-    "title": "Maintenance",
-    "scheduleMaintenance": "Schedule Maintenance",
-    "maintenanceType": "Maintenance Type",
-    "routine": "Routine",
-    "inspection": "Inspection",
-    "repair": "Repair",
-    "customerIssue": "Customer Issue",
-    "warrantyService": "Warranty Service"
-  },
   "technician": {
     "title": "Technician Portal",
     "selectTechnician": "Select Technician",

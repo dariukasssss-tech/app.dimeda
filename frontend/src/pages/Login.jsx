@@ -74,13 +74,13 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
       <div className="flex flex-col items-center gap-6 w-full max-w-5xl">
-        {/* Centered Logo - 1.5x bigger */}
+        {/* Centered Logo - 1.25x bigger */}
         <div className="flex flex-col items-center mb-2">
           <img 
             src="https://customer-assets.emergentagent.com/job_842f69d6-21b8-4f70-96b2-758e2fcffc47/artifacts/3rpmm3ao_Dimeda_logo-01.png" 
             alt="Dimeda Logo" 
             className="h-24 w-auto"
-            style={{ transform: 'scale(1.5)', transformOrigin: 'center' }}
+            style={{ transform: 'scale(1.25)', transformOrigin: 'center' }}
           />
         </div>
         

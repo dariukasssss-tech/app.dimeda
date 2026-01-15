@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { API } from "@/App";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package, Wrench, AlertTriangle, CheckCircle, Plus, ArrowRight, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState(null);
   const [recentServices, setRecentServices] = useState([]);
   const [openIssues, setOpenIssues] = useState([]);
@@ -34,8 +36,8 @@ const Dashboard = () => {
         const product = productsRes.data.find(p => p.id === service.product_id);
         return {
           ...service,
-          product_serial: product?.serial_number || "Unknown",
-          product_city: product?.city || "Unknown"
+          product_serial: product?.serial_number || t("common.noData"),
+          product_city: product?.city || t("common.noData")
         };
       });
       setRecentServices(servicesWithProduct.slice(0, 10));
@@ -43,7 +45,7 @@ const Dashboard = () => {
       // Add product serial to issues
       const issuesWithSerial = issuesRes.data.map(issue => ({
         ...issue,
-        product_serial: productsRes.data.find(p => p.id === issue.product_id)?.serial_number || "Unknown"
+        product_serial: productsRes.data.find(p => p.id === issue.product_id)?.serial_number || t("common.noData")
       }));
       setOpenIssues(issuesWithSerial.slice(0, 8));
     } catch (error) {
@@ -55,7 +57,7 @@ const Dashboard = () => {
 
   const getProductSerial = (productId) => {
     const product = products.find(p => p.id === productId);
-    return product?.serial_number || "Unknown";
+    return product?.serial_number || t("common.noData");
   };
 
   const StatCard = ({ title, value, icon: Icon, color, testId, onClick }) => (
@@ -86,9 +88,9 @@ const Dashboard = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-            Dashboard
+            {t("dashboard.title")}
           </h1>
-          <p className="text-slate-500 mt-1">Service & Maintenance Overview</p>
+          <p className="text-slate-500 mt-1">{t("navigation.services")} & {t("navigation.maintenance")}</p>
         </div>
         <div className="flex gap-3">
           <Button
@@ -97,7 +99,7 @@ const Dashboard = () => {
             data-testid="register-product-btn"
           >
             <Plus size={18} className="mr-2" />
-            Register Product
+            {t("products.addProduct")}
           </Button>
         </div>
       </div>
@@ -105,7 +107,7 @@ const Dashboard = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Products"
+          title={t("dashboard.stats.totalProducts")}
           value={stats?.total_products || 0}
           icon={Package}
           color="bg-[#0066CC]"
@@ -113,7 +115,7 @@ const Dashboard = () => {
           onClick={() => navigate("/products")}
         />
         <StatCard
-          title="Service Records"
+          title={t("services.serviceRecords")}
           value={stats?.total_services || 0}
           icon={Wrench}
           color="bg-slate-700"
@@ -121,7 +123,7 @@ const Dashboard = () => {
           onClick={() => navigate("/services")}
         />
         <StatCard
-          title="Open Issues"
+          title={t("dashboard.stats.openIssues")}
           value={stats?.open_issues || 0}
           icon={AlertTriangle}
           color="bg-[#FA4616]"
@@ -129,7 +131,7 @@ const Dashboard = () => {
           onClick={() => navigate("/issues?status=open")}
         />
         <StatCard
-          title="Resolved Issues"
+          title={t("dashboard.stats.resolvedIssues")}
           value={stats?.resolved_issues || 0}
           icon={CheckCircle}
           color="bg-emerald-500"
@@ -156,14 +158,14 @@ const Dashboard = () => {
                 className="bg-[#0066CC] hover:bg-[#0052A3]"
                 data-testid="log-service-btn"
               >
-                Log Service
+                {t("navigation.services")}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => navigate("/issues")}
                 data-testid="report-issue-btn"
               >
-                Report Issue
+                {t("issues.addIssue")}
               </Button>
             </div>
           </div>
@@ -183,19 +185,19 @@ const Dashboard = () => {
         {/* Recent Services */}
         <Card data-testid="recent-services-card">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg" style={{ fontFamily: 'Manrope, sans-serif' }}>Recent Services</CardTitle>
+            <CardTitle className="text-lg" style={{ fontFamily: 'Manrope, sans-serif' }}>{t("dashboard.recentServices")}</CardTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate("/services")}
               data-testid="view-all-services-btn"
             >
-              View All <ArrowRight size={16} className="ml-1" />
+              {t("common.actions")} <ArrowRight size={16} className="ml-1" />
             </Button>
           </CardHeader>
           <CardContent>
             {recentServices.length === 0 ? (
-              <p className="text-slate-500 text-center py-8">No service records yet</p>
+              <p className="text-slate-500 text-center py-8">{t("services.noServiceRecords")}</p>
             ) : (
               <div className="space-y-3">
                 {recentServices.map((service) => (
@@ -214,8 +216,8 @@ const Dashboard = () => {
                             ? "bg-gray-100 text-gray-800"
                             : "bg-slate-100 text-slate-600"
                         }`}>
-                          {service.warranty_status === "warranty" ? "Warranty" : 
-                           service.warranty_status === "non_warranty" ? "Non Warranty" : 
+                          {service.warranty_status === "warranty" ? t("services.warranty") : 
+                           service.warranty_status === "non_warranty" ? t("services.nonWarranty") : 
                            "N/A"}
                         </span>
                       </div>
@@ -244,19 +246,19 @@ const Dashboard = () => {
         {/* Open Issues */}
         <Card data-testid="open-issues-card">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg" style={{ fontFamily: 'Manrope, sans-serif' }}>All Issues</CardTitle>
+            <CardTitle className="text-lg" style={{ fontFamily: 'Manrope, sans-serif' }}>{t("issues.title")}</CardTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate("/issues")}
               data-testid="view-all-issues-btn"
             >
-              View All <ArrowRight size={16} className="ml-1" />
+              {t("common.actions")} <ArrowRight size={16} className="ml-1" />
             </Button>
           </CardHeader>
           <CardContent>
             {openIssues.length === 0 ? (
-              <p className="text-slate-500 text-center py-8">No issues reported</p>
+              <p className="text-slate-500 text-center py-8">{t("issues.noIssues")}</p>
             ) : (
               <div className="space-y-3">
                 {openIssues.map((issue) => (
@@ -278,7 +280,9 @@ const Dashboard = () => {
                           issue.status === "in_progress" ? "bg-blue-100 text-blue-800" :
                           "bg-emerald-100 text-emerald-800"
                         }`}>
-                          {issue.status.replace("_", " ")}
+                          {issue.status === "open" ? t("issues.status.open") :
+                           issue.status === "in_progress" ? t("issues.status.inProgress") :
+                           t("issues.status.resolved")}
                         </span>
                         {issue.warranty_status && (
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -286,12 +290,12 @@ const Dashboard = () => {
                               ? "bg-green-100 text-green-800" 
                               : "bg-gray-100 text-gray-800"
                           }`}>
-                            {issue.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
+                            {issue.warranty_status === "warranty" ? t("services.warranty") : t("services.nonWarranty")}
                           </span>
                         )}
                       </div>
                       <p className="text-sm text-slate-500">
-                        S/N: {issue.product_serial || "Unknown"} • {issue.issue_type}
+                        S/N: {issue.product_serial || t("common.noData")} • {issue.issue_type}
                         {issue.technician_name && (
                           <span className="ml-2 text-[#0066CC]">• {issue.technician_name}</span>
                         )}

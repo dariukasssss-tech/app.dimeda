@@ -900,7 +900,9 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                   {selectedTask.notes && (
                     <div className="mt-3 p-3 bg-white rounded-lg">
                       <span className="text-xs text-slate-500">Notes:</span>
-                      <p className="text-sm text-slate-700">{selectedTask.notes}</p>
+                      <p className="text-sm text-slate-700">
+                        {selectedTask.notes.replace(/ - SLA: \d+h from registration/g, '')}
+                      </p>
                     </div>
                   )}
                 </div>

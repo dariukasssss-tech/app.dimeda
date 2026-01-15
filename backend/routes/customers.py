@@ -1,9 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from typing import List
 from datetime import datetime, timezone
 from bson import ObjectId
 from core.database import db
+from core.exceptions import NotFoundError, ResourceExistsError, ValidationError
+from core.logging_config import get_logger
 from models.customer import CustomerCreate, CustomerUpdate, CustomerResponse
+
+logger = get_logger(__name__)
 
 router = APIRouter(tags=["customers"])
 
@@ -32,11 +36,11 @@ async def get_customers():
 async def get_customer(customer_id: str):
     """Get a specific customer by ID"""
     if not ObjectId.is_valid(customer_id):
-        raise HTTPException(status_code=400, detail="Invalid customer ID")
+        raise ValidationError("Invalid customer ID format", field="customer_id")
     
     customer = await db.customers.find_one({"_id": ObjectId(customer_id)})
     if not customer:
-        raise HTTPException(status_code=404, detail="Customer not found")
+        raise NotFoundError("Customer", customer_id)
     
     return customer_helper(customer)
 
@@ -57,10 +61,13 @@ async def create_customer(customer: CustomerCreate):
         "city": customer.city
     })
     if existing:
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Customer '{customer.name}' already exists in {customer.city}"
+        raise ResourceExistsError(
+            "Customer", 
+            "name/city", 
+            f"{customer.name} in {customer.city}"
         )
+    
+    logger.info(f"Creating customer {customer.name} in {customer.city}")
     
     customer_dict = customer.model_dump()
     customer_dict["created_at"] = datetime.now(timezone.utc)
@@ -69,17 +76,20 @@ async def create_customer(customer: CustomerCreate):
     result = await db.customers.insert_one(customer_dict)
     
     created_customer = await db.customers.find_one({"_id": result.inserted_id})
+    logger.info(f"Customer created with ID {result.inserted_id}")
     return customer_helper(created_customer)
 
 @router.put("/customers/{customer_id}", response_model=CustomerResponse)
 async def update_customer(customer_id: str, customer: CustomerUpdate):
     """Update a customer"""
     if not ObjectId.is_valid(customer_id):
-        raise HTTPException(status_code=400, detail="Invalid customer ID")
+        raise ValidationError("Invalid customer ID format", field="customer_id")
     
     existing = await db.customers.find_one({"_id": ObjectId(customer_id)})
     if not existing:
-        raise HTTPException(status_code=404, detail="Customer not found")
+        raise NotFoundError("Customer", customer_id)
+    
+    logger.info(f"Updating customer {customer_id}")
     
     update_data = {k: v for k, v in customer.model_dump().items() if v is not None}
     
@@ -97,12 +107,13 @@ async def update_customer(customer_id: str, customer: CustomerUpdate):
 async def delete_customer(customer_id: str):
     """Delete a customer"""
     if not ObjectId.is_valid(customer_id):
-        raise HTTPException(status_code=400, detail="Invalid customer ID")
+        raise ValidationError("Invalid customer ID format", field="customer_id")
     
     existing = await db.customers.find_one({"_id": ObjectId(customer_id)})
     if not existing:
-        raise HTTPException(status_code=404, detail="Customer not found")
+        raise NotFoundError("Customer", customer_id)
     
     await db.customers.delete_one({"_id": ObjectId(customer_id)})
+    logger.info(f"Deleted customer {customer_id}")
     
     return {"message": "Customer deleted successfully"}

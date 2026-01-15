@@ -617,7 +617,7 @@ const Services = () => {
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe the service performed..."
+                  placeholder={t("services.describeService") || "Describe the service performed..."}
                   required
                   data-testid="input-description"
                   className="mt-1"
@@ -625,12 +625,12 @@ const Services = () => {
               </div>
 
               <div>
-                <Label htmlFor="issues_found">Issues Found (Optional)</Label>
+                <Label htmlFor="issues_found">{t("services.issuesFound") || "Issues Found"} ({t("common.optional") || "Optional"})</Label>
                 <Textarea
                   id="issues_found"
                   value={formData.issues_found}
                   onChange={(e) => setFormData({ ...formData, issues_found: e.target.value })}
-                  placeholder="Note any issues discovered during service..."
+                  placeholder={t("services.noteIssues") || "Note any issues discovered during service..."}
                   data-testid="input-issues-found"
                   className="mt-1"
                 />

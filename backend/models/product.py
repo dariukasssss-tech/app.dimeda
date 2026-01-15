@@ -3,9 +3,13 @@ from typing import Optional
 import uuid
 from datetime import datetime, timezone
 
+# Valid model types for stretchers
+VALID_MODEL_TYPES = ["powered", "roll_in"]
+
 class ProductBase(BaseModel):
     serial_number: str
     model_name: str  # One of VALID_MODELS
+    model_type: str = "powered"  # "powered" (Elektriniai neštuvai) or "roll_in" (Mechaniniai neštuvai)
     city: str  # One of the 5 cities
     location_detail: Optional[str] = None  # Hospital name, ward, etc.
     notes: Optional[str] = None

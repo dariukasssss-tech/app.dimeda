@@ -30,7 +30,8 @@ class Issue(IssueBase):
     issue_code: Optional[str] = None  # Unique code: YYYY_SN_MM_DD_ORDER
     status: str = "open"  # open, in_progress, in_service, resolved
     photos: List[str] = []
-    resolution: Optional[str] = None
+    resolution: Optional[str] = None  # Inspection Note (first stage diagnosis)
+    service_note: Optional[str] = None  # Service Note (warranty repair completion)
     technician_name: Optional[str] = None
     technician_assigned_at: Optional[str] = None  # When technician was assigned
     warranty_status: Optional[str] = None

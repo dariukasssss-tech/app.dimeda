@@ -22,7 +22,8 @@ async def get_scheduled_maintenance(
     product_id: Optional[str] = None,
     status: Optional[str] = None,
     month: Optional[int] = None,
-    year: Optional[int] = None
+    year: Optional[int] = None,
+    include_pending: Optional[bool] = True
 ):
     query = {}
     if product_id:
@@ -36,9 +37,22 @@ async def get_scheduled_maintenance(
             end_date = f"{year + 1}-01-01"
         else:
             end_date = f"{year}-{month + 1:02d}-01"
-        query["scheduled_date"] = {"$gte": start_date, "$lt": end_date}
+        # Include items with scheduled_date in range OR pending_schedule items (no date)
+        if include_pending:
+            query["$or"] = [
+                {"scheduled_date": {"$gte": start_date, "$lt": end_date}},
+                {"scheduled_date": None, "status": "pending_schedule"}
+            ]
+        else:
+            query["scheduled_date"] = {"$gte": start_date, "$lt": end_date}
     elif year:
-        query["scheduled_date"] = {"$gte": f"{year}-01-01", "$lt": f"{year + 1}-01-01"}
+        if include_pending:
+            query["$or"] = [
+                {"scheduled_date": {"$gte": f"{year}-01-01", "$lt": f"{year + 1}-01-01"}},
+                {"scheduled_date": None, "status": "pending_schedule"}
+            ]
+        else:
+            query["scheduled_date"] = {"$gte": f"{year}-01-01", "$lt": f"{year + 1}-01-01"}
     
     maintenance = await db.scheduled_maintenance.find(query, {"_id": 0}).sort("scheduled_date", 1).to_list(1000)
     return maintenance

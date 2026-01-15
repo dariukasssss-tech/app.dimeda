@@ -639,28 +639,36 @@ const Products = () => {
                 {detailsLoading ? (
                   <div className="text-center py-8 text-slate-500">Loading details...</div>
                 ) : (
+                  (() => {
+                    // Filter issues: non-resolved for Issues tab, resolved for Services tab
+                    const activeIssues = productDetails.issues.filter(i => i.status !== "resolved");
+                    const resolvedIssues = productDetails.issues.filter(i => i.status === "resolved");
+                    // Filter maintenance: only yearly maintenance
+                    const yearlyMaintenance = productDetails.maintenance.filter(m => m.source === "auto_yearly");
+                    
+                    return (
                   <Tabs defaultValue="issues" className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
                       <TabsTrigger value="issues" className="flex items-center gap-1">
                         <AlertTriangle size={14} />
-                        Issues ({productDetails.issues.length})
+                        Issues ({activeIssues.length})
                       </TabsTrigger>
                       <TabsTrigger value="services" className="flex items-center gap-1">
                         <Wrench size={14} />
-                        Services ({productDetails.services.length})
+                        Services ({resolvedIssues.length})
                       </TabsTrigger>
                       <TabsTrigger value="maintenance" className="flex items-center gap-1">
                         <CalendarIcon size={14} />
-                        Maintenance ({productDetails.maintenance.length})
+                        Maintenance ({yearlyMaintenance.length})
                       </TabsTrigger>
                     </TabsList>
 
-                    {/* Issues Tab */}
+                    {/* Issues Tab - Active issues only (open, in_progress) */}
                     <TabsContent value="issues" className="mt-4">
-                      {productDetails.issues.length === 0 ? (
+                      {activeIssues.length === 0 ? (
                         <div className="text-center py-8 text-slate-500">
                           <AlertTriangle className="mx-auto text-slate-300 mb-2" size={32} />
-                          No issues reported for this product
+                          No active issues for this product
                         </div>
                       ) : (
                         <div className="space-y-3">

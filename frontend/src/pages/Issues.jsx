@@ -191,43 +191,43 @@ const Issues = () => {
         description: finalDescription,
         photos: photos,
       });
-      toast.success("Issue reported successfully");
+      toast.success(t("messages.issueCreated"));
       setDialogOpen(false);
       resetForm();
       fetchData();
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Failed to report issue");
+      toast.error(error.response?.data?.detail || t("common.error"));
     }
   };
 
   const handleStatusChange = async (issueId, newStatus) => {
     try {
       await axios.put(`${API}/issues/${issueId}`, { status: newStatus });
-      toast.success("Status updated");
+      toast.success(t("messages.issueUpdated"));
       fetchData();
     } catch (error) {
-      toast.error("Failed to update status");
+      toast.error(t("common.error"));
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this issue?")) return;
+    if (!window.confirm(t("messages.confirmDelete"))) return;
     try {
       await axios.delete(`${API}/issues/${id}`);
-      toast.success("Issue deleted");
+      toast.success(t("messages.issueDeleted"));
       fetchData();
     } catch (error) {
-      toast.error("Failed to delete issue");
+      toast.error(t("common.error"));
     }
   };
 
   const handleTechnicianChange = async (issueId, technicianName) => {
     try {
       await axios.put(`${API}/issues/${issueId}`, { technician_name: technicianName });
-      toast.success(`Assigned to ${technicianName}`);
+      toast.success(t("messages.technicianAssigned"));
       fetchData();
     } catch (error) {
-      toast.error("Failed to assign technician");
+      toast.error(t("common.error"));
     }
   };
 

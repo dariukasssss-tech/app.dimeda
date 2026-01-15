@@ -40,9 +40,6 @@ const CustomerLayout = ({ onLogout }) => {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              {/* Language Switcher */}
-              <LanguageSwitcher />
-              
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all"

@@ -452,6 +452,16 @@ const Products = () => {
                 ))}
               </SelectContent>
             </Select>
+            <Select value={modelTypeFilter} onValueChange={setModelTypeFilter}>
+              <SelectTrigger className="w-full sm:w-48" data-testid="filter-model-type">
+                <SelectValue placeholder={t("products.modelType")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("products.allTypes")}</SelectItem>
+                <SelectItem value="powered">{t("products.poweredStretcher")}</SelectItem>
+                <SelectItem value="roll_in">{t("products.rollInStretcher")}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>

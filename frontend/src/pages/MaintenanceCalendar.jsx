@@ -536,7 +536,11 @@ const MaintenanceCalendar = () => {
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded bg-purple-500"></div>
-              <span className="text-slate-600">Customer Issue</span>
+              <span className="text-slate-600">Powered Stretcher</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded bg-teal-500"></div>
+              <span className="text-slate-600">Roll-in Stretcher</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded bg-orange-500"></div>
@@ -552,7 +556,7 @@ const MaintenanceCalendar = () => {
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded bg-slate-800"></div>
-              <span className="text-slate-600">Completed</span>
+              <span className="text-slate-600">Completed/Resolved</span>
             </div>
           </div>
 

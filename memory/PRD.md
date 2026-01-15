@@ -316,3 +316,38 @@ estimated_cost, product_location, source, created_at, resolution}
 - Frontend: All UI features verified via Playwright
 - `/app/test_reports/iteration_6.json` - Full i18n feature test (100% pass)
 
+### Contact Details Feature (Jan 15, 2026)
+**Completed:**
+- Created `ContactDetailsPopup.jsx` component that shows customer contact info for issues
+- Popup fetches customers by matching product's city using `/api/customers/by-city/{city}`
+- Shows: Issue title, City, Serial Number, and Customer info (Name, Contact Person, Phone, Email, Address)
+- Phone and Email are clickable (tel: and mailto: links)
+
+**Integration Points:**
+- Admin Issues page (`/pages/Issues.jsx`) - Button on each issue card
+- Admin Services page (`/pages/Services.jsx`) - Button on In Progress, In Service, and Resolved tabs
+- Technician Calendar page (`/pages/TechnicianCalendar.jsx`) - Button on scheduled tasks
+- Technician Services page (`/pages/TechnicianServices.jsx`) - Button on issue cards
+
+**Translation Keys Added:**
+- `contacts.contactDetails` - "Contact Details" / "Kontaktinė informacija"
+- `contacts.noContactsInCity` - "No contacts found in" / "Kontaktų nerasta mieste"
+- `contacts.addCustomerFirst` - "Add a customer for this city first" / "Pirmiausia pridėkite klientą šiam miestui"
+- `issues.noInService` - "No issues in service" / "Aptarnaujamų problemų nėra"
+- `issues.warrantyServiceDescription` - Warranty service placeholder text
+- `issues.viewTrack` - "View Track" / "Peržiūrėti istoriją"
+
+**Test Results:**
+- Backend: 8/8 tests passed (`/app/tests/test_contact_details.py`)
+- Frontend: All Contact Details features verified via Playwright
+- `/app/test_reports/iteration_7.json` - Contact Details feature test (100% pass)
+
+### Component Refactoring Started (Jan 15, 2026)
+**New Components Created:**
+- `/components/issues/IssueCard.jsx` - Reusable issue card component
+- `/components/issues/ResolvedIssueCard.jsx` - Card for resolved issues
+- `/components/issues/InServiceIssueCard.jsx` - Card for in-service issues
+- `/components/issues/index.js` - Index exports for issue components
+
+**Note:** These components are ready for gradual adoption. Large files (Services.jsx 1559 lines, TechnicianCalendar.jsx 1096 lines, MaintenanceCalendar.jsx 1218 lines) can be incrementally refactored to use these shared components.
+

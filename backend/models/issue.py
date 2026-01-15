@@ -74,6 +74,8 @@ class IssueUpdate(BaseModel):
     # Spare parts tracking
     spare_parts_used: Optional[bool] = None
     spare_parts: Optional[str] = None
+    # Service Note (warranty repair completion)
+    service_note: Optional[str] = None
     # Repair actions
     start_repair: Optional[bool] = None  # Start a new repair attempt
     complete_repair: Optional[bool] = None  # Complete current repair attempt

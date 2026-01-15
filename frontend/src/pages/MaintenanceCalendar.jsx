@@ -233,19 +233,21 @@ const MaintenanceCalendar = () => {
     return product?.city || "";
   };
 
-  // Apply both city and technician filters
-  const filteredMaintenance = maintenanceItems.filter((item) => {
-    const cityMatch = cityFilter === "all" || getProductCity(item.product_id) === cityFilter;
-    let techMatch = true;
-    if (technicianFilter === "all") {
-      techMatch = true;
-    } else if (technicianFilter === "unassigned") {
-      techMatch = !item.technician_name;
-    } else {
-      techMatch = item.technician_name === technicianFilter;
-    }
-    return cityMatch && techMatch;
-  });
+  // Apply both city and technician filters, then sort by created_at (newest first)
+  const filteredMaintenance = maintenanceItems
+    .filter((item) => {
+      const cityMatch = cityFilter === "all" || getProductCity(item.product_id) === cityFilter;
+      let techMatch = true;
+      if (technicianFilter === "all") {
+        techMatch = true;
+      } else if (technicianFilter === "unassigned") {
+        techMatch = !item.technician_name;
+      } else {
+        techMatch = item.technician_name === technicianFilter;
+      }
+      return cityMatch && techMatch;
+    })
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   // Calculate statistics by technician (includes maintenance, issues, and services)
   const getTechnicianStats = (techName) => {

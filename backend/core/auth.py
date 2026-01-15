@@ -20,8 +20,12 @@ valid_customer_tokens = set()
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        # Skip auth for login endpoints and CORS preflight
+        # Skip auth for login endpoints, CORS preflight, and translations
         if request.url.path in ["/api/auth/login", "/api/auth/customer-login", "/api/auth/technician-login", "/api/auth/check", "/api/auth/logout"]:
+            return await call_next(request)
+        
+        # Skip auth for translations endpoints (public)
+        if request.url.path.startswith("/api/translations"):
             return await call_next(request)
         
         if request.method == "OPTIONS":

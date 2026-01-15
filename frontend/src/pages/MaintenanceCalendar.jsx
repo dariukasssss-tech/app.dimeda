@@ -1018,7 +1018,8 @@ const MaintenanceCalendar = () => {
                     </DropdownMenu>
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
           )}
         </CardContent>

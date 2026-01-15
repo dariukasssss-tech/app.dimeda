@@ -399,7 +399,7 @@ async def get_issue_track(issue_id: str):
     """Get full tracking history for an issue including parent/child warranty service issues"""
     issue = await db.issues.find_one({"id": issue_id}, {"_id": 0})
     if not issue:
-        raise HTTPException(status_code=404, detail="Issue not found")
+        raise NotFoundError("Issue", issue_id)
     
     track = {
         "original_issue": None,

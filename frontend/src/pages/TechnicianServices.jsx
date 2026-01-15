@@ -787,11 +787,21 @@ const TechnicianServices = ({ selectedTechnician }) => {
                 </Button>
                 <Button
                   onClick={handleResolveIssue}
-                  className={resolveData.warranty_service_type === "warranty" ? "bg-orange-600 hover:bg-orange-700" : "bg-emerald-600 hover:bg-emerald-700"}
+                  className={
+                    selectedIssue?.status === "in_progress" && selectedIssue?.warranty_service_type === "warranty"
+                      ? "bg-emerald-600 hover:bg-emerald-700"
+                      : resolveData.warranty_service_type === "warranty" 
+                        ? "bg-orange-600 hover:bg-orange-700" 
+                        : "bg-emerald-600 hover:bg-emerald-700"
+                  }
                   disabled={!resolveData.warranty_service_type || !resolveData.resolution.trim()}
                   data-testid="confirm-resolve-btn"
                 >
-                  {resolveData.warranty_service_type === "warranty" ? "Start Warranty Repair" : "Resolve Issue"}
+                  {selectedIssue?.status === "in_progress" && selectedIssue?.warranty_service_type === "warranty"
+                    ? "Complete Service"
+                    : resolveData.warranty_service_type === "warranty" 
+                      ? "Start Warranty Repair" 
+                      : "Resolve Issue"}
                 </Button>
               </div>
             </div>

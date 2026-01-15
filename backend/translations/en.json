@@ -203,18 +203,6 @@
     "slaExpired": "SLA Expired",
     "deadline24h": "24-hour deadline"
   },
-  "messages": {
-    "issueCreated": "Issue created successfully",
-    "issueUpdated": "Issue updated successfully",
-    "issueDeleted": "Issue deleted successfully",
-    "issueResolved": "Issue resolved successfully",
-    "repairStarted": "Started working on repair",
-    "repairCompleted": "Repair completed - Issue resolved",
-    "movedToServiceRecords": "Issue moved to Service Records",
-    "technicianAssigned": "Technician assigned successfully",
-    "taskMarkedInProgress": "Task marked as In Progress",
-    "confirmDelete": "Are you sure you want to delete this item?"
-  },
   "validation": {
     "required": "This field is required",
     "invalidEmail": "Invalid email address",

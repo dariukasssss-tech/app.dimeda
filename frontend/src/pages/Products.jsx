@@ -664,44 +664,128 @@ const Products = () => {
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          {productDetails.issues.map((issue) => (
-                            <Card key={issue.id} className="border-l-4" style={{ borderLeftColor: issue.status === "resolved" ? "#10B981" : issue.status === "in_progress" ? "#3B82F6" : "#F59E0B" }}>
-                              <CardContent className="pt-4">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <h4 className="font-medium">{issue.title}</h4>
-                                      <Badge className={getStatusColor(issue.status)}>
-                                        {issue.status.replace("_", " ")}
-                                      </Badge>
-                                      <Badge className={getSeverityColor(issue.severity)}>
-                                        {issue.severity}
-                                      </Badge>
-                                      {issue.warranty_status && (
-                                        <Badge className={issue.warranty_status === "warranty" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
-                                          {issue.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
+                          {productDetails.issues.map((issue) => {
+                            const isRollIn = selectedProduct?.model_type === "roll_in";
+                            const isResolved = issue.status === "resolved";
+                            // Calculate SLA only for powered stretchers
+                            const sla = !isRollIn && !isResolved ? calculateSLARemaining(issue) : null;
+                            
+                            // Border color logic matching Maintenance tab
+                            const getBorderColor = () => {
+                              if (isResolved) return "#1F2937"; // dark gray for resolved
+                              if (isRollIn) return "#14B8A6"; // teal for roll-in
+                              if (issue.source === "customer") return "#A855F7"; // purple for customer
+                              if (issue.status === "in_progress") return "#3B82F6"; // blue for in progress
+                              return "#F59E0B"; // amber for open
+                            };
+                            
+                            return (
+                              <Card 
+                                key={issue.id} 
+                                className="border-l-4" 
+                                style={{ borderLeftColor: getBorderColor() }}
+                              >
+                                <CardContent className="pt-4">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        {/* Customer badge */}
+                                        {issue.source === "customer" && (
+                                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                            Customer Reported
+                                          </span>
+                                        )}
+                                        {/* Roll-in Stretcher badge */}
+                                        {isRollIn && (
+                                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800">
+                                            Roll-in
+                                          </span>
+                                        )}
+                                        {/* Issue Code */}
+                                        {issue.issue_code && (
+                                          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-600 text-xs font-mono">
+                                            {issue.issue_code}
+                                          </span>
+                                        )}
+                                        <Badge className={getStatusColor(issue.status)}>
+                                          {issue.status.replace("_", " ")}
                                         </Badge>
-                                      )}
-                                    </div>
-                                    <p className="text-sm text-slate-500 mt-1">
-                                      {issue.issue_type}
-                                      {issue.technician_name && <span className="ml-2 text-[#0066CC]">• {issue.technician_name}</span>}
-                                    </p>
-                                    <p className="text-sm text-slate-600 mt-2">{issue.description}</p>
-                                    {issue.resolution && (
-                                      <div className="mt-2 p-2 bg-emerald-50 rounded text-sm text-emerald-800">
-                                        <strong>Resolution:</strong> {issue.resolution}
+                                        <Badge className={getSeverityColor(issue.severity)}>
+                                          {issue.severity}
+                                        </Badge>
+                                        {/* SLA priority badge for powered stretchers */}
+                                        {issue.source === "customer" && !isRollIn && !isResolved && (
+                                          <Badge className={issue.sla_hours === 12 || !issue.sla_hours ? "bg-orange-100 text-orange-800" : "bg-red-100 text-red-800"}>
+                                            {issue.sla_hours || 12}h
+                                          </Badge>
+                                        )}
                                       </div>
-                                    )}
-                                    <p className="text-xs text-slate-400 mt-2">
-                                      Reported: {new Date(issue.created_at).toLocaleString()}
-                                      {issue.resolved_at && ` • Resolved: ${new Date(issue.resolved_at).toLocaleString()}`}
-                                    </p>
+                                      
+                                      <h4 className="font-medium mt-2">{issue.title}</h4>
+                                      
+                                      <p className="text-sm text-slate-500 mt-1">
+                                        {issue.issue_type}
+                                        {issue.warranty_status && (
+                                          <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                                            issue.warranty_status === "warranty" 
+                                              ? "bg-green-100 text-green-800" 
+                                              : "bg-gray-100 text-gray-800"
+                                          }`}>
+                                            {issue.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
+                                          </span>
+                                        )}
+                                      </p>
+                                      
+                                      {/* Technician Assignment with SLA Timer */}
+                                      <div className="flex items-center gap-2 mt-2">
+                                        <User size={14} className="text-slate-400" />
+                                        {issue.technician_name ? (
+                                          <span className="text-sm text-[#0066CC] font-medium">
+                                            {issue.technician_name}
+                                          </span>
+                                        ) : (
+                                          <span className="text-sm text-slate-400 italic">Unassigned</span>
+                                        )}
+                                        
+                                        {/* SLA Timer for customer issues with technician assigned (powered only) */}
+                                        {sla && (
+                                          <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${
+                                            sla.expired ? "bg-red-500 text-white" : 
+                                            sla.urgent ? "bg-orange-500 text-white" : 
+                                            "bg-amber-100 text-amber-800"
+                                          }`}>
+                                            <Timer size={12} />
+                                            {sla.text}
+                                          </span>
+                                        )}
+                                      </div>
+                                      
+                                      {/* Contact Details Popup */}
+                                      <div className="mt-2">
+                                        <ContactDetailsPopup 
+                                          issue={issue} 
+                                          products={products}
+                                        />
+                                      </div>
+                                      
+                                      <p className="text-sm text-slate-600 mt-2">{issue.description}</p>
+                                      
+                                      {issue.resolution && (
+                                        <div className="mt-2 p-2 bg-emerald-50 rounded text-sm text-emerald-800">
+                                          <strong>Resolution:</strong> {issue.resolution}
+                                        </div>
+                                      )}
+                                      
+                                      <p className="text-xs text-slate-400 mt-2">
+                                        Reported: {new Date(issue.created_at).toLocaleString()}
+                                        {issue.resolved_at && ` • Resolved: ${new Date(issue.resolved_at).toLocaleString()}`}
+                                      </p>
+                                    </div>
                                   </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
                         </div>
                       )}
                     </TabsContent>

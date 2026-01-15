@@ -290,6 +290,21 @@ const Products = () => {
                 </Select>
               </div>
               <div>
+                <Label>{t("products.modelType")} *</Label>
+                <Select
+                  value={formData.model_type}
+                  onValueChange={(value) => setFormData({ ...formData, model_type: value })}
+                >
+                  <SelectTrigger className="mt-1" data-testid="select-model-type">
+                    <SelectValue placeholder={t("products.modelType")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="powered">{t("products.poweredStretcher")}</SelectItem>
+                    <SelectItem value="roll_in">{t("products.rollInStretcher")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label>{t("products.city")} *</Label>
                 <Select
                   value={formData.city}

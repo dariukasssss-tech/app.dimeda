@@ -986,6 +986,12 @@ const MaintenanceCalendar = () => {
                             Customer Issue
                           </Badge>
                         )}
+                        {/* Roll-in Stretcher indicator */}
+                        {item.source === "customer_issue" && isRollIn && (
+                          <Badge className="text-xs bg-teal-100 text-teal-800">
+                            Roll-in
+                          </Badge>
+                        )}
                         {/* SLA Time Remaining for customer issues */}
                         {item.source === "customer_issue" && item.status !== "completed" && linkedIssue?.status !== "resolved" && (() => {
                           const sla = calculateSLARemaining(item);

@@ -557,13 +557,13 @@ const Services = () => {
               </div>
 
               <div>
-                <Label htmlFor="technician_name">Technician Name *</Label>
+                <Label htmlFor="technician_name">{t("services.technicianName") || "Technician Name"} *</Label>
                 <Select
                   value={formData.technician_name}
                   onValueChange={(value) => setFormData({ ...formData, technician_name: value })}
                 >
                   <SelectTrigger className="mt-1" data-testid="select-technician">
-                    <SelectValue placeholder="Select technician" />
+                    <SelectValue placeholder={t("services.selectTechnician") || "Select technician"} />
                   </SelectTrigger>
                   <SelectContent>
                     {TECHNICIANS.map((tech) => (

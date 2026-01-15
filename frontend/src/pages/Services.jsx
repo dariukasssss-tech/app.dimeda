@@ -1173,14 +1173,14 @@ const Services = () => {
                 </div>
               )}
               
-              {/* Resolution Note */}
+              {/* Inspection Note (first stage diagnosis) */}
               <div>
-                <Label htmlFor="resolution">Resolution Note *</Label>
+                <Label htmlFor="resolution">Inspection Note *</Label>
                 <Textarea
                   id="resolution"
                   value={resolveData.resolution}
                   onChange={(e) => setResolveData({ ...resolveData, resolution: e.target.value })}
-                  placeholder="Describe how the issue was resolved..."
+                  placeholder="Describe the inspection findings and diagnosis..."
                   className="mt-1"
                   rows={4}
                   data-testid="resolve-note"

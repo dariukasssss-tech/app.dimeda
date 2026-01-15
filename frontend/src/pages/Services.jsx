@@ -355,9 +355,9 @@ const Services = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-            Service & Issues
+            {t("services.title")} & {t("issues.title")}
           </h1>
-          <p className="text-slate-500 mt-1">Manage in-progress issues and service records</p>
+          <p className="text-slate-500 mt-1">{t("services.manageIssues") || "Manage in-progress issues and service records"}</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetDialogState(); }}>
           <DialogTrigger asChild>

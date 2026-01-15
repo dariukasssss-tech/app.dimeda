@@ -417,3 +417,32 @@ estimated_cost, product_location, source, created_at, resolution}
 
 **Note:** These components are ready for gradual adoption. Large files (Services.jsx 1559 lines, TechnicianCalendar.jsx 1096 lines, MaintenanceCalendar.jsx 1218 lines) can be incrementally refactored to use these shared components.
 
+### Two-Stage Note System (Jan 15, 2026) - VERIFIED ✓
+**Feature Completed:**
+- Warranty repairs now support a two-stage note system:
+  1. **Inspection Note** - Initial diagnosis recorded when issue is first marked for warranty service
+  2. **Service Note** - Final service work recorded when warranty repair is completed
+
+**Backend Changes:**
+- Added `service_note` field to Issue model (`/backend/models/issue.py`)
+- PUT `/api/issues/{id}` endpoint updated to accept and store `service_note` separately from `resolution` (Inspection Note)
+
+**Frontend Changes:**
+- `ResolvedIssueCard.jsx` - Displays both notes with distinct styling:
+  - Inspection Note: Blue box with FileText icon
+  - Service Note: Orange box with Wrench icon
+- `TechnicianServices.jsx` - Updated resolve dialog:
+  - First-stage resolution: Captures "Inspection Note" in `resolution` field
+  - Completing warranty repair: Captures "Service Note" in `service_note` field
+  - Dialog title changes based on context ("Resolve Issue" vs "Complete Warranty Service")
+
+**Test Results:**
+- Verified via screenshot: Admin Services → Resolved tab shows both notes
+- Example issue (KNS-001_01_15_3): Shows "Initial diagnosis: Wheel axle is bent" (Inspection) and "Replaced damaged wheel axle..." (Service)
+
+### Spare Parts Tracking (Jan 15, 2026)
+**Feature Completed:**
+- Added "Spare parts used" checkbox and textarea to the Resolve Issue dialog
+- Backend stores: `spare_parts_used` (boolean), `spare_parts` (string)
+- ResolvedIssueCard displays "Spare Parts Used" badge and parts list when applicable
+

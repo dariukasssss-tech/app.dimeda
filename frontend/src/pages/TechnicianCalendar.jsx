@@ -135,6 +135,36 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
     }
   };
 
+  // Schedule a Roll-in Stretcher task
+  const handleScheduleRollIn = async () => {
+    if (!selectedTask || !scheduleDate) {
+      toast.error("Please select a date");
+      return;
+    }
+    
+    setIsScheduling(true);
+    try {
+      // Combine date and time
+      const dateStr = format(scheduleDate, "yyyy-MM-dd");
+      const scheduledDateTime = `${dateStr}T${scheduleTime}:00`;
+      
+      await axios.put(`${API}/scheduled-maintenance/${selectedTask.id}`, {
+        scheduled_date: scheduledDateTime,
+        status: "scheduled"
+      });
+      
+      toast.success("Task scheduled successfully!");
+      setTaskDetailOpen(false);
+      setScheduleDate(null);
+      setScheduleTime("09:00");
+      fetchData(); // Refresh data
+    } catch (error) {
+      toast.error("Failed to schedule task");
+    } finally {
+      setIsScheduling(false);
+    }
+  };
+
   // Get linked issue for a maintenance item
   const getLinkedIssue = (maintenanceItem) => {
     if (!maintenanceItem.issue_id) return null;

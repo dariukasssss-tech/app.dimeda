@@ -798,55 +798,121 @@ const Products = () => {
                       )}
                     </TabsContent>
 
-                    {/* Services Tab */}
+                    {/* Services Tab - Resolved issues with detailed resolution info */}
                     <TabsContent value="services" className="mt-4">
-                      {productDetails.services.length === 0 ? (
+                      {resolvedIssues.length === 0 ? (
                         <div className="text-center py-8 text-slate-500">
                           <Wrench className="mx-auto text-slate-300 mb-2" size={32} />
-                          No service records for this product
+                          No resolved service records
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          {productDetails.services.map((service) => (
-                            <Card key={service.id}>
-                              <CardContent className="pt-4">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <Badge variant="outline" className="capitalize">{service.service_type}</Badge>
-                                      <span className="text-sm text-slate-500">
-                                        {new Date(service.service_date).toLocaleDateString()}
-                                      </span>
-                                      {service.warranty_status && (
-                                        <Badge className={service.warranty_status === "warranty" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
-                                          {service.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
+                          {resolvedIssues.map((issue) => {
+                            const isRollIn = selectedProduct?.model_type === "roll_in";
+                            
+                            return (
+                              <Card 
+                                key={issue.id} 
+                                className="border-l-4" 
+                                style={{ borderLeftColor: "#10B981" }} // Green for resolved
+                              >
+                                <CardContent className="pt-4">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        {/* Customer badge */}
+                                        {issue.source === "customer" && (
+                                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                            Customer Reported
+                                          </span>
+                                        )}
+                                        {/* Roll-in Stretcher badge */}
+                                        {isRollIn && (
+                                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800">
+                                            Roll-in
+                                          </span>
+                                        )}
+                                        {/* Issue Code */}
+                                        {issue.issue_code && (
+                                          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-600 text-xs font-mono">
+                                            {issue.issue_code}
+                                          </span>
+                                        )}
+                                        <Badge className="bg-emerald-100 text-emerald-800">
+                                          resolved
                                         </Badge>
-                                      )}
-                                    </div>
-                                    <p className="text-sm text-slate-600 mt-2">{service.description}</p>
-                                    {service.issues_found && (
-                                      <div className="mt-2 p-2 bg-amber-50 rounded text-sm text-amber-800">
-                                        <strong>Issues Found:</strong> {service.issues_found}
+                                        <Badge className={getSeverityColor(issue.severity)}>
+                                          {issue.severity}
+                                        </Badge>
+                                        {issue.warranty_status && (
+                                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                            issue.warranty_status === "warranty" 
+                                              ? "bg-green-100 text-green-800" 
+                                              : "bg-gray-100 text-gray-800"
+                                          }`}>
+                                            {issue.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
+                                          </span>
+                                        )}
                                       </div>
-                                    )}
-                                    <p className="text-xs text-slate-400 mt-2">
-                                      Technician: {service.technician_name}
-                                    </p>
+                                      
+                                      <h4 className="font-medium mt-2">{issue.title}</h4>
+                                      
+                                      <p className="text-sm text-slate-500 mt-1">{issue.issue_type}</p>
+                                      
+                                      {/* Technician info */}
+                                      <div className="flex items-center gap-2 mt-2">
+                                        <User size={14} className="text-slate-400" />
+                                        {issue.technician_name ? (
+                                          <span className="text-sm text-[#0066CC] font-medium">
+                                            {issue.technician_name}
+                                          </span>
+                                        ) : (
+                                          <span className="text-sm text-slate-400 italic">Unassigned</span>
+                                        )}
+                                      </div>
+                                      
+                                      {/* Contact Details Popup */}
+                                      <div className="mt-2">
+                                        <ContactDetailsPopup 
+                                          issue={issue} 
+                                          products={products}
+                                        />
+                                      </div>
+                                      
+                                      <p className="text-sm text-slate-600 mt-2">{issue.description}</p>
+                                      
+                                      {/* Resolution - prominently displayed for Services */}
+                                      {issue.resolution && (
+                                        <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                                          <p className="text-sm font-medium text-emerald-900 mb-1">Resolution:</p>
+                                          <p className="text-sm text-emerald-800">{issue.resolution}</p>
+                                        </div>
+                                      )}
+                                      
+                                      <p className="text-xs text-slate-400 mt-3">
+                                        Reported: {new Date(issue.created_at).toLocaleString()}
+                                        {issue.resolved_at && (
+                                          <span className="ml-2 text-emerald-600 font-medium">
+                                            • Resolved: {new Date(issue.resolved_at).toLocaleString()}
+                                          </span>
+                                        )}
+                                      </p>
+                                    </div>
                                   </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
                         </div>
                       )}
                     </TabsContent>
 
-                    {/* Maintenance Tab */}
+                    {/* Maintenance Tab - Only yearly/routine maintenance */}
                     <TabsContent value="maintenance" className="mt-4">
-                      {productDetails.maintenance.length === 0 ? (
+                      {yearlyMaintenance.length === 0 ? (
                         <div className="text-center py-8 text-slate-500">
                           <CalendarIcon className="mx-auto text-slate-300 mb-2" size={32} />
-                          No scheduled maintenance
+                          No scheduled yearly maintenance
                         </div>
                       ) : (
                         <div className="space-y-3">

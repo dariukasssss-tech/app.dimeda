@@ -666,35 +666,37 @@ const TechnicianServices = ({ selectedTechnician }) => {
                 )}
               </div>
               
-              {/* Service Type */}
-              <div>
-                <Label>Service Type *</Label>
-                <Select
-                  value={resolveData.warranty_service_type}
-                  onValueChange={(value) => setResolveData({ ...resolveData, warranty_service_type: value })}
-                >
-                  <SelectTrigger className="mt-1" data-testid="service-type-select">
-                    <SelectValue placeholder="Select service type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="warranty">
-                      <div className="flex items-center gap-2">
-                        <Shield size={14} className="text-green-600" />
-                        Warranty Service
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="non_warranty">
-                      <div className="flex items-center gap-2">
-                        <ShieldOff size={14} className="text-gray-600" />
-                        Non-Warranty Service
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Service Type - only show for first-time resolution, hide for warranty repair completion */}
+              {!(selectedIssue?.status === "in_progress" && selectedIssue?.warranty_service_type === "warranty") && (
+                <div>
+                  <Label>Service Type *</Label>
+                  <Select
+                    value={resolveData.warranty_service_type}
+                    onValueChange={(value) => setResolveData({ ...resolveData, warranty_service_type: value })}
+                  >
+                    <SelectTrigger className="mt-1" data-testid="service-type-select">
+                      <SelectValue placeholder="Select service type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="warranty">
+                        <div className="flex items-center gap-2">
+                          <Shield size={14} className="text-green-600" />
+                          Warranty Service
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="non_warranty">
+                        <div className="flex items-center gap-2">
+                          <ShieldOff size={14} className="text-gray-600" />
+                          Non-Warranty Service
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               
-              {/* Warranty Service Info */}
-              {resolveData.warranty_service_type === "warranty" && (
+              {/* Warranty Service Info - only for first-time warranty selection */}
+              {resolveData.warranty_service_type === "warranty" && !(selectedIssue?.status === "in_progress" && selectedIssue?.warranty_service_type === "warranty") && (
                 <div className="p-4 bg-orange-50 rounded-xl border border-orange-200">
                   <div className="flex items-center gap-2 text-orange-800 mb-2">
                     <AlertTriangle size={18} />

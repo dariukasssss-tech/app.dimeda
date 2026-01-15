@@ -1001,8 +1001,8 @@ const Services = () => {
               <Card>
                 <CardContent className="py-12 text-center">
                   <Shield className="mx-auto text-slate-300" size={48} />
-                  <p className="text-slate-500 mt-4">No issues in service</p>
-                  <p className="text-sm text-slate-400 mt-1">Warranty service issues will appear here</p>
+                  <p className="text-slate-500 mt-4">{t("issues.noInService") || "No issues in service"}</p>
+                  <p className="text-sm text-slate-400 mt-1">{t("issues.warrantyServiceDescription") || "Warranty service issues will appear here"}</p>
                 </CardContent>
               </Card>
             )}

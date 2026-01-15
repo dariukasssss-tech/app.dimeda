@@ -257,7 +257,28 @@ const CustomerDashboard = () => {
                 </Select>
               </div>
 
-              {/* Product - Filtered by city */}
+              {/* Model Type Filter */}
+              <div>
+                <Label>{t("products.modelType")}</Label>
+                <Select
+                  value={selectedModelType}
+                  onValueChange={(value) => {
+                    setSelectedModelType(value);
+                    setFormData({ ...formData, product_id: "" }); // Reset product when type changes
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={t("products.allTypes")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">{t("products.allTypes")}</SelectItem>
+                    <SelectItem value="powered">{t("products.poweredStretcher")}</SelectItem>
+                    <SelectItem value="roll_in">{t("products.rollInStretcher")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Product - Filtered by city and model type */}
               <div>
                 <Label>{t("products.serialNumber")} *</Label>
                 <Select
@@ -276,7 +297,7 @@ const CustomerDashboard = () => {
                     ) : (
                       filteredProducts.map((product) => (
                         <SelectItem key={product.id} value={product.id}>
-                          {product.serial_number} - {product.model_name}
+                          {product.serial_number}
                         </SelectItem>
                       ))
                     )}

@@ -808,59 +808,14 @@ const Services = () => {
               ) : (
                 <div className="space-y-4">
                   {resolvedWarrantyIssues.map((issue) => (
-                    <Card 
-                      key={issue.id} 
-                      className="border-l-4 border-green-500 cursor-pointer hover:shadow-md transition-shadow"
+                    <ResolvedIssueCard
+                      key={issue.id}
+                      issue={issue}
+                      products={products}
                       onClick={() => fetchIssueTrack(issue.id)}
-                      data-testid={`resolved-warranty-${issue.id}`}
-                    >
-                      <CardContent className="pt-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {issue.issue_code && (
-                                <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
-                                  {issue.issue_code}
-                                </span>
-                              )}
-                              <Badge className="bg-emerald-100 text-emerald-800">
-                                <CheckCircle size={12} className="mr-1" />
-                                Resolved
-                              </Badge>
-                              <Badge className="bg-green-100 text-green-800">
-                                <Shield size={12} className="mr-1" />
-                                Warranty
-                              </Badge>
-                            </div>
-                            <h3 className="text-lg font-semibold text-slate-900 mt-2">{issue.title}</h3>
-                            <div className="text-sm text-slate-500 mt-1">
-                              <span>S/N: {getProductSerial(issue.product_id)}</span>
-                              <span className="mx-2">•</span>
-                              <span>{getProductCity(issue.product_id)}</span>
-                            </div>
-                            {issue.resolution && (
-                              <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded line-clamp-2">
-                                <strong>Resolution:</strong> {issue.resolution}
-                              </p>
-                            )}
-                            {issue.resolved_at && (
-                              <p className="text-xs text-slate-400 mt-2">
-                                Resolved: {new Date(issue.resolved_at).toLocaleString()}
-                              </p>
-                            )}
-                            <p className="text-xs text-blue-600 mt-1">Click to view full track</p>
-                            
-                            {/* Contact Details Button */}
-                            <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-                              <ContactDetailsPopup 
-                                issue={issue} 
-                                products={products}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      isWarranty={true}
+                      showContactDetails={true}
+                    />
                   ))}
                 </div>
               )}
@@ -881,63 +836,13 @@ const Services = () => {
               ) : (
                 <div className="space-y-4">
                   {resolvedNonWarrantyIssues.map((issue) => (
-                    <Card 
-                      key={issue.id} 
-                      className="border-l-4 border-gray-400"
-                      data-testid={`resolved-non-warranty-${issue.id}`}
-                    >
-                      <CardContent className="pt-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {issue.issue_code && (
-                                <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
-                                  {issue.issue_code}
-                                </span>
-                              )}
-                              <Badge className="bg-emerald-100 text-emerald-800">
-                                <CheckCircle size={12} className="mr-1" />
-                                Resolved
-                              </Badge>
-                              <Badge className="bg-gray-100 text-gray-800">
-                                <ShieldOff size={12} className="mr-1" />
-                                Non-Warranty
-                              </Badge>
-                            </div>
-                            <h3 className="text-lg font-semibold text-slate-900 mt-2">{issue.title}</h3>
-                            <div className="text-sm text-slate-500 mt-1">
-                              <span>S/N: {getProductSerial(issue.product_id)}</span>
-                              <span className="mx-2">•</span>
-                              <span>{getProductCity(issue.product_id)}</span>
-                            </div>
-                            {issue.resolution && (
-                              <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded line-clamp-2">
-                                <strong>Resolution:</strong> {issue.resolution}
-                              </p>
-                            )}
-                            {(issue.estimated_fix_time || issue.estimated_cost) && (
-                              <div className="flex gap-4 text-sm text-slate-600 mt-2">
-                                {issue.estimated_fix_time && <span>Time: {issue.estimated_fix_time}h</span>}
-                                {issue.estimated_cost && <span>Cost: {issue.estimated_cost} Eur</span>}
-                              </div>
-                            )}
-                            {issue.resolved_at && (
-                              <p className="text-xs text-slate-400 mt-2">
-                                Resolved: {new Date(issue.resolved_at).toLocaleString()}
-                              </p>
-                            )}
-                            
-                            {/* Contact Details Button */}
-                            <div className="mt-3">
-                              <ContactDetailsPopup 
-                                issue={issue} 
-                                products={products}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <ResolvedIssueCard
+                      key={issue.id}
+                      issue={issue}
+                      products={products}
+                      isWarranty={false}
+                      showContactDetails={true}
+                    />
                   ))}
                 </div>
               )}

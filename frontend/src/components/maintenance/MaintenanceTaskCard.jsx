@@ -96,14 +96,20 @@ const MaintenanceTaskCard = ({
 }) => {
   const isRollIn = product?.model_type === "roll_in";
   const isPendingSchedule = item.status === "pending_schedule";
-  const isWarrantyRepair = item.source === "warranty_service" || linkedIssue?.is_warranty_route;
+  const isWarrantyRepair = item.source === "warranty_service" || linkedIssue?.is_warranty_route || linkedIssue?.warranty_service_type === "warranty";
   const isResolved = linkedIssue?.status === "resolved";
   const canStartWork = item.source === "customer_issue" && item.status === "scheduled" && linkedIssue && !isResolved && !isRollIn;
   const canStartRollInWork = item.source === "customer_issue" && item.status === "scheduled" && linkedIssue && !isResolved && isRollIn;
   const canContinueRepair = isWarrantyRepair && item.status === "scheduled" && linkedIssue && !isResolved;
   
-  const sla = !isRollIn && !isResolved && item.source === "customer_issue" && item.status !== "completed" 
+  // SLA timer for customer issues (12h) - NOT for warranty repairs or Roll-in
+  const sla = !isRollIn && !isResolved && !isWarrantyRepair && item.source === "customer_issue" && item.status !== "completed" 
     ? calculateSLARemaining(item) 
+    : null;
+  
+  // Repair timer for warranty service issues (24h) - orange color
+  const repairTimer = isWarrantyRepair && !isResolved && linkedIssue
+    ? calculateRepairTimeRemaining(linkedIssue)
     : null;
 
   const getBorderColor = () => {

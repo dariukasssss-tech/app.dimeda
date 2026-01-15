@@ -3,12 +3,15 @@ import { Routes, Route, NavLink } from "react-router-dom";
 import axios from "axios";
 import { API, clearAuthToken, getSelectedTechnician, setSelectedTechnician } from "@/App";
 import { toast } from "sonner";
+import { useTranslation } from "@/contexts/TranslationContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { LayoutDashboard, CalendarDays, Wrench, LogOut, User } from "lucide-react";
 import TechnicianDashboard from "@/pages/TechnicianDashboard";
 import TechnicianCalendar from "@/pages/TechnicianCalendar";
 import TechnicianServices from "@/pages/TechnicianServices";
 
 const TechnicianLayout = ({ onLogout }) => {
+  const { t } = useTranslation();
   const [selectedTechnicianState, setSelectedTechnicianState] = useState(getSelectedTechnician() || "");
 
   const handleTechnicianChange = (tech) => {
@@ -23,14 +26,14 @@ const TechnicianLayout = ({ onLogout }) => {
       console.error("Logout error:", error);
     }
     clearAuthToken();
-    toast.success("Logged out successfully");
+    toast.success(t("auth.loginSuccess").replace("successful", "out"));
     onLogout();
   };
 
   const navItems = [
-    { path: "/technician", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/technician/calendar", label: "Calendar", icon: CalendarDays },
-    { path: "/technician/services", label: "Services", icon: Wrench },
+    { path: "/technician", label: t("navigation.dashboard"), icon: LayoutDashboard },
+    { path: "/technician/calendar", label: t("navigation.calendar"), icon: CalendarDays },
+    { path: "/technician/services", label: t("navigation.services"), icon: Wrench },
   ];
 
   return (
@@ -47,8 +50,8 @@ const TechnicianLayout = ({ onLogout }) => {
                   className="h-10 w-auto"
                 />
                 <div>
-                  <h1 className="text-lg font-bold text-emerald-600" style={{ fontFamily: 'Manrope, sans-serif' }}>Dimeda Technician</h1>
-                  <p className="text-xs text-slate-500">Service View</p>
+                  <h1 className="text-lg font-bold text-emerald-600" style={{ fontFamily: 'Manrope, sans-serif' }}>{t("technician.title")}</h1>
+                  <p className="text-xs text-slate-500">{t("navigation.services")}</p>
                 </div>
               </div>
               
@@ -82,12 +85,16 @@ const TechnicianLayout = ({ onLogout }) => {
                   <span className="text-sm font-medium text-emerald-700">{selectedTechnicianState}</span>
                 </div>
               )}
+              
+              {/* Language Switcher */}
+              <LanguageSwitcher />
+              
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all"
               >
                 <LogOut size={18} />
-                Logout
+                {t("auth.logout")}
               </button>
             </div>
           </div>

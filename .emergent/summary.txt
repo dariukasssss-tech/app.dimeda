@@ -2,73 +2,76 @@
 
 **PRODUCT REQUIREMENTS:**
 -   **Role-Based Access:** Admin, Technician, and Customer portals with specific permissions.
--   **Issue Management:** A complete lifecycle for reporting, tracking, and resolving issues. This includes a parent-child issue relationship where a parent issue is automatically resolved when all its children are.
--   **Product Types:** Products are categorized as Powered Stretchers or Roll-in Stretchers. This distinction drives different business logic.
+-   **Issue Management:** A complete lifecycle for reporting, tracking, and resolving issues. This includes a parent-child issue relationship and a two-stage resolution process for warranty repairs, capturing both an initial Inspection Note and a final Service Note.
+-   **Product Types:** Products are categorized as Powered Stretchers or Roll-in Stretchers. This distinction drives different business logic for SLAs and scheduling.
 -   **SLA & Scheduling Workflow:**
     -   SLA timers apply **only** to Powered Stretchers.
-    -   SLA timers are hidden for any issue with a resolved status.
-    -   When an issue for a Powered Stretcher is assigned to a technician, a maintenance task is auto-scheduled with an SLA deadline.
-    -   When an issue for a Roll-in Stretcher is assigned, a maintenance task is created with a  status. The technician must manually schedule the task.
+    -   A 24-hour repair timer (distinct from SLA) applies to warranty services.
+    -   When an issue for a Roll-in Stretcher is assigned, a maintenance task is created with a  status for manual scheduling by the technician.
 -   **Customer Management:** An admin feature to add, view, and manage customer information.
--   **Contact Details Popup:** A popup on issue items in the Admin and Technician portals to quickly show customer contact details.
+-   **Spare Parts Tracking:** Technicians can note spare parts used during issue resolution.
 -   **Internationalization (i18n):** All frontend text is managed via translation files for English and Lithuanian.
 
 **User's preferred language**: English
 
 **what currently exists?**
-A full-stack application (FastAPI + React) with Admin, Technician, and Customer portals. It features role-based access, comprehensive issue and customer management, and is fully internationalized (EN/LT). The core logic now differentiates between Powered and Roll-in stretchers, which fundamentally alters the SLA, scheduling, and UI representation of issues across all three portals. The system supports a parent-child issue structure with automatic parent resolution. Most recent work involved fixing UI inconsistencies related to this new logic.
+A full-stack application (FastAPI + React) with Admin, Technician, and Customer portals. It features role-based access, comprehensive issue and customer management, and is fully internationalized (EN/LT). The core logic differentiates between Powered and Roll-in stretchers, altering SLA and scheduling workflows.
+
+A significant component refactoring was recently completed, breaking down large page files (, , ) into smaller, reusable components. The system now supports a two-stage warranty repair process where an initial Inspection Note is recorded, followed by a final Service Note upon completion. The UI has been updated to reflect these changes and various bugs related to sorting, UI consistency, and workflow logic have been fixed.
 
 **Last working item**:
--   Last item agent was working: The user reported an inconsistency on the Admin Portal's Products page. When viewing a product's details, the Maintenance tab showed a task's status as in_progress even when the linked issue was resolved. The agent implemented a fix in  to check the linked issue's status and display it correctly.
--   Status: USER VERIFICATION PENDING
--   Agent Testing Done: Y
--   Which testing method agent to use? screenshot tool. Navigate to the Admin Products page, find a product with a resolved issue (e.g., S/N PNV-001), open the details view, and switch between the Issues and Maintenance tabs to confirm both show a resolved status.
+-   Last item agent was working: Implementing the two-stage note system (Inspection Note and Service Note) for warranty repairs. The agent updated the UI to rename Resolution Note to Inspection Note and created a separate flow for capturing the Service Note when completing a warranty repair. The final step was to verify that both notes are saved correctly and displayed in the resolved issue details view in the Admin portal.
+-   Status: IN PROGRESS
+-   Agent Testing Done: Y (Partially. Dialogs and labels were verified, but the end-to-end save and display flow is pending final verification).
+-   Which testing method agent to use? screenshot tool. The agent needs to complete the test flow started in the last session:
+    1.  In the Technician Portal, go to the  page.
+    2.  Find the Repairing issue in the Service Records tab.
+    3.  Click the card, then click Complete Repair.
+    4.  In the Complete Warranty Service dialog, enter text into the Service Note field and click Complete Service.
+    5.  Log in to the Admin Portal.
+    6.  Navigate to the  page and the  tab.
+    7.  Find the issue just resolved and verify its card displays both an **INSPECTION NOTE** and a **SERVICE NOTE** section.
 -   User Testing Done: N
 
 **All Pending/In progress Issue list**:
--   Issue 1: (P0) **Inconsistent status display in Product Details view.**
-    -   Attempted fixes: The agent modified  to look up the status of the issue linked to a maintenance item, rather than using the maintenance item's own status. A screenshot test confirmed the fix visually.
-    -   Next debug checklist: The fix seems correct, but it awaits user confirmation. If it fails, re-check the logic in  around lines 715-725 that finds the  and conditionally renders the status badge.
-    -   Why fix this issue and what will be achieved with the fix? Ensures data consistency across the application, preventing admin confusion about the true state of a service task.
-    -   Status: USER VERIFICATION PENDING
+-   Issue 1: (P0) **Verify two-stage note system for warranty repairs.**
+    -   Attempted fixes: The agent has modified the backend model () to include a  field and updated the frontend (, ) to capture and display both notes. The dialogs and labels have been changed to Inspection Note and Service Note.
+    -   Next debug checklist: Follow the testing steps outlined in Last working item to confirm the data is saved and displayed correctly end-to-end.
+    -   Why fix this issue and what will be achieved with the fix? To provide a complete service history for warranty repairs, distinguishing between the initial diagnosis and the final work performed.
+    -   Status: IN PROGRESS
     -   Is recurring issue? N
     -   Should Test frontend/backend/both after fix? Frontend
     -   Blocked on other issue: None
 
 **In progress Task List**:
--   Task 1: (P1) **Refactor Large Components**
-    -   Where to resume: The agent created a new directory  with empty component files (, , ). The next step is to move the relevant JSX and logic from monolithic files like  into these new, reusable components and then import and use them back in the parent pages. This task was started but no code has been moved yet.
-    -   What will be achieved with this? Improved code maintainability, readability, and reusability. Reduced complexity of massive page components.
-    -   Status: IN PROGRESS
-    -   Should Test frontend/backend/both after fix? Frontend
-    -   Blocked on something: None
+-   None.
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
-    -   (P1) Finish the refactoring of large components: , , and .
+    -   (P1) Upgrade the Spare Parts input from a textarea to a dropdown or a pop-up selection window (requires a full list of spare parts from the user).
 -   **Future Tasks:**
-    -   (P1) Implement email notifications for upcoming maintenance.
-    -   (P2) Develop a feature to bulk import products from a CSV file.
+    -   (P2) Implement a feature to bulk import products from a CSV file.
     -   (P3) Create a Progressive Web App (PWA) for offline technician access.
+    -   (P3) Implement email notifications for upcoming maintenance.
 
 **Completed work in this session**
--   **Contact Details Popup Feature:** Implemented a popup to show customer contact information on issue cards in Admin and Technician portals. The popup content was later simplified based on user feedback.
--   **Product Model Type Feature (Powered vs. Roll-in):**
-    -   Updated the backend Product model to include .
-    -   Disabled SLA timers for all Roll-in stretcher issues across the application.
-    -   Added filters for City and Model Type to the issue creation forms in Admin and Customer portals.
-    -   Implemented distinct UI for Roll-in issues, including a Roll-in badge and unique color-coding in Admin and Technician calendars.
--   **Technician Workflow for Roll-in Issues:**
-    -   Backend logic was updated to create maintenance tasks for Roll-in issues with a  status and a  date.
-    -   The Technician Calendar now displays these tasks in a Needs Scheduling section, allowing the technician to manually set a date.
-    -   The UI now displays Scheduled: instead of Solve by: for these tasks.
--   **Parent/Child Issue Auto-Resolution:** Implemented backend logic in  to automatically resolve a parent issue when all its child issues are marked as resolved.
--   **Bug Fixes & UI Consistency:**
-    -   Fixed multiple instances where the SLA timer was incorrectly displayed for resolved issues in the Admin and Technician calendars.
-    -   Corrected status badges across Admin and Technician portals to show Resolved instead of In Progress for completed tasks.
-    -   Fixed a crash in the Admin Calendar caused by  scheduled dates for new Roll-in issues.
-    -   Ensured pending schedule tasks for Roll-in issues correctly appear on the Technician's calendar.
-    -   Updated the Customer Portal to display the correct scheduled date for Roll-in issues.
+-   **UI Consistency Fix:** The Issues tab in the Admin Product Details view was updated to use the same rich card styling as the main Issues page.
+-   **Product Details Page Restructure:** The tabs in the Product Details view were reorganized:
+    -    tab now shows only active (non-resolved) issues.
+    -    tab now shows all resolved issues with detailed notes.
+    -    tab now shows only yearly, routine maintenance records.
+-   **Products Table Enhancement:** Added a Model Type column to the products table and updated the product detail view to show both Model Name and Model Type.
+-   **Component Refactoring (P1 Task):** Completed a major refactoring of large frontend pages:
+    -   , , and  were broken down.
+    -   Created and integrated reusable components: , , , , and .
+-   **Bug Fixes:**
+    -   **Admin Calendar:** Sorted scheduled items by registration date (newest first). Fixed UI overlap between the progress bar and the 3-dot menu.
+    -   **Technician Calendar:** Fixed inconsistent card dimensions, removed a duplicate Close button in the task detail popup, and hid non-functional SLA text from the Notes section.
+-   **Spare Parts Feature:** Implemented a checkbox and textarea in the Resolve Issue dialog for technicians to record spare parts used.
+-   **Warranty Repair Workflow Enhancements:**
+    -   Fixed the timer in the Technician Calendar to correctly display the 24-hour orange repair timer for warranty issues instead of the 12-hour SLA timer.
+    -   Modified the workflow to pop up a Complete Warranty Service dialog for technicians to enter final Service Notes before resolving the issue.
+-   **Customer Portal Fix:** Updated the issue status display to correctly show In Progress or Scheduled for issues being serviced, and to display all three timestamps (Reported, Scheduled, Resolved) for completed issues.
 
 **Earlier issues found/mentioned but not fixed**
 -   Issue 1: **React Exhaustive Deps Warnings**
@@ -88,11 +91,9 @@ A full-stack application (FastAPI + React) with Admin, Technician, and Customer 
 -   **Frontend:** React, Tailwind CSS, Shadcn UI
 -   **Database:** MongoDB
 -   **State Management:** React Hooks (, ) and Context API.
--   **Business Logic:** Complex conditional logic in both frontend and backend to handle different workflows for Powered vs. Roll-in stretchers.
+-   **Component-Based Architecture:** Increased use of reusable React components to simplify large page files.
 
 **key DB schema**
--   : 
--   : 
 -   : 
 
 **changes in tech stack**
@@ -100,48 +101,49 @@ A full-stack application (FastAPI + React) with Admin, Technician, and Customer 
 
 **All files of reference**
 -   **Created:**
-    -    (stub)
-    -    (stub)
-    -    (stub)
-    -    (stub)
+    -   
+    -   
+    -   
+    -   
 -   **Heavily Modified:**
-    -   : Added  enum.
-    -   : Made  optional.
-    -   : Added logic for parent/child resolution and to handle Roll-in stretcher issue assignment.
-    -   : Added model type filter, Roll-in badge, and updated SLA logic.
-    -   : Added model type filter and updated UI to show correct date/SLA based on model type.
-    -   : Major changes to add color-coding, new legend entries, and fix bugs related to  dates.
-    -   : Major changes to implement the manual scheduling workflow for Roll-in issues.
-    -   : Updated product creation form and fixed the detail view inconsistency.
+    -   : Restructured tabs and improved UI consistency.
+    -   : Implemented spare parts feature and two-stage warranty resolution flow.
+    -   : Refactored to use new components.
+    -   : Refactored to use  and fixed several UI bugs.
+    -   : Refactored to use  and fixed sorting/UI bugs.
+    -   : Updated to display both inspection and service notes.
+    -   : Added logic for warranty repair timers.
+    -   : Added , , and  fields.
 
 **Areas that need refactoring**:
--   The P1 task to refactor large components is incomplete. The files  (1500+ lines),  (1000+ lines), and  (1200+ lines) are still monolithic. The agent created placeholder component files in  but did not migrate any code into them.
+-   While major component refactoring is complete, page components like  (1228 lines) and  (1060 lines) remain large. Future work could involve extracting business logic and state management into custom hooks to further simplify these files.
 
 **key api endpoints**
--    (PUT): Used by technicians to schedule a  Roll-in issue task.
--    (PUT): Updated to handle the creation of  maintenance tasks when a technician is assigned to a Roll-in issue.
+-    (PUT): Updated to accept , ,  (as Inspection Note), and  fields.
 
 **Critical Info for New Agent**
--   **Roll-in vs. Powered Stretcher Logic is Core:** This is a fundamental business rule now. Roll-in stretchers have no SLA, are scheduled manually by technicians, and have distinct UI treatments (badges, colors, text). All new features or fixes must respect this distinction.
--   **Refactoring is Incomplete:** The task to break down large components was started but not finished. The new component files in  are just empty stubs. The next agent should continue this work by moving logic from the large page files into these components.
--   **Nullable :** The  collection now supports  for  to accommodate the pending schedule status. Any code that accesses this field must handle the  case to avoid crashes.
+-   **Inspection Note vs. Service Note:** Resolution Note has been globally renamed to Inspection Note to represent the initial diagnosis. For two-stage warranty repairs, a final Service Note is also captured. The UI must display both.
+-   **Warranty Repair Workflow:** The process for handling warranty repairs is now multi-step:
+    1.  Technician resolves an issue, selecting Warranty Service. The issue moves to Awaiting Repair state with a 24h timer.
+    2.  Technician Continues the repair, moving the issue to Repairing status.
+    3.  Technician Completes Repair, which now opens a dialog to enter a Service Note.
+    4.  Upon completion, the issue is resolved and should display both notes.
+-   **Component Refactoring is Done:** Do not refactor ,  or  further unless specifically requested. Use the new components located in  for any new UI work involving issue or maintenance cards.
 
 **documents and test reports created in this job**
 -    (Updated)
--    (Tests for Contact Details Popup)
--    (Tests for Model Type feature)
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **Request:** Implement Product Types (Powered vs Roll-in) where Roll-in stretchers have no SLA. (COMPLETED)
-2.  **Request:** Add distinct color-coding in the Admin Calendar for Roll-in vs Powered issues and fix border color for resolved issues. (COMPLETED)
-3.  **Request:** Add a Roll-in badge to the Admin Issues page. (COMPLETED)
-4.  **Request:** Change the Technician workflow for Roll-in issues to allow manual scheduling instead of auto-scheduling with an SLA. (COMPLETED)
-5.  **Request:** Fix Admin Calendar crash when a new Roll-in issue is added. (COMPLETED)
-6.  **Request:** Fix Technician Calendar not showing unscheduled Roll-in issues. (COMPLETED)
-7.  **Request:** Fix Customer Portal to show the correct scheduled date for Roll-in issues. (COMPLETED)
-8.  **Request:** Fix an inconsistency in the Product Details view where the Maintenance tab showed the wrong status for a resolved issue. (IN-PROGRESS, Awaiting User Verification)
-9.  **Request:**  (P0 is done, P1 is in progress)
-10. **Request:**  (COMPLETED)
+1.  **Request:** Fix Admin Calendar sorting and UI overlap. (COMPLETED)
+2.  **Request:** Fix Technician Calendar UI (card dimensions, duplicate buttons, SLA text). (COMPLETED)
+3.  **Request:** Add Spare parts used checkbox and textarea to the Resolve Issue dialog. (COMPLETED)
+4.  **Request:** Fix timer for warranty repairs (should be 24h, orange) and update customer portal status for  issues. (COMPLETED)
+5.  **Request:** When resolving an  warranty repair, show a dialog to capture Service Works notes. (COMPLETED)
+6.  **User Clarification:**  (User confirmed to proceed with testing the Complete Warranty Service dialog.)
+7.  **Request:** Rename Resolution Note to Inspection Note and Service Works to Service Note. Show both notes on the final resolved issue view. (IN PROGRESS)
+8.  **User Message:**  (User approved changes to product table and detail view.)
+9.  **User Message:**  (User approved starting the component refactoring task.)
+10. **User Message:**  (User approved continuing with the refactoring of calendar components.)
 
 **Project Health Check:**
 -   **Broken:** None
@@ -151,10 +153,10 @@ A full-stack application (FastAPI + React) with Admin, Technician, and Customer 
 -    &  for PDF generation.
 
 **Testing status**
--   Testing agent used after significant changes: YES. The agent was used to validate the Contact Details and Model Type features.
+-   Testing agent used after significant changes: NO
 -   Troubleshoot agent used after agent stuck in loop: NO
--   Test files created: Test files were created by the testing agent in  and are visible in the test reports.
--   Known regressions: None.
+-   Test files created: None
+-   Known regressions: None
 
 **Credentials to test flow:**
 -   **Admin Password:** 
@@ -162,4 +164,4 @@ A full-stack application (FastAPI + React) with Admin, Technician, and Customer 
 -   **Customer Pro Password:** 
 
 **What agent forgot to execute**
-The agent started the P1 refactoring task by creating the necessary directory and empty component files (, , etc.). However, the agent never moved the JSX and logic from the large page components (, , etc.) into these new files. The refactoring is therefore incomplete and needs to be picked up.</analysis>
+-   The agent did not fully complete the end-to-end test for the Inspection Note and Service Note feature. The final verification step—checking the Admin portal to see if both notes are displayed on the resolved issue card—is still pending.</analysis>

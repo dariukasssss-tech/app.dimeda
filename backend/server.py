@@ -52,7 +52,7 @@ app.add_middleware(AuthMiddleware)
 cors_origins = [
     FRONTEND_URL,
     "http://localhost:3000",
-    "https://serviced-1.preview.emergentagent.com"
+    "https://stretcher-pro-1.preview.emergentagent.com"
 ]
 
 app.add_middleware(

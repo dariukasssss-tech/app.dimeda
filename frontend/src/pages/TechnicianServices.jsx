@@ -194,22 +194,40 @@ const TechnicianServices = ({ selectedTechnician }) => {
 
   const handleResolveIssue = async () => {
     if (!selectedIssue) return;
+    
+    // Check if this is completing a warranty repair (in_progress with warranty type already set)
+    const isCompletingWarrantyRepair = selectedIssue.status === "in_progress" && selectedIssue.warranty_service_type === "warranty";
+    
     try {
-      await axios.put(`${API}/issues/${selectedIssue.id}`, {
-        status: "resolved",
-        resolution: resolveData.resolution,
-        warranty_service_type: resolveData.warranty_service_type,
-        create_service_record: resolveData.warranty_service_type === "non_warranty" ? resolveData.create_service_record : false,
-        spare_parts_used: resolveData.spare_parts_used,
-        spare_parts: resolveData.spare_parts_used ? resolveData.spare_parts : "",
-      });
-      
-      let successMsg = "Issue resolved successfully";
-      if (resolveData.warranty_service_type === "warranty") {
-        successMsg = "Issue moved to Awaiting Repair - Click to continue working";
+      if (isCompletingWarrantyRepair) {
+        // Completing warranty repair - mark as resolved and complete the repair
+        await axios.put(`${API}/issues/${selectedIssue.id}`, {
+          status: "resolved",
+          resolution: resolveData.resolution, // This is the "Service Works" description
+          complete_repair: true,
+          repair_notes: resolveData.resolution,
+          spare_parts_used: resolveData.spare_parts_used,
+          spare_parts: resolveData.spare_parts_used ? resolveData.spare_parts : "",
+        });
+        toast.success("Warranty repair completed - Issue resolved");
+      } else {
+        // First-time resolution
+        await axios.put(`${API}/issues/${selectedIssue.id}`, {
+          status: "resolved",
+          resolution: resolveData.resolution,
+          warranty_service_type: resolveData.warranty_service_type,
+          create_service_record: resolveData.warranty_service_type === "non_warranty" ? resolveData.create_service_record : false,
+          spare_parts_used: resolveData.spare_parts_used,
+          spare_parts: resolveData.spare_parts_used ? resolveData.spare_parts : "",
+        });
+        
+        if (resolveData.warranty_service_type === "warranty") {
+          toast.success("Issue moved to Awaiting Repair - Click to continue working");
+        } else {
+          toast.success("Issue resolved successfully");
+        }
       }
       
-      toast.success(successMsg);
       setResolveDialogOpen(false);
       fetchData();
     } catch (error) {

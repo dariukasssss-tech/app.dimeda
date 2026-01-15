@@ -91,7 +91,7 @@ const MaintenanceTaskCard = ({
       data-testid={`maintenance-task-${item.id}`}
     >
       {/* Header with S/N and Status */}
-      <div className="flex items-center justify-between mb-2 pr-8">
+      <div className="flex items-center justify-between mb-2 pr-12">
         <div className="flex items-center gap-2">
           <span className="font-bold text-slate-900">
             {product?.serial_number || "Unknown"}

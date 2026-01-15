@@ -180,16 +180,6 @@
     "legend": "Legenda",
     "solveBy": "Išspręsti iki"
   },
-  "maintenance": {
-    "title": "Priežiūra",
-    "scheduleMaintenance": "Planuoti priežiūrą",
-    "maintenanceType": "Priežiūros tipas",
-    "routine": "Įprastinė",
-    "inspection": "Patikra",
-    "repair": "Remontas",
-    "customerIssue": "Kliento problema",
-    "warrantyService": "Garantinis aptarnavimas"
-  },
   "technician": {
     "title": "Techniko portalas",
     "selectTechnician": "Pasirinkti techniką",

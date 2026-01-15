@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API } from "@/App";
+import { useTranslation } from "@/contexts/TranslationContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +12,7 @@ import { toast } from "sonner";
 import { Lock, LogIn, AlertTriangle, Shield, Wrench } from "lucide-react";
 
 const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSuccess }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [adminPassword, setAdminPassword] = useState("");
   const [technicianPassword, setTechnicianPassword] = useState("");
@@ -25,10 +28,10 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
     
     try {
       const response = await axios.post(`${API}/auth/login`, { password: adminPassword });
-      toast.success("Admin login successful!");
+      toast.success(t("auth.loginSuccess"));
       onLoginSuccess(response.data.token);
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Invalid password");
+      toast.error(error.response?.data?.detail || t("auth.loginFailed"));
     } finally {
       setAdminLoading(false);
     }
@@ -41,11 +44,11 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
     
     try {
       const response = await axios.post(`${API}/auth/technician-login`, { password: technicianPassword });
-      toast.success("Technician login successful!");
+      toast.success(t("auth.loginSuccess"));
       onTechnicianLoginSuccess(response.data.token);
       navigate("/technician");
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Invalid password");
+      toast.error(error.response?.data?.detail || t("auth.loginFailed"));
     } finally {
       setTechnicianLoading(false);
     }
@@ -58,11 +61,11 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
     
     try {
       const response = await axios.post(`${API}/auth/customer-login`, { password: customerPassword });
-      toast.success("Customer login successful!");
+      toast.success(t("auth.loginSuccess"));
       onCustomerLoginSuccess(response.data.token);
       navigate("/customer");
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Invalid password");
+      toast.error(error.response?.data?.detail || t("auth.loginFailed"));
     } finally {
       setCustomerLoading(false);
     }
@@ -71,13 +74,14 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
       <div className="flex flex-col items-center gap-6 w-full max-w-5xl">
-        {/* Logo */}
-        <div className="mb-4">
+        {/* Logo and Language Switcher */}
+        <div className="flex items-center justify-between w-full mb-4">
           <img 
             src="https://customer-assets.emergentagent.com/job_842f69d6-21b8-4f70-96b2-758e2fcffc47/artifacts/3rpmm3ao_Dimeda_logo-01.png" 
             alt="Dimeda Logo" 
             className="h-16 w-auto"
           />
+          <LanguageSwitcher />
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 w-full">
@@ -93,13 +97,13 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
                 Admin
               </CardTitle>
               <CardDescription className="text-xs">
-                Full system access
+                {t("auth.adminLogin")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleAdminLogin} className="space-y-4">
                 <div>
-                  <Label htmlFor="admin-password">Password</Label>
+                  <Label htmlFor="admin-password">{t("auth.password")}</Label>
                   <div className="relative mt-1">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <Input
@@ -107,7 +111,7 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
                       type="password"
                       value={adminPassword}
                       onChange={(e) => setAdminPassword(e.target.value)}
-                      placeholder="Enter admin password"
+                      placeholder={t("auth.adminPassword")}
                       className="pl-10"
                       required
                       data-testid="admin-password-input"
@@ -121,11 +125,11 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
                   data-testid="admin-login-btn"
                 >
                   {adminLoading ? (
-                    "Logging in..."
+                    t("common.loading")
                   ) : (
                     <>
                       <LogIn size={18} className="mr-2" />
-                      Login as Admin
+                      {t("auth.adminLogin")}
                     </>
                   )}
                 </Button>
@@ -142,16 +146,16 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
                 </div>
               </div>
               <CardTitle className="text-xl text-emerald-600" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                Technician
+                {t("technician.technician")}
               </CardTitle>
               <CardDescription className="text-xs">
-                Service & Calendar view
+                {t("auth.technicianLogin")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleTechnicianLogin} className="space-y-4">
                 <div>
-                  <Label htmlFor="technician-password">Password</Label>
+                  <Label htmlFor="technician-password">{t("auth.password")}</Label>
                   <div className="relative mt-1">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <Input
@@ -159,7 +163,7 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
                       type="password"
                       value={technicianPassword}
                       onChange={(e) => setTechnicianPassword(e.target.value)}
-                      placeholder="Enter technician password"
+                      placeholder={t("auth.technicianPassword")}
                       className="pl-10"
                       required
                       data-testid="technician-password-input"
@@ -173,11 +177,11 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
                   data-testid="technician-login-btn"
                 >
                   {technicianLoading ? (
-                    "Logging in..."
+                    t("common.loading")
                   ) : (
                     <>
                       <LogIn size={18} className="mr-2" />
-                      Login as Technician
+                      {t("auth.technicianLogin")}
                     </>
                   )}
                 </Button>
@@ -194,16 +198,16 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
                 </div>
               </div>
               <CardTitle className="text-xl text-amber-600" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                Customer
+                {t("customer.title").replace(" Portal", "")}
               </CardTitle>
               <CardDescription className="text-xs">
-                Issue registration
+                {t("auth.customerLogin")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleCustomerLogin} className="space-y-4">
                 <div>
-                  <Label htmlFor="customer-password">Password</Label>
+                  <Label htmlFor="customer-password">{t("auth.password")}</Label>
                   <div className="relative mt-1">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <Input
@@ -211,7 +215,7 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
                       type="password"
                       value={customerPassword}
                       onChange={(e) => setCustomerPassword(e.target.value)}
-                      placeholder="Enter customer password"
+                      placeholder={t("auth.customerPassword")}
                       className="pl-10"
                       required
                       data-testid="customer-password-input"
@@ -225,11 +229,11 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
                   data-testid="customer-login-btn"
                 >
                   {customerLoading ? (
-                    "Logging in..."
+                    t("common.loading")
                   ) : (
                     <>
                       <LogIn size={18} className="mr-2" />
-                      Login as Customer
+                      {t("auth.customerLogin")}
                     </>
                   )}
                 </Button>
@@ -239,7 +243,7 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
         </div>
         
         <p className="text-xs text-slate-400 text-center mt-4">
-          Dimeda Service Pro - Service Partner for Medirol
+          {t("common.appName")} - Medirol Service Partner
         </p>
       </div>
     </div>

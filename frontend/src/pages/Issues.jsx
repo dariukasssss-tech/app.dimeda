@@ -180,6 +180,8 @@ const Issues = () => {
     setPhotos([]);
     setSelectedVisualIssues([]);
     setSelectedFunctionalityIssues([]);
+    setSelectedCity("");
+    setSelectedModelType("");
   };
 
   const handleSubmit = async (e) => {

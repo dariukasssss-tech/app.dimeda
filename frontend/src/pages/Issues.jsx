@@ -825,6 +825,14 @@ const Issues = () => {
                       </div>
                     )}
                     
+                    {/* Contact Details Button */}
+                    <div className="mt-3">
+                      <ContactDetailsPopup 
+                        issue={issue} 
+                        products={products}
+                      />
+                    </div>
+                    
                     <p className="text-slate-600 mt-2 whitespace-pre-line">{issue.description}</p>
                     {issue.resolution && (
                       <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">

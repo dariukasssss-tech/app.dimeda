@@ -131,10 +131,10 @@ const Products = () => {
       
       if (editProduct) {
         await axios.put(`${API}/products/${editProduct.id}`, payload);
-        toast.success("Product updated! Yearly maintenance recalculated.");
+        toast.success(t("messages.productUpdated") || "Product updated!");
       } else {
         await axios.post(`${API}/products`, payload);
-        toast.success("Product registered! Annual maintenance scheduled for 5 years.");
+        toast.success(t("messages.productCreated") || "Product registered!");
       }
       setDialogOpen(false);
       setEditProduct(null);

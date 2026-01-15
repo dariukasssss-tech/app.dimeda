@@ -363,7 +363,7 @@ const Services = () => {
           <DialogTrigger asChild>
             <Button className="bg-[#0066CC] hover:bg-[#0052A3]" data-testid="add-service-btn">
               <Plus size={18} className="mr-2" />
-              Log Service
+              {t("services.logService") || "Log Service"}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg" data-testid="service-dialog">

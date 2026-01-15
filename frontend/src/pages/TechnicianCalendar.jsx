@@ -56,6 +56,10 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
   // Task detail popup state
   const [taskDetailOpen, setTaskDetailOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  // Schedule Roll-in task state
+  const [scheduleDate, setScheduleDate] = useState(null);
+  const [scheduleTime, setScheduleTime] = useState("09:00");
+  const [isScheduling, setIsScheduling] = useState(false);
 
   useEffect(() => {
     if (selectedTechnician) {

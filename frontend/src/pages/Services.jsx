@@ -38,6 +38,8 @@ import { toast } from "sonner";
 import { Plus, Wrench, CalendarIcon, User, FileText, Trash2, AlertTriangle, Clock, CheckCircle, Timer, Shield, ShieldOff, FileCheck, ArrowRight, MapPin, Users } from "lucide-react";
 import { format } from "date-fns";
 import ContactDetailsPopup from "@/components/ContactDetailsPopup";
+import { IssueCard, ResolvedIssueCard, InServiceIssueCard } from "@/components/issues";
+import { ServiceRecordCard } from "@/components/services";
 
 // Beta version technician list
 const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];

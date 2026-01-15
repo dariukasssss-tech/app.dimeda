@@ -399,18 +399,18 @@ const Services = () => {
             {serviceMode === "from_issue" && (
               <div className="space-y-4 mt-4">
                 <div>
-                  <Label>Select Non-Warranty Issue *</Label>
+                  <Label>{t("services.selectNonWarrantyIssue") || "Select Non-Warranty Issue"} *</Label>
                   <Select
                     value={selectedNonWarrantyIssue}
                     onValueChange={setSelectedNonWarrantyIssue}
                   >
                     <SelectTrigger className="mt-1" data-testid="select-non-warranty-issue">
-                      <SelectValue placeholder="Select a resolved non-warranty issue" />
+                      <SelectValue placeholder={t("services.selectResolvedIssue") || "Select a resolved non-warranty issue"} />
                     </SelectTrigger>
                     <SelectContent>
                       {nonWarrantyIssues.length === 0 ? (
                         <div className="p-3 text-sm text-slate-500 text-center">
-                          No non-warranty issues available
+                          {t("services.noNonWarrantyIssues") || "No non-warranty issues available"}
                         </div>
                       ) : (
                         nonWarrantyIssues.map((issue) => (

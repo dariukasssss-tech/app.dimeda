@@ -102,10 +102,21 @@ const TechnicianServices = ({ selectedTechnician }) => {
     };
   };
 
+  // Get product model type
+  const getProductModelType = (productId) => {
+    const product = products.find((p) => p.id === productId);
+    return product?.model_type || "powered";
+  };
+
   // Calculate SLA time remaining for customer issues
+  // NOTE: Roll-in stretchers do NOT have SLA timer
   const calculateSLARemaining = (issue) => {
     if (issue.warranty_service_type === "non_warranty") return null;
     if (issue.source !== "customer" || issue.status === "resolved") return null;
+    
+    // Skip SLA for Roll-in stretchers
+    const modelType = getProductModelType(issue.product_id);
+    if (modelType === "roll_in") return null;
     
     const createdAt = new Date(issue.created_at);
     const slaDeadline = new Date(createdAt.getTime() + 12 * 60 * 60 * 1000);

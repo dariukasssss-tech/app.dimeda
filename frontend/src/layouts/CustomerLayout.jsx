@@ -2,10 +2,14 @@ import { Routes, Route } from "react-router-dom";
 import axios from "axios";
 import { API, clearAuthToken } from "@/App";
 import { toast } from "sonner";
+import { useTranslation } from "@/contexts/TranslationContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { LogOut } from "lucide-react";
 import CustomerDashboard from "@/pages/CustomerDashboard";
 
 const CustomerLayout = ({ onLogout }) => {
+  const { t } = useTranslation();
+
   const handleLogout = async () => {
     try {
       await axios.post(`${API}/auth/logout`, {});
@@ -13,7 +17,7 @@ const CustomerLayout = ({ onLogout }) => {
       console.error("Logout error:", error);
     }
     clearAuthToken();
-    toast.success("Logged out successfully");
+    toast.success(t("auth.loginSuccess").replace("successful", "out"));
     onLogout();
   };
 
@@ -31,18 +35,21 @@ const CustomerLayout = ({ onLogout }) => {
                   className="h-10 w-auto"
                 />
                 <div>
-                  <h1 className="text-lg font-bold text-[#0066CC]" style={{ fontFamily: 'Manrope, sans-serif' }}>Dimeda Customer Pro</h1>
-                  <p className="text-xs text-slate-500">Issue Registration</p>
+                  <h1 className="text-lg font-bold text-[#0066CC]" style={{ fontFamily: 'Manrope, sans-serif' }}>{t("customer.title")}</h1>
+                  <p className="text-xs text-slate-500">{t("customer.reportIssue")}</p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
+              {/* Language Switcher */}
+              <LanguageSwitcher />
+              
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all"
               >
                 <LogOut size={18} />
-                Logout
+                {t("auth.logout")}
               </button>
             </div>
           </div>

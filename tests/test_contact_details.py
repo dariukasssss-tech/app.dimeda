@@ -185,9 +185,10 @@ class TestContactDetailsIntegration:
     def test_technician_login_and_access(self):
         """Test technician can access customer data"""
         tech_session = requests.Session()
+        # Technician uses different endpoint: /api/auth/technician-login
         login_response = tech_session.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"password": "service2025", "role": "technician", "technician_name": "Technician 1"}
+            f"{BASE_URL}/api/auth/technician-login",
+            json={"password": "service2025"}
         )
         assert login_response.status_code == 200, f"Technician login failed: {login_response.text}"
         

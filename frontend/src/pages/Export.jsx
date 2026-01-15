@@ -531,28 +531,28 @@ const Export = () => {
 
     // Save PDF
     doc.save(`Device_Report_${productData.product.serial_number}_${format(reportDate, "yyyyMMdd")}.pdf`);
-    toast.success("PDF report generated successfully");
+    toast.success(t("export.pdfGenerated") || "PDF report generated successfully");
   };
 
   const exportOptions = [
     {
       id: "products",
-      title: "Products",
-      description: "Export all registered stretchers with serial numbers, locations, and registration dates.",
+      title: t("products.title"),
+      description: t("export.productsDescription") || "Export all registered stretchers with serial numbers, locations, and registration dates.",
       icon: Package,
       color: "bg-[#0066CC]",
     },
     {
       id: "services",
-      title: "Service Records",
-      description: "Export complete service history including technician names, service types, and descriptions.",
+      title: t("services.serviceRecords"),
+      description: t("export.servicesDescription") || "Export complete service history including technician names, service types, and descriptions.",
       icon: Wrench,
       color: "bg-slate-700",
     },
     {
       id: "issues",
-      title: "Issues",
-      description: "Export all reported issues with status, severity, and resolution notes.",
+      title: t("issues.title"),
+      description: t("export.issuesDescription") || "Export all reported issues with status, severity, and resolution notes.",
       icon: AlertTriangle,
       color: "bg-[#FA4616]",
     },

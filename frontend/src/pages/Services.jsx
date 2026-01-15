@@ -737,59 +737,12 @@ const Services = () => {
               </Card>
             ) : (
               services.map((service) => (
-                <Card key={service.id} className="card-hover" data-testid={`service-card-${service.id}`}>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${serviceTypeColors[service.service_type] || 'bg-slate-100 text-slate-800'}`}>
-                            {service.service_type}
-                          </span>
-                          <span className="text-sm text-slate-500 flex items-center gap-1">
-                            <CalendarIcon size={14} />
-                            {new Date(service.service_date).toLocaleDateString()}
-                          </span>
-                          {/* Warranty Status Badge */}
-                          {service.warranty_status && (
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              service.warranty_status === "warranty" 
-                                ? "bg-green-100 text-green-800" 
-                                : "bg-gray-100 text-gray-800"
-                            }`}>
-                              {service.warranty_status === "warranty" ? "Warranty" : "Non Warranty"}
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-lg font-semibold text-slate-900 mt-3" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                          S/N: {getProductSerial(service.product_id)}
-                        </h3>
-                        <p className="text-slate-600 mt-2">{service.description}</p>
-                        {service.issues_found && (
-                          <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                            <p className="text-sm text-amber-800">
-                              <strong>Issues Found:</strong> {service.issues_found}
-                            </p>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
-                          <span className="flex items-center gap-1">
-                            <User size={14} />
-                            {service.technician_name}
-                          </span>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(service.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        data-testid={`delete-service-${service.id}`}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ServiceRecordCard
+                  key={service.id}
+                  service={service}
+                  getProductSerial={getProductSerial}
+                  onDelete={handleDelete}
+                />
               ))
             )}
           </div>

@@ -54,19 +54,39 @@ async def create_issue(issue: IssueCreate):
     # Auto-schedule maintenance based on issue type
     now = datetime.now(timezone.utc)
     
+    # Get product to check model_type
+    product = await db.products.find_one({"id": issue.product_id}, {"_id": 0})
+    is_roll_in = product.get("model_type") == "roll_in" if product else False
+    
     # For customer issues with technician assigned, create a calendar entry
+    # Roll-in Stretchers: Don't auto-schedule, let technician schedule manually
     if issue.source == "customer" and issue.technician_name:
-        sla_deadline = now + timedelta(hours=12)
-        maintenance_obj = ScheduledMaintenance(
-            product_id=issue.product_id,
-            scheduled_date=sla_deadline.isoformat(),
-            maintenance_type="customer_issue",
-            technician_name=issue.technician_name,
-            notes=f"Customer Issue: {issue.title} - SLA: 12h from registration",
-            source="customer_issue",
-            issue_id=issue_obj.id,
-            priority="12h"
-        )
+        if is_roll_in:
+            # Roll-in: Create entry without scheduled date, status "pending_schedule"
+            maintenance_obj = ScheduledMaintenance(
+                product_id=issue.product_id,
+                scheduled_date=None,  # No auto-scheduled date
+                maintenance_type="customer_issue",
+                technician_name=issue.technician_name,
+                notes=f"Customer Issue: {issue.title} - Roll-in Stretcher (No SLA)",
+                source="customer_issue",
+                issue_id=issue_obj.id,
+                priority=None,  # No priority/SLA for Roll-in
+                status="pending_schedule"  # Technician needs to schedule
+            )
+        else:
+            # Powered Stretcher: Auto-schedule with 12h SLA
+            sla_deadline = now + timedelta(hours=12)
+            maintenance_obj = ScheduledMaintenance(
+                product_id=issue.product_id,
+                scheduled_date=sla_deadline.isoformat(),
+                maintenance_type="customer_issue",
+                technician_name=issue.technician_name,
+                notes=f"Customer Issue: {issue.title} - SLA: 12h from registration",
+                source="customer_issue",
+                issue_id=issue_obj.id,
+                priority="12h"
+            )
         await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
     elif issue.issue_type == "electrical":
         scheduled_time = now + timedelta(hours=12)

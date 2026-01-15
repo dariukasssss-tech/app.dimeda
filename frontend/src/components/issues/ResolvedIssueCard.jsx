@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/contexts/TranslationContext";
 import ContactDetailsPopup from "@/components/ContactDetailsPopup";
-import { CheckCircle, Shield, ShieldOff } from "lucide-react";
+import { CheckCircle, Shield, ShieldOff, FileText, Wrench } from "lucide-react";
 
 /**
  * ResolvedIssueCard - Card component for displaying resolved issues
@@ -33,6 +33,11 @@ const ResolvedIssueCard = ({
     return product?.city || "Unknown";
   };
 
+  // Check if this issue has both Inspection Note and Service Note (warranty repair completed)
+  const hasInspectionNote = !!issue.resolution;
+  const hasServiceNote = !!issue.service_note;
+  const isWarrantyRepairCompleted = hasInspectionNote && hasServiceNote;
+
   return (
     <Card 
       className={`border-l-4 ${isWarranty ? "border-green-500" : "border-gray-400"} ${onClick ? "cursor-pointer hover:shadow-md transition-shadow" : ""}`}
@@ -60,6 +65,12 @@ const ResolvedIssueCard = ({
                   <><ShieldOff size={12} className="mr-1" /> Non-Warranty</>
                 )}
               </Badge>
+              {/* Spare Parts Used indicator */}
+              {issue.spare_parts_used && (
+                <Badge className="bg-blue-100 text-blue-800">
+                  Spare Parts Used
+                </Badge>
+              )}
             </div>
             
             {/* Title */}
@@ -74,11 +85,36 @@ const ResolvedIssueCard = ({
               <span>{getProductCity(issue.product_id)}</span>
             </div>
             
-            {/* Resolution */}
-            {issue.resolution && (
-              <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded line-clamp-2">
-                <strong>Resolution:</strong> {issue.resolution}
-              </p>
+            {/* Inspection Note (first stage diagnosis) */}
+            {hasInspectionNote && (
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2 text-blue-800 mb-1">
+                  <FileText size={14} />
+                  <span className="text-xs font-semibold uppercase tracking-wide">Inspection Note</span>
+                </div>
+                <p className="text-sm text-blue-900">{issue.resolution}</p>
+              </div>
+            )}
+            
+            {/* Service Note (warranty repair completion) */}
+            {hasServiceNote && (
+              <div className="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="flex items-center gap-2 text-orange-800 mb-1">
+                  <Wrench size={14} />
+                  <span className="text-xs font-semibold uppercase tracking-wide">Service Note</span>
+                </div>
+                <p className="text-sm text-orange-900">{issue.service_note}</p>
+              </div>
+            )}
+            
+            {/* Spare Parts Details */}
+            {issue.spare_parts_used && issue.spare_parts && (
+              <div className="mt-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                <div className="flex items-center gap-2 text-slate-700 mb-1">
+                  <span className="text-xs font-semibold uppercase tracking-wide">Spare Parts</span>
+                </div>
+                <p className="text-sm text-slate-700">{issue.spare_parts}</p>
+              </div>
             )}
             
             {/* Non-warranty specific info */}

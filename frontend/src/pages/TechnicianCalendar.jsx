@@ -273,6 +273,9 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
     const [year, month] = selectedMonthForStats.split("-").map(Number);
     
     const monthItems = maintenanceItems.filter(item => {
+      // Include pending_schedule items (Roll-in without date)
+      if (item.status === "pending_schedule") return true;
+      if (!item.scheduled_date) return false;
       const itemDate = new Date(item.scheduled_date);
       return itemDate.getMonth() + 1 === month && itemDate.getFullYear() === year;
     });

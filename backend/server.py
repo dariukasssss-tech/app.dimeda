@@ -25,7 +25,8 @@ from routes import (
     maintenance_router,
     export_router,
     stats_router,
-    technician_router
+    technician_router,
+    translations_router
 )
 
 # Create the main app
@@ -40,6 +41,7 @@ app.include_router(issues_router, prefix="/api")
 app.include_router(maintenance_router, prefix="/api")
 app.include_router(export_router, prefix="/api")
 app.include_router(technician_router, prefix="/api")
+app.include_router(translations_router, prefix="/api")
 
 # Add Auth Middleware (before CORS)
 app.add_middleware(AuthMiddleware)

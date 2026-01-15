@@ -624,8 +624,20 @@ const Products = () => {
                   <CardContent className="pt-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="text-slate-500">Model</span>
+                        <span className="text-slate-500">Model Name</span>
                         <p className="font-medium">{selectedProduct.model_name}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Model Type</span>
+                        <p className="font-medium">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            selectedProduct.model_type === "roll_in" 
+                              ? "bg-teal-100 text-teal-800" 
+                              : "bg-blue-100 text-blue-800"
+                          }`}>
+                            {selectedProduct.model_type === "roll_in" ? "Roll-in Stretchers" : "Powered Stretchers"}
+                          </span>
+                        </p>
                       </div>
                       <div>
                         <span className="text-slate-500">City</span>

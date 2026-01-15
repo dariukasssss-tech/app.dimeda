@@ -315,7 +315,7 @@ const Issues = () => {
           <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
             {t("issues.title")}
           </h1>
-          <p className="text-slate-500 mt-1">{t("issues.trackAndResolve") || "Track and resolve equipment problems"}</p>
+          <p className="text-slate-500 mt-1">{t("issues.trackAndResolve")}</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);

@@ -386,6 +386,9 @@ const MaintenanceCalendar = () => {
     const modelType = getProductModelType(item.product_id);
     if (modelType === "roll_in") return null;
     
+    // Skip if no scheduled date (pending_schedule)
+    if (!item.scheduled_date) return null;
+    
     const scheduledDate = new Date(item.scheduled_date);
     const now = new Date();
     const diffMs = scheduledDate - now;

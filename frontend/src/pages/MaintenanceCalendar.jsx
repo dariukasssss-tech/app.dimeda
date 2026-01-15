@@ -936,17 +936,22 @@ const MaintenanceCalendar = () => {
                   ? issues.find(i => i.id === item.issue_id) 
                   : null;
                 
+                // Get model type for Roll-in distinction
+                const modelType = getProductModelType(item.product_id);
+                const isRollIn = modelType === "roll_in";
+                
                 return (
                 <div
                   key={item.id}
-                  className={`flex items-center justify-between p-4 rounded-lg border-l-4 bg-white border ${getTaskBorderColor(item)}`}
+                  className={`flex items-center justify-between p-4 rounded-lg border-l-4 bg-white border ${getTaskBorderColor(item, linkedIssue)}`}
                   data-testid={`list-item-${item.id}`}
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-3 h-12 rounded-full ${
+                      linkedIssue?.status === "resolved" ? "bg-slate-800" :
                       item.status === "completed" ? "bg-slate-800" :
                       item.status === "in_progress" ? "bg-blue-500" :
-                      item.source === "customer_issue" ? "bg-purple-500" :
+                      item.source === "customer_issue" ? (isRollIn ? "bg-teal-500" : "bg-purple-500") :
                       item.source === "auto_yearly" || item.maintenance_type === "routine" ? "bg-emerald-500" :
                       item.priority === "12h" ? "bg-orange-500" :
                       item.priority === "24h" ? "bg-red-500" : "bg-blue-500"
@@ -957,7 +962,7 @@ const MaintenanceCalendar = () => {
                       </p>
                       <p className="text-sm text-slate-600 capitalize">
                         {item.maintenance_type === "customer_issue" ? "Customer Issue" : item.maintenance_type.replace("_", " ")} • {item.source === "customer_issue" ? (
-                          <span className="font-medium text-purple-700">
+                          <span className={`font-medium ${isRollIn ? "text-teal-700" : "text-purple-700"}`}>
                             Solve by: {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
                           </span>
                         ) : (

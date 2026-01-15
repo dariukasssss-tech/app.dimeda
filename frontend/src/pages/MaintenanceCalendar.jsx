@@ -597,12 +597,14 @@ const MaintenanceCalendar = () => {
             {technicianFilter !== "all" && technicianFilter !== "unassigned" && (() => {
               const stats = getTechnicianStats(technicianFilter);
               const todayTasks = filteredMaintenance.filter(item => {
+                if (!item.scheduled_date) return false; // Skip pending_schedule items
                 const itemDate = new Date(item.scheduled_date);
                 const today = new Date();
                 return itemDate.toDateString() === today.toDateString() && item.status !== "completed";
               });
               const urgentTasks = filteredMaintenance.filter(item => {
                 if (item.status === "completed") return false;
+                if (!item.scheduled_date) return false; // Skip pending_schedule items
                 if (item.source === "customer_issue") {
                   const sla = calculateSLARemaining(item);
                   return sla && (sla.expired || sla.text.includes("m left") || parseInt(sla.text) < 3);

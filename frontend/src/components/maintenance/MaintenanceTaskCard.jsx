@@ -221,11 +221,18 @@ const MaintenanceTaskCard = ({
           {item.source === "auto_yearly" && (
             <Badge className="text-xs bg-emerald-100 text-emerald-800">Yearly</Badge>
           )}
-          {/* SLA timer */}
+          {/* SLA timer for customer issues (purple/amber) */}
           {sla && (
             <Badge className={`text-xs ${sla.expired ? "bg-red-500 text-white" : sla.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
               <Timer size={10} className="mr-1" />
               {sla.text}
+            </Badge>
+          )}
+          {/* Repair timer for warranty service (orange) */}
+          {repairTimer && (
+            <Badge className={`text-xs ${repairTimer.expired ? "bg-red-500 text-white" : repairTimer.urgent ? "bg-orange-600 text-white" : "bg-orange-100 text-orange-800"}`}>
+              <Wrench size={10} className="mr-1" />
+              {repairTimer.text}
             </Badge>
           )}
           {/* Resolved badge */}

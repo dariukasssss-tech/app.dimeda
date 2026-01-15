@@ -40,6 +40,38 @@ const calculateSLARemaining = (item) => {
 };
 
 /**
+ * Calculate 24h warranty repair time remaining
+ */
+const calculateRepairTimeRemaining = (linkedIssue) => {
+  if (!linkedIssue) return null;
+  if (linkedIssue.status === "resolved") return null;
+  
+  // Use warranty_repair_started_at if available, otherwise use when issue moved to in_service
+  const startTime = linkedIssue.warranty_repair_started_at || linkedIssue.created_at;
+  if (!startTime) return null;
+  
+  const createdAt = new Date(startTime);
+  const deadline = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const diffMs = deadline - now;
+  
+  if (diffMs <= 0) {
+    const overdue = Math.abs(diffMs);
+    const hours = Math.floor(overdue / (1000 * 60 * 60));
+    const minutes = Math.floor((overdue % (1000 * 60 * 60)) / (1000 * 60));
+    return { expired: true, text: `Overdue ${hours}h ${minutes}m`, urgent: true };
+  }
+  
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if (hours > 0) {
+    return { expired: false, text: `${hours}h ${minutes}m`, urgent: hours < 6 };
+  }
+  return { expired: false, text: `${minutes}m`, urgent: true };
+};
+
+/**
  * MaintenanceTaskCard - Reusable card for maintenance/scheduled tasks
  * 
  * @param {Object} props

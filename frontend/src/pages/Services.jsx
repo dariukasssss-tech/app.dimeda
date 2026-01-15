@@ -660,19 +660,19 @@ const Services = () => {
         <TabsList className="grid w-full grid-cols-4 max-w-2xl">
           <TabsTrigger value="issues" className="flex items-center gap-2">
             <Clock size={16} />
-            In Progress ({inProgressIssues.length})
+            {t("issues.inProgress") || "In Progress"} ({inProgressIssues.length})
           </TabsTrigger>
           <TabsTrigger value="in_service" className="flex items-center gap-2">
             <Shield size={16} />
-            In Service ({inServiceIssues.length + warrantyServiceIssues.length})
+            {t("issues.inService") || "In Service"} ({inServiceIssues.length + warrantyServiceIssues.length})
           </TabsTrigger>
           <TabsTrigger value="resolved" className="flex items-center gap-2">
             <CheckCircle size={16} />
-            Resolved ({resolvedWarrantyIssues.length + resolvedNonWarrantyIssues.length})
+            {t("issues.resolved") || "Resolved"} ({resolvedWarrantyIssues.length + resolvedNonWarrantyIssues.length})
           </TabsTrigger>
           <TabsTrigger value="services" className="flex items-center gap-2">
             <Wrench size={16} />
-            Records ({services.length})
+            {t("services.records") || "Records"} ({services.length})
           </TabsTrigger>
         </TabsList>
 

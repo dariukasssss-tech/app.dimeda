@@ -168,29 +168,41 @@ estimated_cost, product_location, source, created_at, resolution}
 │   ├── maintenance.py
 │   ├── auth.py
 │   └── technician.py
-└── routes/
-    ├── auth.py
-    ├── products.py
-    ├── services.py
-    ├── issues.py
-    ├── maintenance.py
-    ├── export.py
-    ├── stats.py
-    └── technician.py
+├── routes/
+│   ├── auth.py
+│   ├── products.py
+│   ├── services.py
+│   ├── issues.py
+│   ├── maintenance.py
+│   ├── export.py
+│   ├── stats.py
+│   ├── technician.py
+│   └── translations.py  # i18n API endpoint
+└── translations/        # i18n JSON files
+    ├── en.json          # English
+    └── lt.json          # Lithuanian
 ```
 
 ### Frontend Structure
 ```
 /app/frontend/src/
 ├── App.js              # Main app entry (190 lines)
+├── contexts/
+│   └── TranslationContext.jsx  # i18n React Context
 ├── layouts/
 │   ├── AdminLayout.jsx
 │   ├── CustomerLayout.jsx
 │   └── TechnicianLayout.jsx
 ├── components/
-│   ├── Navigation.jsx  # Admin navigation with notifications
-│   └── ui/             # Shadcn UI components
-└── pages/              # All page components
+│   ├── Navigation.jsx       # Admin navigation with notifications
+│   ├── LanguageSwitcher.jsx # Language dropdown component
+│   ├── common/              # Reusable common components
+│   │   ├── Badges.jsx       # Status, Warranty, Severity badges
+│   │   ├── UIElements.jsx   # Loading, Empty, Error states
+│   │   ├── ProductUtils.jsx # Product info helpers
+│   │   └── index.js
+│   └── ui/                  # Shadcn UI components
+└── pages/                   # All page components
 ```
 
 ## P1 - Upcoming Tasks

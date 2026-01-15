@@ -368,7 +368,7 @@ const Services = () => {
           </DialogTrigger>
           <DialogContent className="max-w-lg" data-testid="service-dialog">
             <DialogHeader>
-              <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Add Service Record</DialogTitle>
+              <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>{t("services.addServiceRecord") || "Add Service Record"}</DialogTitle>
             </DialogHeader>
             
             {/* Service Mode Selection */}

@@ -1047,12 +1047,6 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
               </div>
             );
           })()}
-          
-          <div className="flex justify-end pt-4 border-t mt-4">
-            <Button variant="outline" onClick={() => setTaskDetailOpen(false)}>
-              Close
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
     </div>

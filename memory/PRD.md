@@ -218,8 +218,11 @@ estimated_cost, product_location, source, created_at, resolution}
 
 ### Scheduled Maintenance
 ```
-{product_id, scheduled_date, maintenance_type, technician_name, status, notes, source, issue_id}
+{product_id, scheduled_date, maintenance_type, technician_name, status, notes, source, issue_id, priority}
 ```
+- scheduled_date: Optional (null for pending_schedule)
+- status: "scheduled" | "in_progress" | "completed" | "pending_schedule"
+- source: "auto_yearly" | "customer_issue" | "issue"
 
 ## Code Architecture (Post-Refactoring)
 

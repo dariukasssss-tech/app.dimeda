@@ -42,6 +42,7 @@ import { format } from "date-fns";
 const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];
 
 const Services = () => {
+  const { t } = useTranslation();
   const [services, setServices] = useState([]);
   const [inProgressIssues, setInProgressIssues] = useState([]);
   const [inServiceIssues, setInServiceIssues] = useState([]); // Warranty issues waiting for service

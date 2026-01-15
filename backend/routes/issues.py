@@ -305,6 +305,13 @@ async def update_issue(issue_id: str, update: IssueUpdate):
     await db.issues.update_one({"id": issue_id}, {"$set": update_data})
     updated = await db.issues.find_one({"id": issue_id}, {"_id": 0})
     
+    # Update maintenance item status when issue is resolved
+    if update_data.get("status") == "resolved":
+        await db.scheduled_maintenance.update_many(
+            {"issue_id": issue_id},
+            {"$set": {"status": "completed"}}
+        )
+    
     # AUTO-RESOLVE PARENT: When a child issue is resolved, check if all siblings are resolved
     if update_data.get("status") == "resolved" and existing.get("parent_issue_id"):
         parent_id = existing.get("parent_issue_id")

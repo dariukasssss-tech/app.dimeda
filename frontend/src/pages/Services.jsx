@@ -808,6 +808,14 @@ const Services = () => {
                             <span>Assigned: {new Date(issue.technician_assigned_at).toLocaleString()}</span>
                           )}
                         </div>
+                        
+                        {/* Contact Details Button */}
+                        <div className="mt-3">
+                          <ContactDetailsPopup 
+                            issue={issue} 
+                            products={products}
+                          />
+                        </div>
                       </div>
                       
                       {/* Resolve Button */}
@@ -962,6 +970,14 @@ const Services = () => {
                                 Assigned to: {linkedServiceIssue.technician_name}
                               </p>
                             )}
+                            
+                            {/* Contact Details Button */}
+                            <div className="mt-3">
+                              <ContactDetailsPopup 
+                                issue={issue} 
+                                products={products}
+                              />
+                            </div>
                           </div>
                           <div className="flex flex-col gap-2">
                             <Button
@@ -1069,6 +1085,14 @@ const Services = () => {
                               </p>
                             )}
                             <p className="text-xs text-blue-600 mt-1">Click to view full track</p>
+                            
+                            {/* Contact Details Button */}
+                            <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+                              <ContactDetailsPopup 
+                                issue={issue} 
+                                products={products}
+                              />
+                            </div>
                           </div>
                         </div>
                       </CardContent>
@@ -1138,6 +1162,14 @@ const Services = () => {
                                 Resolved: {new Date(issue.resolved_at).toLocaleString()}
                               </p>
                             )}
+                            
+                            {/* Contact Details Button */}
+                            <div className="mt-3">
+                              <ContactDetailsPopup 
+                                issue={issue} 
+                                products={products}
+                              />
+                            </div>
                           </div>
                         </div>
                       </CardContent>

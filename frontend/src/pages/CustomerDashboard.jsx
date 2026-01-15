@@ -36,6 +36,7 @@ const CustomerDashboard = () => {
   const [successMessage, setSuccessMessage] = useState(null);
   const [cityFilter, setCityFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedModelType, setSelectedModelType] = useState("");
   const [formData, setFormData] = useState({
     selected_city: "",
     product_id: "",

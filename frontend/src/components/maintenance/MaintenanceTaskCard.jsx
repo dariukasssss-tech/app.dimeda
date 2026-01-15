@@ -86,14 +86,14 @@ const MaintenanceTaskCard = ({
 
   return (
     <div
-      className={`p-4 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer ${getBorderColor()}`}
+      className={`p-4 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer min-h-[160px] ${getBorderColor()}`}
       onClick={(e) => onTaskClick && onTaskClick(item, e)}
       data-testid={`maintenance-task-${item.id}`}
     >
       {/* Header with S/N and Status */}
       <div className="flex items-center justify-between mb-2 pr-12">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-slate-900">
+          <span className="font-bold text-slate-900" style={{ fontFamily: 'system-ui, sans-serif' }}>
             {product?.serial_number || "Unknown"}
           </span>
           {linkedIssue?.issue_code && (

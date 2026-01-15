@@ -363,12 +363,25 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
   };
 
   // Filtered items for the list below calendar
+  // Filter maintenance items - include both scheduled items for current month AND pending_schedule items
   const filteredMaintenance = maintenanceItems
     .filter((item) => {
+      // Always include pending_schedule items (Roll-in without date)
+      if (item.status === "pending_schedule") return true;
+      // For items with scheduled_date, filter by month
+      if (!item.scheduled_date) return false;
       const itemDate = new Date(item.scheduled_date);
       return isSameMonth(itemDate, currentMonth);
     })
-    .sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
+    .sort((a, b) => {
+      // Pending schedule items go to the top
+      if (a.status === "pending_schedule" && b.status !== "pending_schedule") return -1;
+      if (b.status === "pending_schedule" && a.status !== "pending_schedule") return 1;
+      // Otherwise sort by date
+      if (!a.scheduled_date) return -1;
+      if (!b.scheduled_date) return 1;
+      return new Date(a.scheduled_date) - new Date(b.scheduled_date);
+    });
 
   // Generate month options for filter
   const monthOptions = [];

@@ -200,10 +200,10 @@ const TechnicianServices = ({ selectedTechnician }) => {
     
     try {
       if (isCompletingWarrantyRepair) {
-        // Completing warranty repair - mark as resolved and complete the repair
+        // Completing warranty repair - mark as resolved with Service Note
         await axios.put(`${API}/issues/${selectedIssue.id}`, {
           status: "resolved",
-          resolution: resolveData.resolution, // This is the "Service Works" description
+          service_note: resolveData.resolution, // Save as Service Note (not overwrite Inspection Note)
           complete_repair: true,
           repair_notes: resolveData.resolution,
           spare_parts_used: resolveData.spare_parts_used,
@@ -211,10 +211,10 @@ const TechnicianServices = ({ selectedTechnician }) => {
         });
         toast.success("Warranty repair completed - Issue resolved");
       } else {
-        // First-time resolution
+        // First-time resolution - save as Inspection Note (resolution field)
         await axios.put(`${API}/issues/${selectedIssue.id}`, {
           status: "resolved",
-          resolution: resolveData.resolution,
+          resolution: resolveData.resolution, // Inspection Note
           warranty_service_type: resolveData.warranty_service_type,
           create_service_record: resolveData.warranty_service_type === "non_warranty" ? resolveData.create_service_record : false,
           spare_parts_used: resolveData.spare_parts_used,

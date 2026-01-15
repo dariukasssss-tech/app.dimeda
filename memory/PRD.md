@@ -184,6 +184,26 @@ Three-portal system with role-based access:
   - `/layouts/TechnicianLayout.jsx` - Technician portal layout
   - `/components/Navigation.jsx` - Admin navigation with notifications
 
+### P1 Component Refactoring (Jan 15, 2026)
+**Line Count Reductions:**
+- `Services.jsx`: 1570 → 1228 lines (342 lines, -22%)
+- `TechnicianCalendar.jsx`: 1290 → 1060 lines (230 lines, -18%)
+- `MaintenanceCalendar.jsx`: 1294 → 1203 lines (91 lines, -7%)
+- **Total: 4154 → 3491 lines (663 lines removed, -16%)**
+
+**Reusable Components Created:**
+- `/components/issues/IssueCard.jsx` (273 lines) - Issue cards with badges, SLA, Roll-in support
+- `/components/issues/ResolvedIssueCard.jsx` (120 lines) - Resolved issues with warranty/non-warranty
+- `/components/issues/InServiceIssueCard.jsx` (145 lines) - In-service warranty issues
+- `/components/services/ServiceRecordCard.jsx` (99 lines) - Service record display
+- `/components/maintenance/MaintenanceTaskCard.jsx` (271 lines) - Maintenance task cards for calendars
+
+**Benefits:**
+- Improved code maintainability and readability
+- Consistent UI across Admin, Technician, and Customer portals
+- Easier to add new features or modify existing card designs
+- Reduced code duplication
+
 ### Customer Portal Enhancements (Jan 14, 2026)
 - Added **Status/Condition Filter** (Filter #2): Reported, Registered, In Progress, Resolved
 - **3-Date Display** for resolved issues: Reported, Registered, Resolved dates

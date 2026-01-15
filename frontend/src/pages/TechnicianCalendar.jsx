@@ -651,7 +651,7 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                         {item.source === "auto_yearly" && (
                           <Badge className="text-xs bg-emerald-100 text-emerald-800">Yearly</Badge>
                         )}
-                        {item.source === "customer_issue" && item.status !== "completed" && (() => {
+                        {item.source === "customer_issue" && item.status !== "completed" && linkedIssue?.status !== "resolved" && (() => {
                           const sla = calculateSLARemaining(item);
                           if (!sla) return null;
                           return (

@@ -342,6 +342,14 @@ const TechnicianServices = ({ selectedTechnician }) => {
             </div>
           )}
           
+          {/* Contact Details Button */}
+          <div className="mt-2" onClick={(e) => e.stopPropagation()}>
+            <ContactDetailsPopup 
+              issue={issue} 
+              products={products}
+            />
+          </div>
+          
           {/* Click hint */}
           <div className="flex items-center justify-end">
             <span className="text-xs text-slate-400 flex items-center gap-1">

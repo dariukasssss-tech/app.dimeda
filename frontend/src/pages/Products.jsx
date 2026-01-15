@@ -58,6 +58,10 @@ import { format, addYears } from "date-fns";
 
 const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
 const MODEL_OPTIONS = ["Powered Stretchers", "Roll-in stretchers"];
+const MODEL_TYPES = [
+  { value: "powered", label: "Powered Stretcher" },
+  { value: "roll_in", label: "Roll-in Stretcher" }
+];
 
 const Products = () => {
   const { t } = useTranslation();
@@ -65,6 +69,7 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [cityFilter, setCityFilter] = useState("all");
+  const [modelTypeFilter, setModelTypeFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -75,6 +80,7 @@ const Products = () => {
   const [formData, setFormData] = useState({
     serial_number: "",
     model_name: "",
+    model_type: "powered",
     city: "",
     location_detail: "",
     notes: "",

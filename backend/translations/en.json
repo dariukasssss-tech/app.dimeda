@@ -224,6 +224,18 @@
     "issueReported": "Issue reported successfully",
     "productLocation": "Product Location"
   },
+  "export": {
+    "title": "Export Data",
+    "description": "Download your data as CSV files or generate PDF reports",
+    "exportCSV": "Export CSV",
+    "exporting": "Exporting...",
+    "pdfGenerated": "PDF report generated successfully",
+    "productsDescription": "Export all registered stretchers with serial numbers, locations, and registration dates.",
+    "servicesDescription": "Export complete service history including technician names, service types, and descriptions.",
+    "issuesDescription": "Export all reported issues with status, severity, and resolution notes.",
+    "deviceInspectionReport": "Device Inspection Report",
+    "generatePdfReport": "Generate a PDF report for a specific product"
+  },
   "time": {
     "hoursLeft": "{hours}h {minutes}m left",
     "minutesLeft": "{minutes}m left",

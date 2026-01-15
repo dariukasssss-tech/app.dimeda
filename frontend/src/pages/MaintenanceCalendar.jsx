@@ -970,12 +970,16 @@ const MaintenanceCalendar = () => {
                         S/N: {getProductSerial(item.product_id)}
                       </p>
                       <p className="text-sm text-slate-600 capitalize">
-                        {item.maintenance_type === "customer_issue" ? "Customer Issue" : item.maintenance_type.replace("_", " ")} • {item.source === "customer_issue" ? (
-                          <span className={`font-medium ${isRollIn ? "text-teal-700" : "text-purple-700"}`}>
-                            Solve by: {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
-                          </span>
+                        {item.maintenance_type === "customer_issue" ? "Customer Issue" : item.maintenance_type.replace("_", " ")} • {item.scheduled_date ? (
+                          item.source === "customer_issue" ? (
+                            <span className={`font-medium ${isRollIn ? "text-teal-700" : "text-purple-700"}`}>
+                              {isRollIn ? "Scheduled: " : "Solve by: "}{format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
+                            </span>
+                          ) : (
+                            format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")
+                          )
                         ) : (
-                          format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")
+                          <span className="text-amber-600 font-medium">Pending Schedule</span>
                         )}
                       </p>
                       {/* Notes for customer issues */}

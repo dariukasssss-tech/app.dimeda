@@ -357,16 +357,16 @@ const MaintenanceCalendar = () => {
     const diffMs = scheduledDate - now;
     
     if (diffMs <= 0) {
-      return { expired: true, text: "SLA Expired" };
+      return { expired: true, text: t("time.slaExpired") };
     }
     
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
     const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
     
     if (hours > 0) {
-      return { expired: false, text: `${hours}h ${minutes}m left` };
+      return { expired: false, text: t("time.hoursLeft", { hours, minutes }) };
     }
-    return { expired: false, text: `${minutes}m left`, urgent: true };
+    return { expired: false, text: t("time.minutesLeft", { minutes }), urgent: true };
   };
 
   const statusColors = {
@@ -391,9 +391,9 @@ const MaintenanceCalendar = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-            Maintenance Calendar
+            {t("calendar.title")}
           </h1>
-          <p className="text-slate-500 mt-1">Schedule and track maintenance for all units</p>
+          <p className="text-slate-500 mt-1">{t("calendar.scheduleAndTrack") || "Schedule and track maintenance for all units"}</p>
         </div>
         <Button
           onClick={() => openNewMaintenanceDialog()}
@@ -401,7 +401,7 @@ const MaintenanceCalendar = () => {
           data-testid="schedule-maintenance-btn"
         >
           <Plus size={18} className="mr-2" />
-          Schedule Maintenance
+          {t("maintenance.scheduleMaintenance")}
         </Button>
       </div>
 
@@ -415,7 +415,7 @@ const MaintenanceCalendar = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-500">Upcoming (30 days)</p>
+                <p className="text-sm font-medium text-slate-500">{t("calendar.upcoming")} (30 {t("calendar.days") || "days"})</p>
                 <p className="text-3xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Manrope, sans-serif' }}>
                   {upcomingCount.upcoming}
                 </p>

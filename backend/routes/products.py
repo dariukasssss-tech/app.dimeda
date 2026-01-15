@@ -1,10 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from typing import List
 from datetime import datetime, timezone, timedelta
 from models.product import ProductCreate, Product
 from models.maintenance import ScheduledMaintenance
 from core.database import db
 from core.config import VALID_CITIES
+from core.exceptions import NotFoundError, ResourceExistsError, InvalidFieldError
+from core.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -12,12 +16,14 @@ router = APIRouter(prefix="/products", tags=["products"])
 async def create_product(product: ProductCreate):
     # Validate city
     if product.city not in VALID_CITIES:
-        raise HTTPException(status_code=400, detail=f"Invalid city. Must be one of: {', '.join(VALID_CITIES)}")
+        raise InvalidFieldError("city", product.city, VALID_CITIES)
     
     # Check if serial number already exists
     existing = await db.products.find_one({"serial_number": product.serial_number}, {"_id": 0})
     if existing:
-        raise HTTPException(status_code=400, detail="Product with this serial number already exists")
+        raise ResourceExistsError("Product", "serial_number", product.serial_number)
+    
+    logger.info(f"Creating product with serial number {product.serial_number}")
     
     # Use provided registration date or default to now
     product_data = product.model_dump()
@@ -49,6 +55,7 @@ async def create_product(product: ProductCreate):
         )
         await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
     
+    logger.info(f"Product {product.serial_number} created with ID {product_obj.id}")
     return product_obj
 
 @router.get("", response_model=List[Product])
@@ -63,7 +70,7 @@ async def get_products():
 async def get_product(product_id: str):
     product = await db.products.find_one({"id": product_id}, {"_id": 0})
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise NotFoundError("Product", product_id)
     if not product.get("registration_date"):
         product["registration_date"] = datetime.now(timezone.utc).isoformat()
     return product
@@ -72,7 +79,7 @@ async def get_product(product_id: str):
 async def get_product_by_serial(serial_number: str):
     product = await db.products.find_one({"serial_number": serial_number}, {"_id": 0})
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise NotFoundError("Product", serial_number, "Product with this serial number not found")
     if not product.get("registration_date"):
         product["registration_date"] = datetime.now(timezone.utc).isoformat()
     return product
@@ -81,10 +88,12 @@ async def get_product_by_serial(serial_number: str):
 async def update_product(product_id: str, product: ProductCreate):
     existing = await db.products.find_one({"id": product_id}, {"_id": 0})
     if not existing:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise NotFoundError("Product", product_id)
     
     if product.city not in VALID_CITIES:
-        raise HTTPException(status_code=400, detail=f"Invalid city. Must be one of: {', '.join(VALID_CITIES)}")
+        raise InvalidFieldError("city", product.city, VALID_CITIES)
+    
+    logger.info(f"Updating product {product_id}")
     
     update_data = product.model_dump()
     
@@ -129,5 +138,6 @@ async def update_product(product_id: str, product: ProductCreate):
 async def delete_product(product_id: str):
     result = await db.products.delete_one({"id": product_id})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise NotFoundError("Product", product_id)
+    logger.info(f"Deleted product {product_id}")
     return {"message": "Product deleted successfully"}

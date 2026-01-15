@@ -419,7 +419,7 @@ const MaintenanceCalendar = () => {
                 <p className="text-3xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Manrope, sans-serif' }}>
                   {upcomingCount.upcoming}
                 </p>
-                <p className="text-xs text-[#0066CC] mt-1">Click to view details</p>
+                <p className="text-xs text-[#0066CC] mt-1">{t("services.clickForDetails")}</p>
               </div>
               <div className="w-12 h-12 bg-[#0066CC] rounded-xl flex items-center justify-center">
                 <Clock className="text-white" size={24} />
@@ -436,11 +436,11 @@ const MaintenanceCalendar = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-500">Overdue</p>
+                <p className="text-sm font-medium text-slate-500">{t("calendar.overdue")}</p>
                 <p className="text-3xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Manrope, sans-serif' }}>
                   {upcomingCount.overdue}
                 </p>
-                <p className="text-xs text-red-500 mt-1">Click to view details</p>
+                <p className="text-xs text-red-500 mt-1">{t("services.clickForDetails")}</p>
               </div>
               <div className={`w-12 h-12 ${upcomingCount.overdue > 0 ? 'bg-red-500' : 'bg-slate-400'} rounded-xl flex items-center justify-center`}>
                 <AlertTriangle className="text-white" size={24} />
@@ -457,11 +457,11 @@ const MaintenanceCalendar = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-500">This Month</p>
+                <p className="text-sm font-medium text-slate-500">{t("calendar.thisMonth") || "This Month"}</p>
                 <p className="text-3xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Manrope, sans-serif' }}>
                   {filteredMaintenance.filter(m => m.status === "scheduled").length}
                 </p>
-                <p className="text-xs text-emerald-500 mt-1">Click to view details</p>
+                <p className="text-xs text-emerald-500 mt-1">{t("services.clickForDetails")}</p>
               </div>
               <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center">
                 <CalendarDays className="text-white" size={24} />
@@ -473,14 +473,14 @@ const MaintenanceCalendar = () => {
         {/* City Filter */}
         <Card data-testid="city-filter-card">
           <CardContent className="pt-6">
-            <p className="text-sm font-medium text-slate-500 mb-2">Filter by City</p>
+            <p className="text-sm font-medium text-slate-500 mb-2">{t("common.filterByCity") || "Filter by City"}</p>
             <Select value={cityFilter} onValueChange={setCityFilter}>
               <SelectTrigger data-testid="calendar-city-filter">
                 <Building2 size={16} className="mr-2" />
-                <SelectValue placeholder="All cities" />
+                <SelectValue placeholder={t("common.allCities") || "All cities"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Cities</SelectItem>
+                <SelectItem value="all">{t("common.allCities") || "All Cities"}</SelectItem>
                 {CITIES.map((city) => (
                   <SelectItem key={city} value={city}>{city}</SelectItem>
                 ))}
@@ -495,7 +495,7 @@ const MaintenanceCalendar = () => {
         <CardContent className="pt-4 pb-4">
           {/* Legend Row */}
           <div className="flex flex-wrap items-center gap-4 text-sm mb-4">
-            <span className="font-medium text-slate-600">Legend:</span>
+            <span className="font-medium text-slate-600">{t("calendar.legend")}:</span>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded bg-emerald-500"></div>
               <span className="text-slate-600">Yearly Maintenance</span>

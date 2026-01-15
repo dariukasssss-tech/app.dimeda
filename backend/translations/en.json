@@ -236,6 +236,26 @@
     "deviceInspectionReport": "Device Inspection Report",
     "generatePdfReport": "Generate a PDF report for a specific product"
   },
+  "customers": {
+    "title": "Customers",
+    "addCustomer": "Add Customer",
+    "editCustomer": "Edit Customer",
+    "deleteCustomer": "Delete Customer",
+    "manageCustomers": "Manage customer information by city",
+    "name": "Name",
+    "companyName": "Company or institution name",
+    "address": "Address",
+    "fullAddress": "Full address",
+    "contactPerson": "Contact Person",
+    "contactPersonName": "Contact person name",
+    "phone": "Phone",
+    "email": "Email",
+    "noCustomers": "No customers found",
+    "addFirstCustomer": "Add your first customer to get started",
+    "customerCreated": "Customer added successfully",
+    "customerUpdated": "Customer updated successfully",
+    "customerDeleted": "Customer deleted successfully"
+  },
   "time": {
     "hoursLeft": "{hours}h {minutes}m left",
     "minutesLeft": "{minutes}m left",

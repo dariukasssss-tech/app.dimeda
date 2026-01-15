@@ -43,6 +43,8 @@ const TechnicianServices = ({ selectedTechnician }) => {
     warranty_service_type: "",
     resolution: "",
     create_service_record: true,
+    spare_parts_used: false,
+    spare_parts: "",
   });
 
   useEffect(() => {

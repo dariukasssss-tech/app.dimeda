@@ -142,7 +142,10 @@
     "resolution": "Resolution",
     "resolutionNotes": "Resolution Notes",
     "resolveIssue": "Resolve Issue",
-    "noIssues": "No issues found"
+    "noIssues": "No issues found",
+    "noInService": "No issues in service",
+    "warrantyServiceDescription": "Warranty service issues will appear here",
+    "viewTrack": "View Track"
   },
   "services": {
     "title": "Services",

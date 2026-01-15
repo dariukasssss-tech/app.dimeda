@@ -660,19 +660,19 @@ const Services = () => {
         <TabsList className="grid w-full grid-cols-4 max-w-2xl">
           <TabsTrigger value="issues" className="flex items-center gap-2">
             <Clock size={16} />
-            {t("issues.inProgress") || "In Progress"} ({inProgressIssues.length})
+            {t("issues.status.inProgress")} ({inProgressIssues.length})
           </TabsTrigger>
           <TabsTrigger value="in_service" className="flex items-center gap-2">
             <Shield size={16} />
-            {t("issues.inService") || "In Service"} ({inServiceIssues.length + warrantyServiceIssues.length})
+            {t("issues.status.inService")} ({inServiceIssues.length + warrantyServiceIssues.length})
           </TabsTrigger>
           <TabsTrigger value="resolved" className="flex items-center gap-2">
             <CheckCircle size={16} />
-            {t("issues.resolved") || "Resolved"} ({resolvedWarrantyIssues.length + resolvedNonWarrantyIssues.length})
+            {t("issues.status.resolved")} ({resolvedWarrantyIssues.length + resolvedNonWarrantyIssues.length})
           </TabsTrigger>
           <TabsTrigger value="services" className="flex items-center gap-2">
             <Wrench size={16} />
-            {t("services.records") || "Records"} ({services.length})
+            {t("services.serviceRecords")} ({services.length})
           </TabsTrigger>
         </TabsList>
 
@@ -681,14 +681,14 @@ const Services = () => {
           <div className="space-y-4" data-testid="in-progress-issues-list">
             {loading ? (
               <Card>
-                <CardContent className="py-12 text-center text-slate-500">Loading...</CardContent>
+                <CardContent className="py-12 text-center text-slate-500">{t("common.loading")}</CardContent>
               </Card>
             ) : inProgressIssues.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
                   <Clock className="mx-auto text-slate-300" size={48} />
-                  <p className="text-slate-500 mt-4">{t("issues.noInProgress") || "No issues in progress"}</p>
-                  <p className="text-sm text-slate-400 mt-1">{t("issues.inProgressDescription") || 'Issues marked as "In Progress" will appear here'}</p>
+                  <p className="text-slate-500 mt-4">{t("services.noInProgress")}</p>
+                  <p className="text-sm text-slate-400 mt-1">{t("services.clickStartWork")}</p>
                 </CardContent>
               </Card>
             ) : (

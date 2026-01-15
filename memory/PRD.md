@@ -200,8 +200,9 @@ Three-portal system with role-based access:
 
 ### Products
 ```
-{serial_number, model_name, city, location_detail, notes, registration_date, status}
+{serial_number, model_name, model_type, city, location_detail, notes, registration_date, status}
 ```
+- model_type: "powered" | "roll_in"
 
 ### Issues
 ```

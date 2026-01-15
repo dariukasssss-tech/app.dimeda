@@ -1,11 +1,15 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 from models.issue import IssueCreate, Issue, CustomerIssueCreate, IssueUpdate, RepairAttempt
 from models.maintenance import ScheduledMaintenance
 from models.service import ServiceRecord
 from core.database import db
+from core.exceptions import NotFoundError, ValidationError, DatabaseError
+from core.logging_config import get_logger
 import uuid
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/issues", tags=["issues"])
 

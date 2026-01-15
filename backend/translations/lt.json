@@ -70,7 +70,39 @@
     "status": "Būsena",
     "active": "Aktyvus",
     "inactive": "Neaktyvus",
-    "noProducts": "Produktų nerasta"
+    "noProducts": "Produktų nerasta",
+    "manageProducts": "Valdyti registruotus neštuvus",
+    "notes": "Pastabos",
+    "viewDetails": "Peržiūrėti detales",
+    "productHistory": "Produkto istorija"
+  },
+  "maintenance": {
+    "title": "Priežiūra",
+    "scheduleMaintenance": "Planuoti priežiūrą",
+    "maintenanceType": "Priežiūros tipas",
+    "routine": "Reguliari",
+    "inspection": "Patikrinimas",
+    "repair": "Remontas",
+    "customerIssue": "Kliento problema",
+    "warrantyService": "Garantinis aptarnavimas",
+    "yearlySchedule": "Metinės priežiūros grafikas",
+    "year": "Metai",
+    "recalculateNote": "Pakeitus datą bus perskaičiuotos visos metinės priežiūros"
+  },
+  "messages": {
+    "issueCreated": "Problema sukurta sėkmingai",
+    "issueUpdated": "Problema atnaujinta sėkmingai",
+    "issueDeleted": "Problema ištrinta sėkmingai",
+    "issueResolved": "Problema išspręsta sėkmingai",
+    "repairStarted": "Pradėtas remontas",
+    "repairCompleted": "Remontas baigtas - Problema išspręsta",
+    "movedToServiceRecords": "Problema perkelta į paslaugų įrašus",
+    "technicianAssigned": "Technikas priskirtas sėkmingai",
+    "taskMarkedInProgress": "Užduotis pažymėta kaip vykdoma",
+    "confirmDelete": "Ar tikrai norite ištrinti šį elementą?",
+    "productCreated": "Produktas sėkmingai užregistruotas",
+    "productUpdated": "Produktas sėkmingai atnaujintas",
+    "productDeleted": "Produktas sėkmingai ištrintas"
   },
   "issues": {
     "title": "Problemos",

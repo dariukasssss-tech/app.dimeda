@@ -976,7 +976,7 @@ const Services = () => {
                               disabled={!linkedServiceIssue}
                             >
                               <CheckCircle size={14} className="mr-1" />
-                              Complete Service
+                              {t("services.completeService") || "Complete Service"}
                             </Button>
                             <Button
                               size="sm"
@@ -987,7 +987,7 @@ const Services = () => {
                               }}
                             >
                               <FileText size={14} className="mr-1" />
-                              View Track
+                              {t("issues.viewTrack") || "View Track"}
                             </Button>
                           </div>
                         </div>

@@ -722,55 +722,85 @@ const Products = () => {
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          {productDetails.maintenance.map((maint) => (
-                            <Card 
-                              key={maint.id} 
-                              className="border-l-4"
-                              style={{ 
-                                borderLeftColor: 
-                                  maint.status === "completed" ? "#1F2937" :
-                                  maint.status === "in_progress" ? "#3B82F6" :
-                                  maint.source === "auto_yearly" ? "#10B981" :
-                                  maint.priority === "12h" ? "#F97316" :
-                                  maint.priority === "24h" ? "#EF4444" : "#3B82F6"
-                              }}
-                            >
-                              <CardContent className="pt-4">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <span className="font-medium capitalize">{maint.maintenance_type.replace("_", " ")}</span>
-                                      <Badge className={getStatusColor(maint.status)}>
-                                        {maint.status}
-                                      </Badge>
-                                      {maint.source === "auto_yearly" && (
-                                        <Badge className="bg-emerald-100 text-emerald-800">Yearly</Badge>
-                                      )}
-                                      {maint.source === "issue" && (
-                                        <Badge className="bg-amber-100 text-amber-800">From Issue</Badge>
-                                      )}
-                                      {maint.priority && (
-                                        <Badge className={maint.priority === "12h" ? "bg-orange-100 text-orange-800" : "bg-red-100 text-red-800"}>
-                                          {maint.priority}
+                          {productDetails.maintenance.map((maint) => {
+                            // Find linked issue to check its status
+                            const linkedIssue = maint.issue_id 
+                              ? productDetails.issues.find(i => i.id === maint.issue_id)
+                              : null;
+                            const isLinkedIssueResolved = linkedIssue?.status === "resolved";
+                            const displayStatus = isLinkedIssueResolved ? "resolved" : maint.status;
+                            const isPendingSchedule = maint.status === "pending_schedule";
+                            
+                            return (
+                              <Card 
+                                key={maint.id} 
+                                className="border-l-4"
+                                style={{ 
+                                  borderLeftColor: 
+                                    isLinkedIssueResolved ? "#1F2937" :
+                                    maint.status === "completed" ? "#1F2937" :
+                                    maint.status === "in_progress" ? "#3B82F6" :
+                                    isPendingSchedule ? "#14B8A6" :
+                                    maint.source === "auto_yearly" ? "#10B981" :
+                                    maint.source === "customer_issue" ? "#A855F7" :
+                                    maint.priority === "12h" ? "#F97316" :
+                                    maint.priority === "24h" ? "#EF4444" : "#3B82F6"
+                                }}
+                              >
+                                <CardContent className="pt-4">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="font-medium capitalize">{maint.maintenance_type.replace("_", " ")}</span>
+                                        <Badge className={
+                                          isLinkedIssueResolved ? "bg-emerald-100 text-emerald-800" :
+                                          isPendingSchedule ? "bg-teal-100 text-teal-800" :
+                                          getStatusColor(maint.status)
+                                        }>
+                                          {isLinkedIssueResolved ? "resolved" : 
+                                           isPendingSchedule ? "Pending Schedule" : maint.status}
                                         </Badge>
+                                        {maint.source === "auto_yearly" && (
+                                          <Badge className="bg-emerald-100 text-emerald-800">Yearly</Badge>
+                                        )}
+                                        {maint.source === "customer_issue" && (
+                                          <Badge className="bg-purple-100 text-purple-800">Customer Issue</Badge>
+                                        )}
+                                        {maint.source === "issue" && (
+                                          <Badge className="bg-amber-100 text-amber-800">From Issue</Badge>
+                                        )}
+                                        {maint.priority && !isLinkedIssueResolved && !isPendingSchedule && (
+                                          <Badge className={maint.priority === "12h" ? "bg-orange-100 text-orange-800" : "bg-red-100 text-red-800"}>
+                                            {maint.priority}
+                                          </Badge>
+                                        )}
+                                        {linkedIssue?.issue_code && (
+                                          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-600 text-xs font-mono">
+                                            {linkedIssue.issue_code}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p className="text-sm text-slate-500 mt-1">
+                                        {maint.scheduled_date ? (
+                                          <>Scheduled: {new Date(maint.scheduled_date).toLocaleString()}</>
+                                        ) : (
+                                          <span className="text-amber-600">Awaiting technician scheduling</span>
+                                        )}
+                                      </p>
+                                      {maint.notes && (
+                                        <p className="text-sm text-slate-600 mt-2">{maint.notes}</p>
+                                      )}
+                                      {maint.technician_name && (
+                                        <p className="text-xs text-slate-400 mt-2">
+                                          Technician: {maint.technician_name}
+                                        </p>
                                       )}
                                     </div>
-                                    <p className="text-sm text-slate-500 mt-1">
-                                      Scheduled: {new Date(maint.scheduled_date).toLocaleString()}
-                                    </p>
-                                    {maint.notes && (
-                                      <p className="text-sm text-slate-600 mt-2">{maint.notes}</p>
-                                    )}
-                                    {maint.technician_name && (
-                                      <p className="text-xs text-slate-400 mt-2">
-                                        Technician: {maint.technician_name}
-                                      </p>
-                                    )}
                                   </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
                         </div>
                       )}
                     </TabsContent>

@@ -60,6 +60,7 @@ const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
 const MODEL_OPTIONS = ["Powered Stretchers", "Roll-in stretchers"];
 
 const Products = () => {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");

@@ -636,17 +636,30 @@ const TechnicianServices = ({ selectedTechnician }) => {
       <Dialog open={resolveDialogOpen} onOpenChange={setResolveDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Resolve Issue</DialogTitle>
+            <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>
+              {selectedIssue?.status === "in_progress" && selectedIssue?.warranty_service_type === "warranty" 
+                ? "Complete Warranty Service" 
+                : "Resolve Issue"}
+            </DialogTitle>
           </DialogHeader>
           {selectedIssue && (
             <div className="space-y-4 mt-4">
               {/* Issue Summary */}
-              <div className="p-3 bg-slate-50 rounded-lg">
+              <div className={`p-3 rounded-lg ${
+                selectedIssue?.status === "in_progress" && selectedIssue?.warranty_service_type === "warranty"
+                  ? "bg-orange-50 border border-orange-200"
+                  : "bg-slate-50"
+              }`}>
                 <p className="font-medium text-slate-900">{selectedIssue.title}</p>
                 <p className="text-sm text-slate-500">S/N: {getProductSerial(selectedIssue.product_id)}</p>
                 {selectedIssue.issue_code && (
                   <span className="mt-1 inline-block px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-mono">
                     {selectedIssue.issue_code}
+                  </span>
+                )}
+                {selectedIssue?.status === "in_progress" && selectedIssue?.warranty_service_type === "warranty" && (
+                  <span className="mt-1 ml-2 inline-block px-2 py-0.5 rounded bg-orange-100 text-orange-800 text-xs font-medium">
+                    Warranty Repair
                   </span>
                 )}
               </div>

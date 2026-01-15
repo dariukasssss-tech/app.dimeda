@@ -113,6 +113,7 @@
     "issueType": "Issue Type",
     "severity": "Severity",
     "description": "Description",
+    "trackAndResolve": "Track and resolve equipment problems",
     "status": {
       "open": "Open",
       "inProgress": "In Progress",

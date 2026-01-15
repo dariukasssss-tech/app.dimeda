@@ -284,6 +284,7 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
       total: monthItems.length,
       completed: monthItems.filter(i => i.status === "completed").length,
       scheduled: monthItems.filter(i => i.status === "scheduled").length,
+      pendingSchedule: monthItems.filter(i => i.status === "pending_schedule").length,
       inProgress: monthItems.filter(i => {
         // Check if the linked issue is resolved - if so, don't count as in_progress
         if (i.status === "in_progress" && i.issue_id) {

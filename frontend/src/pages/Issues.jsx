@@ -258,9 +258,20 @@ const Issues = () => {
     return product?.city || "Unknown";
   };
 
+  // Get product model type
+  const getProductModelType = (productId) => {
+    const product = products.find((p) => p.id === productId);
+    return product?.model_type || "powered";
+  };
+
   // Calculate SLA time remaining for customer issues
+  // NOTE: Roll-in stretchers do NOT have SLA timer
   const calculateSLARemaining = (issue) => {
     if (issue.source !== "customer" || issue.status === "resolved" || !issue.technician_name) return null;
+    
+    // Skip SLA for Roll-in stretchers
+    const modelType = getProductModelType(issue.product_id);
+    if (modelType === "roll_in") return null;
     
     // SLA is 12 hours from issue creation
     const createdAt = new Date(issue.created_at);

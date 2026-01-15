@@ -381,7 +381,7 @@ const Services = () => {
                 data-testid="mode-new-service"
               >
                 <Plus size={16} className="mr-2" />
-                Log New Service
+                {t("services.logNewService") || "Log New Service"}
               </Button>
               <Button
                 type="button"
@@ -391,7 +391,7 @@ const Services = () => {
                 data-testid="mode-from-issue"
               >
                 <FileCheck size={16} className="mr-2" />
-                Choose Service
+                {t("services.chooseService") || "Choose Service"}
               </Button>
             </div>
 

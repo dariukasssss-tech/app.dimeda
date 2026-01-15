@@ -298,7 +298,13 @@ const MaintenanceCalendar = () => {
       yearly: unassignedMaintenance.filter(item => item.source === "auto_yearly" || item.maintenance_type === "routine").length,
       issue12h: unassignedMaintenance.filter(item => item.priority === "12h").length,
       issue24h: unassignedMaintenance.filter(item => item.priority === "24h").length,
-      inProgress: unassignedMaintenance.filter(item => item.status === "in_progress").length,
+      inProgress: unassignedMaintenance.filter(item => {
+        if (item.status === "in_progress" && item.issue_id) {
+          const linkedIssue = issues.find(i => i.id === item.issue_id);
+          if (linkedIssue?.status === "resolved") return false;
+        }
+        return item.status === "in_progress";
+      }).length,
       completed: unassignedMaintenance.filter(item => item.status === "completed").length,
       // Issues stats
       openIssues: unassignedIssues.filter(issue => issue.status === "open").length,

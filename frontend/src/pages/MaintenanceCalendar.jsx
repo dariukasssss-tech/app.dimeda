@@ -983,8 +983,12 @@ const MaintenanceCalendar = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${statusColors[item.status]}`}>
-                      {item.status}
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${
+                      linkedIssue?.status === "resolved" 
+                        ? "bg-emerald-100 text-emerald-800 border-emerald-300" 
+                        : statusColors[item.status]
+                    }`}>
+                      {linkedIssue?.status === "resolved" ? "resolved" : item.status}
                     </span>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

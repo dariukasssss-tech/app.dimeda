@@ -572,7 +572,10 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
               {filteredMaintenance.map((item) => {
                 const linkedIssue = getLinkedIssue(item);
                 const product = products.find(p => p.id === item.product_id);
-                const canStartWork = item.source === "customer_issue" && item.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved";
+                const isRollIn = product?.model_type === "roll_in";
+                const isPendingSchedule = item.status === "pending_schedule";
+                const canStartWork = item.source === "customer_issue" && item.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved" && !isRollIn;
+                const canStartRollInWork = item.source === "customer_issue" && item.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved" && isRollIn;
                 const isWarrantyRepair = item.source === "warranty_service" || linkedIssue?.is_warranty_route;
                 const canContinueRepair = isWarrantyRepair && item.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved";
                 const repairTime = linkedIssue ? calculateRepairTimeRemaining(linkedIssue) : null;
@@ -581,8 +584,10 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                   <div
                     key={item.id}
                     className={`p-4 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all ${
+                      linkedIssue?.status === "resolved" ? "border-slate-800 bg-slate-50" :
                       item.status === "completed" ? "border-slate-800 bg-slate-50" :
                       isWarrantyRepair ? "border-orange-500 bg-orange-50" :
+                      item.source === "customer_issue" && isRollIn ? "border-teal-500" :
                       item.source === "customer_issue" ? "border-purple-500" :
                       item.source === "auto_yearly" ? "border-emerald-500" :
                       item.priority === "12h" ? "border-orange-500" :
@@ -605,9 +610,11 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                         linkedIssue?.status === "resolved" ? "bg-emerald-500 text-white" :
                         item.status === "completed" ? "bg-slate-800 text-white" :
                         item.status === "in_progress" ? "bg-blue-500 text-white" :
+                        isPendingSchedule ? "bg-amber-500 text-white" :
                         "bg-slate-100 text-slate-700"
                       }`}>
-                        {linkedIssue?.status === "resolved" ? "resolved" : item.status}
+                        {linkedIssue?.status === "resolved" ? "resolved" : 
+                         isPendingSchedule ? "Schedule" : item.status}
                       </Badge>
                     </div>
                     
@@ -639,17 +646,29 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                       </span>
                     </div>
                     
-                    {/* Deadline - clickable for details */}
-                    <div 
-                      className={`text-sm font-medium cursor-pointer ${
-                        isWarrantyRepair ? "text-orange-700 hover:text-orange-900" :
-                        item.source === "customer_issue" ? "text-purple-700 hover:text-purple-900" : "text-slate-700 hover:text-slate-900"
-                      }`}
-                      onClick={(e) => handleTaskClick(item, e)}
-                    >
-                      <Clock size={14} className="inline mr-1" />
-                      {isWarrantyRepair ? "Repair by: " : item.source === "customer_issue" ? "Solve by: " : ""}
-                      {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
+                    {/* Deadline - Only show for scheduled items with date (NOT for pending_schedule Roll-in) */}
+                    {item.scheduled_date && !isPendingSchedule && (
+                      <div 
+                        className={`text-sm font-medium cursor-pointer ${
+                          isWarrantyRepair ? "text-orange-700 hover:text-orange-900" :
+                          item.source === "customer_issue" && isRollIn ? "text-teal-700 hover:text-teal-900" :
+                          item.source === "customer_issue" ? "text-purple-700 hover:text-purple-900" : "text-slate-700 hover:text-slate-900"
+                        }`}
+                        onClick={(e) => handleTaskClick(item, e)}
+                      >
+                        <Clock size={14} className="inline mr-1" />
+                        {isWarrantyRepair ? "Repair by: " : item.source === "customer_issue" ? "Solve by: " : ""}
+                        {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
+                      </div>
+                    )}
+                    
+                    {/* Pending Schedule message for Roll-in */}
+                    {isPendingSchedule && (
+                      <div className="text-sm text-amber-700 font-medium mb-2">
+                        <AlertTriangle size={14} className="inline mr-1" />
+                        Please schedule this task
+                      </div>
+                    )}
                     </div>
                     
                     {/* Tags and Action Button */}

@@ -301,7 +301,7 @@ const Products = () => {
               </div>
               
               <div>
-                <Label>Registration Date *</Label>
+                <Label>{t("products.installDate")} *</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -325,23 +325,23 @@ const Products = () => {
               </div>
 
               <div>
-                <Label htmlFor="location_detail">Location Detail</Label>
+                <Label htmlFor="location_detail">{t("products.location")}</Label>
                 <Input
                   id="location_detail"
                   value={formData.location_detail}
                   onChange={(e) => setFormData({ ...formData, location_detail: e.target.value })}
-                  placeholder="e.g., Hospital ABC, Ward 3"
+                  placeholder={t("products.location")}
                   data-testid="input-location-detail"
                   className="mt-1"
                 />
               </div>
               <div>
-                <Label htmlFor="notes">Notes</Label>
+                <Label htmlFor="notes">{t("products.notes") || "Notes"}</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Additional information..."
+                  placeholder={t("products.notes") || "Additional information..."}
                   data-testid="input-notes"
                   className="mt-1"
                 />
@@ -350,23 +350,23 @@ const Products = () => {
               <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
                 <p className="text-sm font-medium text-emerald-800 mb-2">
                   <CalendarIcon size={14} className="inline mr-1" />
-                  Yearly Maintenance Schedule:
+                  {t("maintenance.yearlySchedule") || "Yearly Maintenance Schedule"}:
                 </p>
                 <div className="grid grid-cols-2 gap-1 text-xs text-emerald-700">
                   {getMaintenanceDates().map((date, idx) => (
-                    <div key={idx}>Year {idx + 1}: {date}</div>
+                    <div key={idx}>{t("maintenance.year") || "Year"} {idx + 1}: {date}</div>
                   ))}
                 </div>
                 {editProduct && (
                   <p className="text-xs text-emerald-600 mt-2 italic">
-                    * Changing the date will recalculate all yearly maintenance
+                    * {t("maintenance.recalculateNote") || "Changing the date will recalculate all yearly maintenance"}
                   </p>
                 )}
               </div>
               
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button 
                   type="submit" 
@@ -374,7 +374,7 @@ const Products = () => {
                   data-testid="submit-product-btn"
                   disabled={!formData.serial_number || !formData.city || !formData.model_name}
                 >
-                  {editProduct ? "Update" : "Register"}
+                  {editProduct ? t("common.save") : t("products.addProduct")}
                 </Button>
               </div>
             </form>

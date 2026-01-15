@@ -261,9 +261,9 @@ const CustomerDashboard = () => {
               <div>
                 <Label>{t("products.modelType")}</Label>
                 <Select
-                  value={selectedModelType}
+                  value={selectedModelType || "all"}
                   onValueChange={(value) => {
-                    setSelectedModelType(value);
+                    setSelectedModelType(value === "all" ? "" : value);
                     setFormData({ ...formData, product_id: "" }); // Reset product when type changes
                   }}
                 >

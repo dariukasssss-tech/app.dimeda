@@ -672,7 +672,7 @@ const Products = () => {
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          {productDetails.issues.map((issue) => {
+                          {activeIssues.map((issue) => {
                             const isRollIn = selectedProduct?.model_type === "roll_in";
                             const isResolved = issue.status === "resolved";
                             // Calculate SLA only for powered stretchers

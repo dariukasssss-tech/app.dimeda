@@ -14,7 +14,13 @@
     "error": "An error occurred",
     "success": "Success",
     "warning": "Warning",
-    "actions": "Actions"
+    "actions": "Actions",
+    "product": "Product",
+    "selectProduct": "Select a product",
+    "chooseProduct": "Choose a product",
+    "filterByCity": "Filter by City",
+    "allCities": "All Cities",
+    "retry": "Retry"
   },
   "auth": {
     "login": "Login",

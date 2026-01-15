@@ -280,9 +280,20 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
     return "bg-blue-500";
   };
 
+  // Get product model type
+  const getProductModelType = (productId) => {
+    const product = products.find((p) => p.id === productId);
+    return product?.model_type || "powered";
+  };
+
   // Calculate SLA time remaining
+  // NOTE: Roll-in stretchers do NOT have SLA timer
   const calculateSLARemaining = (item) => {
     if (item.source !== "customer_issue" || item.status === "completed") return null;
+    
+    // Skip SLA for Roll-in stretchers
+    const modelType = getProductModelType(item.product_id);
+    if (modelType === "roll_in") return null;
     
     const scheduledDate = new Date(item.scheduled_date);
     const now = new Date();

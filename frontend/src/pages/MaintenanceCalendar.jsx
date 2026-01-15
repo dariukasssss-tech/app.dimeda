@@ -939,149 +939,57 @@ const MaintenanceCalendar = () => {
               <p className="text-slate-500 mt-4">No maintenance scheduled this month</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid gap-3 md:grid-cols-2">
               {filteredMaintenance.map((item) => {
-                // Find linked issue for customer issues
                 const linkedIssue = item.source === "customer_issue" && item.issue_id 
                   ? issues.find(i => i.id === item.issue_id) 
                   : null;
-                
-                // Get model type for Roll-in distinction
-                const modelType = getProductModelType(item.product_id);
-                const isRollIn = modelType === "roll_in";
+                const product = products.find(p => p.id === item.product_id);
                 
                 return (
-                <div
-                  key={item.id}
-                  className={`flex items-center justify-between p-4 rounded-lg border-l-4 bg-white border ${getTaskBorderColor(item, linkedIssue)}`}
-                  data-testid={`list-item-${item.id}`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-3 h-12 rounded-full ${
-                      linkedIssue?.status === "resolved" ? "bg-slate-800" :
-                      item.status === "completed" ? "bg-slate-800" :
-                      item.status === "in_progress" ? "bg-blue-500" :
-                      item.source === "customer_issue" ? (isRollIn ? "bg-teal-500" : "bg-purple-500") :
-                      item.source === "auto_yearly" || item.maintenance_type === "routine" ? "bg-emerald-500" :
-                      item.priority === "12h" ? "bg-orange-500" :
-                      item.priority === "24h" ? "bg-red-500" : "bg-blue-500"
-                    }`} />
-                    <div>
-                      <p className="font-medium text-slate-900">
-                        S/N: {getProductSerial(item.product_id)}
-                      </p>
-                      <p className="text-sm text-slate-600 capitalize">
-                        {item.maintenance_type === "customer_issue" ? "Customer Issue" : item.maintenance_type.replace("_", " ")} • {item.scheduled_date ? (
-                          item.source === "customer_issue" ? (
-                            <span className={`font-medium ${isRollIn ? "text-teal-700" : "text-purple-700"}`}>
-                              {isRollIn ? "Scheduled: " : "Solve by: "}{format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
-                            </span>
-                          ) : (
-                            format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")
-                          )
-                        ) : (
-                          <span className="text-amber-600 font-medium">Pending Schedule</span>
-                        )}
-                      </p>
-                      {/* Notes for customer issues */}
-                      {item.source === "customer_issue" && item.notes && (
-                        <p className="text-xs text-slate-500 mt-1 max-w-md truncate">
-                          {item.notes}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <Badge variant="outline" className="text-xs">
-                          <Building2 size={10} className="mr-1" />
-                          {getProductCity(item.product_id)}
-                        </Badge>
-                        {item.source === "customer_issue" && (
-                          <Badge className="text-xs bg-purple-100 text-purple-800">
-                            <Users size={10} className="mr-1" />
-                            Customer Issue
-                          </Badge>
-                        )}
-                        {/* Roll-in Stretcher indicator */}
-                        {item.source === "customer_issue" && isRollIn && (
-                          <Badge className="text-xs bg-teal-100 text-teal-800">
-                            Roll-in
-                          </Badge>
-                        )}
-                        {/* SLA Time Remaining for customer issues */}
-                        {item.source === "customer_issue" && item.status !== "completed" && linkedIssue?.status !== "resolved" && (() => {
-                          const sla = calculateSLARemaining(item);
-                          if (!sla) return null;
-                          return (
-                            <Badge className={`text-xs ${sla.expired ? "bg-red-500 text-white" : sla.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
-                              <Timer size={10} className="mr-1" />
-                              {sla.text}
-                            </Badge>
-                          );
-                        })()}
-                        {/* Show Resolved badge for resolved linked issues */}
-                        {item.source === "customer_issue" && linkedIssue?.status === "resolved" && (
-                          <Badge className="text-xs bg-emerald-100 text-emerald-800">
-                            <CheckCircle size={10} className="mr-1" />
-                            Resolved
-                          </Badge>
-                        )}
-                        {item.priority && item.source !== "customer_issue" && (
-                          <Badge className={`text-xs ${item.priority === "12h" ? "bg-orange-100 text-orange-800" : "bg-red-100 text-red-800"}`}>
-                            {item.priority}
-                          </Badge>
-                        )}
-                        {item.source === "auto_yearly" && (
-                          <Badge className="text-xs bg-emerald-100 text-emerald-800">Yearly</Badge>
-                        )}
-                        {item.source === "issue" && (
-                          <Badge className="text-xs bg-amber-100 text-amber-800">From Issue</Badge>
-                        )}
-                        {item.technician_name && (
-                          <span className="text-xs text-slate-500">Tech: {item.technician_name}</span>
-                        )}
-                      </div>
+                  <div key={item.id} className="relative">
+                    <MaintenanceTaskCard
+                      item={item}
+                      linkedIssue={linkedIssue}
+                      product={product}
+                      onTaskClick={() => openEditDialog(item)}
+                      showActions={false}
+                    />
+                    {/* Admin Actions Dropdown */}
+                    <div className="absolute top-3 right-3">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" data-testid={`menu-${item.id}`}>
+                            <MoreVertical size={16} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEditDialog(item)}>
+                            <Wrench size={14} className="mr-2" /> Edit
+                          </DropdownMenuItem>
+                          {item.status === "scheduled" && (
+                            <>
+                              <DropdownMenuItem onClick={() => handleStatusChange(item.id, "completed")}>
+                                <CheckCircle size={14} className="mr-2" /> Mark Completed
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleStatusChange(item.id, "cancelled")}>
+                                <XCircle size={14} className="mr-2" /> Cancel
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                          {item.status !== "scheduled" && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(item.id, "scheduled")}>
+                              <Clock size={14} className="mr-2" /> Reschedule
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onClick={() => handleDelete(item.id)} className="text-red-600">
+                            <Trash2 size={14} className="mr-2" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${
-                      linkedIssue?.status === "resolved" 
-                        ? "bg-emerald-100 text-emerald-800 border-emerald-300" 
-                        : statusColors[item.status]
-                    }`}>
-                      {linkedIssue?.status === "resolved" ? "resolved" : item.status}
-                    </span>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" data-testid={`menu-${item.id}`}>
-                          <MoreVertical size={16} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEditDialog(item)}>
-                          <Wrench size={14} className="mr-2" /> Edit
-                        </DropdownMenuItem>
-                        {item.status === "scheduled" && (
-                          <>
-                            <DropdownMenuItem onClick={() => handleStatusChange(item.id, "completed")}>
-                              <CheckCircle size={14} className="mr-2" /> Mark Completed
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleStatusChange(item.id, "cancelled")}>
-                              <XCircle size={14} className="mr-2" /> Cancel
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                        {item.status !== "scheduled" && (
-                          <DropdownMenuItem onClick={() => handleStatusChange(item.id, "scheduled")}>
-                            <Clock size={14} className="mr-2" /> Reschedule
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onClick={() => handleDelete(item.id)} className="text-red-600">
-                          <Trash2 size={14} className="mr-2" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              );
+                );
               })}
             </div>
           )}

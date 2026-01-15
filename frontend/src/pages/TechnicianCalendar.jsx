@@ -682,12 +682,11 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                       </span>
                     </div>
                     
-                    {/* Deadline - Only show for scheduled items with date (NOT for pending_schedule Roll-in) */}
-                    {item.scheduled_date && !isPendingSchedule && (
+                    {/* Deadline - Only show for scheduled items with date (NOT for Roll-in Stretchers) */}
+                    {item.scheduled_date && !isPendingSchedule && !isRollIn && (
                       <div 
                         className={`text-sm font-medium cursor-pointer ${
                           isWarrantyRepair ? "text-orange-700 hover:text-orange-900" :
-                          item.source === "customer_issue" && isRollIn ? "text-teal-700 hover:text-teal-900" :
                           item.source === "customer_issue" ? "text-purple-700 hover:text-purple-900" : "text-slate-700 hover:text-slate-900"
                         }`}
                         onClick={(e) => handleTaskClick(item, e)}
@@ -695,6 +694,17 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                         <Clock size={14} className="inline mr-1" />
                         {isWarrantyRepair ? "Repair by: " : item.source === "customer_issue" ? "Solve by: " : ""}
                         {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
+                      </div>
+                    )}
+                    
+                    {/* Roll-in scheduled date - just informational, not SLA */}
+                    {item.scheduled_date && !isPendingSchedule && isRollIn && (
+                      <div 
+                        className="text-sm font-medium cursor-pointer text-teal-700 hover:text-teal-900"
+                        onClick={(e) => handleTaskClick(item, e)}
+                      >
+                        <Clock size={14} className="inline mr-1" />
+                        Scheduled: {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
                       </div>
                     )}
                     

@@ -514,13 +514,13 @@ const Services = () => {
             {serviceMode === "new" && (
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               <div>
-                <Label>Product *</Label>
+                <Label>{t("common.product") || "Product"} *</Label>
                 <Select
                   value={formData.product_id}
                   onValueChange={(value) => setFormData({ ...formData, product_id: value })}
                 >
                   <SelectTrigger className="mt-1" data-testid="select-product">
-                    <SelectValue placeholder="Select a product" />
+                    <SelectValue placeholder={t("common.selectProduct") || "Select a product"} />
                   </SelectTrigger>
                   <SelectContent>
                     {products.map((product) => (

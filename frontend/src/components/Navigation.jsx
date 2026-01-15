@@ -284,6 +284,37 @@ const Navigation = ({ onLogout }) => {
               )}
             </div>
             
+            {/* 3-Dot Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex items-center justify-center w-10 h-10 rounded-lg text-slate-600 hover:bg-slate-100 transition-all ml-2"
+                  data-testid="more-menu-btn"
+                >
+                  <MoreVertical size={20} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={() => navigate('/customers')}
+                  className="cursor-pointer"
+                  data-testid="menu-customers"
+                >
+                  <Users size={16} className="mr-2" />
+                  {t("customers.title") || "Customers"}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => setAddCustomerOpen(true)}
+                  className="cursor-pointer"
+                  data-testid="menu-add-customer"
+                >
+                  <UserPlus size={16} className="mr-2" />
+                  {t("customers.addCustomer") || "Add Customer"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all ml-2"

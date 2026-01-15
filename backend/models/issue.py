@@ -70,6 +70,9 @@ class IssueUpdate(BaseModel):
     estimated_fix_time: Optional[str] = None  # For non-warranty
     estimated_cost: Optional[str] = None  # For non-warranty
     create_service_record: Optional[bool] = None  # Auto-create service record
+    # Spare parts tracking
+    spare_parts_used: Optional[bool] = None
+    spare_parts: Optional[str] = None
     # Repair actions
     start_repair: Optional[bool] = None  # Start a new repair attempt
     complete_repair: Optional[bool] = None  # Complete current repair attempt

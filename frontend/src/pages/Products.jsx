@@ -227,9 +227,9 @@ const Products = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-            Products
+            {t("products.title")}
           </h1>
-          <p className="text-slate-500 mt-1">Manage registered stretchers ({products.length} total)</p>
+          <p className="text-slate-500 mt-1">{t("products.manageProducts") || "Manage registered stretchers"} ({products.length} {t("dashboard.stats.totalProducts").toLowerCase()})</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);
@@ -241,36 +241,36 @@ const Products = () => {
           <DialogTrigger asChild>
             <Button className="bg-[#0066CC] hover:bg-[#0052A3]" data-testid="add-product-btn">
               <Plus size={18} className="mr-2" />
-              Register Product
+              {t("products.addProduct")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto" data-testid="product-dialog">
             <DialogHeader>
               <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>
-                {editProduct ? "Edit Product" : "Register New Product"}
+                {editProduct ? t("products.editProduct") : t("products.addProduct")}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               <div>
-                <Label htmlFor="serial_number">Serial Number *</Label>
+                <Label htmlFor="serial_number">{t("products.serialNumber")} *</Label>
                 <Input
                   id="serial_number"
                   value={formData.serial_number}
                   onChange={(e) => setFormData({ ...formData, serial_number: e.target.value })}
-                  placeholder="Enter serial number"
+                  placeholder={t("products.serialNumber")}
                   required
                   data-testid="input-serial-number"
                   className="mt-1"
                 />
               </div>
               <div>
-                <Label htmlFor="model_name">Model *</Label>
+                <Label htmlFor="model_name">{t("products.modelName")} *</Label>
                 <Select
                   value={formData.model_name}
                   onValueChange={(value) => setFormData({ ...formData, model_name: value })}
                 >
                   <SelectTrigger className="mt-1" data-testid="select-model-name">
-                    <SelectValue placeholder="Select model" />
+                    <SelectValue placeholder={t("products.modelName")} />
                   </SelectTrigger>
                   <SelectContent>
                     {MODEL_OPTIONS.map((model) => (
@@ -282,13 +282,13 @@ const Products = () => {
                 </Select>
               </div>
               <div>
-                <Label>City *</Label>
+                <Label>{t("products.city")} *</Label>
                 <Select
                   value={formData.city}
                   onValueChange={(value) => setFormData({ ...formData, city: value })}
                 >
                   <SelectTrigger className="mt-1" data-testid="select-city">
-                    <SelectValue placeholder="Select city" />
+                    <SelectValue placeholder={t("products.city")} />
                   </SelectTrigger>
                   <SelectContent>
                     {CITIES.map((city) => (

@@ -255,8 +255,8 @@ estimated_cost, product_location, source, created_at, resolution}
 ### Internationalization (i18n) Feature (Jan 15, 2026)
 **Backend:**
 - Created `/backend/translations/` directory with JSON files for each language
-- `en.json` - English translations (215+ keys)
-- `lt.json` - Lithuanian translations (215+ keys)
+- `en.json` - English translations (250+ keys)
+- `lt.json` - Lithuanian translations (250+ keys)
 - Added `/api/translations/{lang}` endpoint to serve translations
 - Added `/api/translations/languages` endpoint to list available languages
 - Added `/api/translations/{lang}/validate` endpoint to check for missing keys
@@ -267,11 +267,14 @@ estimated_cost, product_location, source, created_at, resolution}
 - Created `LanguageSwitcher.jsx` component with dropdown selector
 - **Language switcher only on Login page** (removed from portal navigation)
 - Language preference persists in localStorage (`dimeda_language` key)
-- All major components updated to import and use `useTranslation` hook
-- **All pages fully translated:** Dashboard, Products, Issues, Services, Calendar, Export
+- **All pages fully translated:**
+  - Login, Dashboard, Products, Issues
+  - Services (tabs, dialogs, empty states)
+  - Calendar (stats, legend, filters)
+  - Export (cards, PDF report form)
 
 **Login Page UI Updates:**
-- Centered Dimeda logo (1.5x larger)
+- Centered Dimeda logo (1.25x larger)
 - Added "Dimeda Service Pro System" title (always in English, not translatable)
 - Language switcher centered below title
 - Three login cards: Admin, Technician, Customer

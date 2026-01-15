@@ -347,6 +347,50 @@ const Issues = () => {
               <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>{t("issues.addIssue")}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+              {/* City Filter */}
+              <div>
+                <Label>{t("products.city")}</Label>
+                <Select
+                  value={selectedCity}
+                  onValueChange={(value) => {
+                    setSelectedCity(value);
+                    setFormData({ ...formData, product_id: "" }); // Reset product when city changes
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={t("products.city")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Cities</SelectItem>
+                    {cities.map((city) => (
+                      <SelectItem key={city} value={city}>{city}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Model Type Filter */}
+              <div>
+                <Label>{t("products.modelType")}</Label>
+                <Select
+                  value={selectedModelType}
+                  onValueChange={(value) => {
+                    setSelectedModelType(value);
+                    setFormData({ ...formData, product_id: "" }); // Reset product when model type changes
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={t("products.allTypes")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">{t("products.allTypes")}</SelectItem>
+                    <SelectItem value="powered">{t("products.poweredStretcher")}</SelectItem>
+                    <SelectItem value="roll_in">{t("products.rollInStretcher")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Product Selector */}
               <div>
                 <Label>{t("products.title")} *</Label>
                 <Select
@@ -357,11 +401,15 @@ const Issues = () => {
                     <SelectValue placeholder={t("products.title")} />
                   </SelectTrigger>
                   <SelectContent>
-                    {products.map((product) => (
-                      <SelectItem key={product.id} value={product.id}>
-                        {product.serial_number} - {product.model_name}
-                      </SelectItem>
-                    ))}
+                    {filteredProducts.length === 0 ? (
+                      <div className="p-2 text-sm text-slate-500">{t("products.noProducts")}</div>
+                    ) : (
+                      filteredProducts.map((product) => (
+                        <SelectItem key={product.id} value={product.id}>
+                          {product.serial_number} - {product.city}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>

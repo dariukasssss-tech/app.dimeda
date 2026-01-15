@@ -147,8 +147,10 @@ const TechnicianServices = ({ selectedTechnician }) => {
 
   const openResolveDialog = (issue) => {
     setSelectedIssue(issue);
+    // Pre-select warranty if it's a warranty repair in progress
+    const isWarrantyRepairInProgress = issue.status === "in_progress" && issue.warranty_service_type === "warranty";
     setResolveData({
-      warranty_service_type: "",
+      warranty_service_type: isWarrantyRepairInProgress ? "warranty" : "",
       resolution: "",
       create_service_record: true,
       spare_parts_used: false,

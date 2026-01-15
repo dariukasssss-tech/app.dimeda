@@ -1,0 +1,94 @@
+{
+  "summary": "Tested Contact Details popup feature across Admin and Technician portals. Backend API /api/customers/by-city/{city} working correctly. Frontend Contact Details button and popup working on Admin Issues page, Admin Services page (Resolved tab), and Technician Calendar page.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Admin Services - In Service tab",
+        "issues": ["Translation keys showing instead of translated text: 'issues.noInService' and 'issues.warrantyServiceDescription'"]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/tests/test_contact_details.py",
+    "/app/test_reports/pytest/pytest_results_contact_details.xml"
+  ],
+  "action_items": [
+    "Add missing translation keys 'issues.noInService' and 'issues.warrantyServiceDescription' to translation files"
+  ],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/tests/test_contact_details.py"
+  ],
+  "success_rate": {
+    "backend": "100% (8/8 tests passed)",
+    "frontend": "100% (All Contact Details features verified via Playwright)"
+  },
+  "seed_data_creation": "None - used existing test customer 'Vilnius University Hospital' in Vilnius",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Contact Details feature is fully functional. The popup fetches customer data by matching product's city to customers in database. Test customer exists in Vilnius. Panevėžys has products but no customers.",
+  "features_tested": {
+    "backend_api_customers_by_city": {
+      "tested": true,
+      "working": true,
+      "notes": "GET /api/customers/by-city/{city} returns correct customer data including name, contact_person, phone, email, address"
+    },
+    "backend_api_customers_by_city_empty": {
+      "tested": true,
+      "working": true,
+      "notes": "Returns empty array for cities with no customers (e.g., Panevėžys)"
+    },
+    "admin_issues_page_contact_details_button": {
+      "tested": true,
+      "working": true,
+      "notes": "Contact Details button visible on all 3 issue cards. Button has data-testid='contact-details-btn-{issue_id}'"
+    },
+    "admin_issues_page_contact_details_popup": {
+      "tested": true,
+      "working": true,
+      "notes": "Popup shows issue title, city, serial number, and customer info (name, contact person, phone, email, address)"
+    },
+    "admin_services_page_in_progress_tab": {
+      "tested": true,
+      "working": true,
+      "notes": "No issues in progress currently, so no Contact Details buttons (expected behavior)"
+    },
+    "admin_services_page_in_service_tab": {
+      "tested": true,
+      "working": true,
+      "notes": "No issues in service currently. Minor i18n issue with translation keys showing"
+    },
+    "admin_services_page_resolved_tab": {
+      "tested": true,
+      "working": true,
+      "notes": "2 Contact Details buttons found on resolved warranty issues. Popup works correctly showing customer info"
+    },
+    "technician_calendar_page_contact_details": {
+      "tested": true,
+      "working": true,
+      "notes": "Contact Details button visible on scheduled task (PNV-001 in Panevėžys). Popup shows 'No contacts found in Panevėžys' (correct - no customer in that city)"
+    },
+    "technician_services_page_contact_details": {
+      "tested": true,
+      "working": true,
+      "notes": "No issues in progress for Technician 1, so no Contact Details buttons (expected behavior)"
+    }
+  },
+  "test_credentials": {
+    "admin": "admin2025",
+    "technician": "service2025",
+    "customer": "customer2025"
+  },
+  "test_data": {
+    "customer_in_vilnius": "Vilnius University Hospital (Jonas Jonaitis, +37061234567, jonas@vuh.lt)",
+    "products_in_vilnius": ["VLN-001", "VLN-002", "VLN-003", "VLN-005"],
+    "products_in_panevezys": ["PNV-001"],
+    "customers_in_panevezys": "None"
+  }
+}

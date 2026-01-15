@@ -2,68 +2,83 @@
 
 **PRODUCT REQUIREMENTS:**
 -   **Role-Based Access:** Admin, Technician, and Customer portals with specific permissions.
--   **Issue Management:** A complete lifecycle for reporting, tracking, and resolving issues with a unique coding system.
--   **Warranty Workflow:** A simplified flow where resolving an issue as Warranty keeps the original issue active (status: ) and tracks repair attempts within the same issue record.
--   **Customer Management:** An admin feature to add, view, and manage customer information, which is linked to issues via the city.
--   **Contact Details Popup:** A popup on issue items in the Admin and Technician portals to quickly show the contact details of the associated customer.
--   **Internationalization (i18n):** All frontend text must be loaded from a central file to support multiple languages (English and Lithuanian). The language is selected on the login page and persists throughout the session.
+-   **Issue Management:** A complete lifecycle for reporting, tracking, and resolving issues. This includes a parent-child issue relationship where a parent issue is automatically resolved when all its children are.
+-   **Product Types:** Products are categorized as Powered Stretchers or Roll-in Stretchers. This distinction drives different business logic.
+-   **SLA & Scheduling Workflow:**
+    -   SLA timers apply **only** to Powered Stretchers.
+    -   SLA timers are hidden for any issue with a resolved status.
+    -   When an issue for a Powered Stretcher is assigned to a technician, a maintenance task is auto-scheduled with an SLA deadline.
+    -   When an issue for a Roll-in Stretcher is assigned, a maintenance task is created with a  status. The technician must manually schedule the task.
+-   **Customer Management:** An admin feature to add, view, and manage customer information.
+-   **Contact Details Popup:** A popup on issue items in the Admin and Technician portals to quickly show customer contact details.
+-   **Internationalization (i18n):** All frontend text is managed via translation files for English and Lithuanian.
 
 **User's preferred language**: English
 
 **what currently exists?**
-A full-stack application (FastAPI + React) with three role-based portals (Admin, Technician, Customer). Core features like issue management, a refined warranty workflow, and a full-fledged customer management system are implemented. The entire frontend has been refactored to support internationalization (i18n) for English and Lithuanian, with a language switcher exclusively on the login page. The UI for the login page has also been redesigned. The agent just began implementing a Contact Details popup for issues.
+A full-stack application (FastAPI + React) with Admin, Technician, and Customer portals. It features role-based access, comprehensive issue and customer management, and is fully internationalized (EN/LT). The core logic now differentiates between Powered and Roll-in stretchers, which fundamentally alters the SLA, scheduling, and UI representation of issues across all three portals. The system supports a parent-child issue structure with automatic parent resolution. Most recent work involved fixing UI inconsistencies related to this new logic.
 
 **Last working item**:
--   Last item agent was working: Implementing a Contact Details popup that appears on issues in the Admin and Technician portals. The popup should show customer contact information (Name, Phone, Email) based on the city associated with the issue's product.
--   Status: IN PROGRESS
--   Agent Testing Done: N
--   Which testing method agent to use? both. Use the backend agent to verify the customer data is fetched correctly for an issue. Use the frontend agent to test the popup's functionality and display on the Admin (, ) and Technician (, ) pages.
+-   Last item agent was working: The user reported an inconsistency on the Admin Portal's Products page. When viewing a product's details, the Maintenance tab showed a task's status as in_progress even when the linked issue was resolved. The agent implemented a fix in  to check the linked issue's status and display it correctly.
+-   Status: USER VERIFICATION PENDING
+-   Agent Testing Done: Y
+-   Which testing method agent to use? screenshot tool. Navigate to the Admin Products page, find a product with a resolved issue (e.g., S/N PNV-001), open the details view, and switch between the Issues and Maintenance tabs to confirm both show a resolved status.
 -   User Testing Done: N
 
 **All Pending/In progress Issue list**:
-There are no pending bugs.
+-   Issue 1: (P0) **Inconsistent status display in Product Details view.**
+    -   Attempted fixes: The agent modified  to look up the status of the issue linked to a maintenance item, rather than using the maintenance item's own status. A screenshot test confirmed the fix visually.
+    -   Next debug checklist: The fix seems correct, but it awaits user confirmation. If it fails, re-check the logic in  around lines 715-725 that finds the  and conditionally renders the status badge.
+    -   Why fix this issue and what will be achieved with the fix? Ensures data consistency across the application, preventing admin confusion about the true state of a service task.
+    -   Status: USER VERIFICATION PENDING
+    -   Is recurring issue? N
+    -   Should Test frontend/backend/both after fix? Frontend
+    -   Blocked on other issue: None
 
 **In progress Task List**:
--   Task 1: (P0) **Complete Contact Details Popup Feature**
-     - Where to resume: The agent has created the  component and added the button to the main  page for Admins. The next steps are:
-        1. Add the Contact Details button and popup logic to the in-progress, in-service, and resolved tabs within the Admin  page.
-        2. Add the Contact Details button and popup logic to the Technician portal pages:  and .
-        3. Ensure the popup correctly fetches and displays the contact information of the first customer matching the issue's product's city.
-     - What will be achieved with this? Admins and Technicians will be able to quickly view customer contact details directly from an issue card without navigating away.
-     - Status: IN PROGRESS
-     - Should Test frontend/backend/both after fix? Both
-     - Blocked on something: None
+-   Task 1: (P1) **Refactor Large Components**
+    -   Where to resume: The agent created a new directory  with empty component files (, , ). The next step is to move the relevant JSX and logic from monolithic files like  into these new, reusable components and then import and use them back in the parent pages. This task was started but no code has been moved yet.
+    -   What will be achieved with this? Improved code maintainability, readability, and reusability. Reduced complexity of massive page components.
+    -   Status: IN PROGRESS
+    -   Should Test frontend/backend/both after fix? Frontend
+    -   Blocked on something: None
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
-    -   (P1) **Refactor Large Components:** Break down large files like  (1500+ lines),  (1000+ lines), and  (1200+ lines) into smaller, reusable components.
+    -   (P1) Finish the refactoring of large components: , , and .
 -   **Future Tasks:**
     -   (P1) Implement email notifications for upcoming maintenance.
     -   (P2) Develop a feature to bulk import products from a CSV file.
     -   (P3) Create a Progressive Web App (PWA) for offline technician access.
 
 **Completed work in this session**
--   **Internationalization (i18n) Feature (Fully Implemented):**
-    -   Created a backend API () to serve translation files.
-    -   Created a React Context () and  hook.
-    -   Refactored **all** frontend pages and components to use the translation hook, eliminating hardcoded strings.
-    -   Added a language switcher to the  page, which persists the selected language across the entire application using localStorage.
--   **Customer Management Feature (Fully Implemented):**
-    -   Created backend models and API endpoints for CRUD operations on customers.
-    -   Added a 3-dot dropdown menu in the Admin navigation with links to Customers and Add Customer.
-    -   Created a new  page to display all customers in a table with filtering and search.
-    -   Implemented an Add Customer popup dialog with form validation.
--   **UI/UX Improvements:**
-    -   Redesigned the  page, centering the logo, increasing its size to , and adding a static Dimeda Service Pro System title.
-    -   Removed the language switcher from all authenticated portal navigation bars, restricting it to the login page only.
--   **Code Refactoring:**
-    -   Created several reusable common components in  (, , ).
+-   **Contact Details Popup Feature:** Implemented a popup to show customer contact information on issue cards in Admin and Technician portals. The popup content was later simplified based on user feedback.
+-   **Product Model Type Feature (Powered vs. Roll-in):**
+    -   Updated the backend Product model to include .
+    -   Disabled SLA timers for all Roll-in stretcher issues across the application.
+    -   Added filters for City and Model Type to the issue creation forms in Admin and Customer portals.
+    -   Implemented distinct UI for Roll-in issues, including a Roll-in badge and unique color-coding in Admin and Technician calendars.
+-   **Technician Workflow for Roll-in Issues:**
+    -   Backend logic was updated to create maintenance tasks for Roll-in issues with a  status and a  date.
+    -   The Technician Calendar now displays these tasks in a Needs Scheduling section, allowing the technician to manually set a date.
+    -   The UI now displays Scheduled: instead of Solve by: for these tasks.
+-   **Parent/Child Issue Auto-Resolution:** Implemented backend logic in  to automatically resolve a parent issue when all its child issues are marked as resolved.
+-   **Bug Fixes & UI Consistency:**
+    -   Fixed multiple instances where the SLA timer was incorrectly displayed for resolved issues in the Admin and Technician calendars.
+    -   Corrected status badges across Admin and Technician portals to show Resolved instead of In Progress for completed tasks.
+    -   Fixed a crash in the Admin Calendar caused by  scheduled dates for new Roll-in issues.
+    -   Ensured pending schedule tasks for Roll-in issues correctly appear on the Technician's calendar.
+    -   Updated the Customer Portal to display the correct scheduled date for Roll-in issues.
 
 **Earlier issues found/mentioned but not fixed**
-   - None.
+-   Issue 1: **React Exhaustive Deps Warnings**
+    -   Debug checklist: Multiple files, including  and , have linter warnings for missing dependencies in  and  hooks.
+    -   Why to solve this issue and what will be achieved with this? Fixing these warnings can prevent stale state and unexpected UI behavior.
+    -   Should Test frontend/backend/both after fix: Frontend
+    -   Is recurring issue? Y
 
 **Known issue recurrence from previous fork**
-  - None.
+-   None.
 
 **Code Architecture**
 
@@ -72,56 +87,61 @@ There are no pending bugs.
 -   **Backend:** FastAPI
 -   **Frontend:** React, Tailwind CSS, Shadcn UI
 -   **Database:** MongoDB
--   **Authentication:** JWT-based RBAC ('admin', 'technician', 'customer')
--   **Internationalization (i18n):** Fully integrated using a React Context and a backend API. Language preference is stored in .
+-   **State Management:** React Hooks (, ) and Context API.
+-   **Business Logic:** Complex conditional logic in both frontend and backend to handle different workflows for Powered vs. Roll-in stretchers.
 
 **key DB schema**
--   : Contains issue details, including  for the warranty flow.
--   : **(NEW)**
-    -   
+-   : 
+-   : 
+-   : 
 
 **changes in tech stack**
 -   None.
 
 **All files of reference**
 -   **Created:**
-    -   
-    -   
-    -   
-    -   
-    -   
-    -   
-    -   
-    -   
+    -    (stub)
+    -    (stub)
+    -    (stub)
+    -    (stub)
 -   **Heavily Modified:**
-    -   : Registered new customer and translation routers.
-    -   : Excluded translations API from auth middleware.
-    -   : Populated with all UI text.
-    -   : Added the 3-dot customer menu.
-    -   : Major UI overhaul.
-    -   **All frontend pages** in  were refactored to use the  hook.
-    -   **All layouts** in  were updated.
+    -   : Added  enum.
+    -   : Made  optional.
+    -   : Added logic for parent/child resolution and to handle Roll-in stretcher issue assignment.
+    -   : Added model type filter, Roll-in badge, and updated SLA logic.
+    -   : Added model type filter and updated UI to show correct date/SLA based on model type.
+    -   : Major changes to add color-coding, new legend entries, and fix bugs related to  dates.
+    -   : Major changes to implement the manual scheduling workflow for Roll-in issues.
+    -   : Updated product creation form and fixed the detail view inconsistency.
 
 **Areas that need refactoring**:
--   The large component files , , and  are still monolithic and should be broken down into smaller components.
+-   The P1 task to refactor large components is incomplete. The files  (1500+ lines),  (1000+ lines), and  (1200+ lines) are still monolithic. The agent created placeholder component files in  but did not migrate any code into them.
 
 **key api endpoints**
--    (GET, POST): For managing customer data.
--    (GET): To fetch UI text for the specified language.
+-    (PUT): Used by technicians to schedule a  Roll-in issue task.
+-    (PUT): Updated to handle the creation of  maintenance tasks when a technician is assigned to a Roll-in issue.
 
 **Critical Info for New Agent**
--   **Contact Details Logic:** The new Contact Details popup should find the relevant customer by matching the  of the product associated with the issue to the  of a customer in the  collection.
--   **i18n is Complete:** Do not add language switchers to any pages other than . All new UI text must be added to both  and  files and accessed via the  hook.
--   **Warranty Workflow:** Reminder: This workflow **does not create child issues**. It adds  to the original issue document. This is critical business logic.
+-   **Roll-in vs. Powered Stretcher Logic is Core:** This is a fundamental business rule now. Roll-in stretchers have no SLA, are scheduled manually by technicians, and have distinct UI treatments (badges, colors, text). All new features or fixes must respect this distinction.
+-   **Refactoring is Incomplete:** The task to break down large components was started but not finished. The new component files in  are just empty stubs. The next agent should continue this work by moving logic from the large page files into these components.
+-   **Nullable :** The  collection now supports  for  to accommodate the pending schedule status. Any code that accesses this field must handle the  case to avoid crashes.
 
 **documents and test reports created in this job**
--    (updated with i18n and customer management features)
--    (successful test report for the i18n feature)
+-    (Updated)
+-    (Tests for Contact Details Popup)
+-    (Tests for Model Type feature)
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **Request:** Complete i18n for remaining pages (Services, Calendar, Export). (COMPLETED)
-2.  **Request:** Add a 3-dot menu in the Admin portal for customer management (View all, Add new). The City should be a key field. (COMPLETED)
-3.  **Request:** Add a Contact Details popup (showing Name, phone, email) to issues in the Admin and Technician portals. (IN PROGRESS)
+1.  **Request:** Implement Product Types (Powered vs Roll-in) where Roll-in stretchers have no SLA. (COMPLETED)
+2.  **Request:** Add distinct color-coding in the Admin Calendar for Roll-in vs Powered issues and fix border color for resolved issues. (COMPLETED)
+3.  **Request:** Add a Roll-in badge to the Admin Issues page. (COMPLETED)
+4.  **Request:** Change the Technician workflow for Roll-in issues to allow manual scheduling instead of auto-scheduling with an SLA. (COMPLETED)
+5.  **Request:** Fix Admin Calendar crash when a new Roll-in issue is added. (COMPLETED)
+6.  **Request:** Fix Technician Calendar not showing unscheduled Roll-in issues. (COMPLETED)
+7.  **Request:** Fix Customer Portal to show the correct scheduled date for Roll-in issues. (COMPLETED)
+8.  **Request:** Fix an inconsistency in the Product Details view where the Maintenance tab showed the wrong status for a resolved issue. (IN-PROGRESS, Awaiting User Verification)
+9.  **Request:**  (P0 is done, P1 is in progress)
+10. **Request:**  (COMPLETED)
 
 **Project Health Check:**
 -   **Broken:** None
@@ -131,9 +151,9 @@ There are no pending bugs.
 -    &  for PDF generation.
 
 **Testing status**
--   Testing agent used after significant changes: YES. The testing agent was used to validate the entire i18n implementation.
+-   Testing agent used after significant changes: YES. The agent was used to validate the Contact Details and Model Type features.
 -   Troubleshoot agent used after agent stuck in loop: NO
--   Test files created: A temporary test file was created by the testing agent at .
+-   Test files created: Test files were created by the testing agent in  and are visible in the test reports.
 -   Known regressions: None.
 
 **Credentials to test flow:**
@@ -142,8 +162,4 @@ There are no pending bugs.
 -   **Customer Pro Password:** 
 
 **What agent forgot to execute**
-The agent was in the middle of implementing the Contact Details feature. While the button was added to the main Admin Issues page (), it still needs to be added to:
-- The Admin Services page ().
-- The Technician Calendar page ().
-- The Technician Services page ().
-The core logic inside  to fetch customer data based on the issue's product city also needs to be fully implemented and tested.</analysis>
+The agent started the P1 refactoring task by creating the necessary directory and empty component files (, , etc.). However, the agent never moved the JSX and logic from the large page components (, , etc.) into these new files. The refactoring is therefore incomplete and needs to be picked up.</analysis>

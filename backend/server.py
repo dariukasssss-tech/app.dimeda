@@ -52,7 +52,7 @@ app.add_middleware(AuthMiddleware)
 cors_origins = [
     FRONTEND_URL,
     "http://localhost:3000",
-    "https://vivera-support.preview.emergentagent.com"
+    "https://serviced-1.preview.emergentagent.com"
 ]
 
 app.add_middleware(

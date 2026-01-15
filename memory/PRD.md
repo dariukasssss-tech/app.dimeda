@@ -446,3 +446,52 @@ estimated_cost, product_location, source, created_at, resolution}
 - Backend stores: `spare_parts_used` (boolean), `spare_parts` (string)
 - ResolvedIssueCard displays "Spare Parts Used" badge and parts list when applicable
 
+### Centralized Error Handling & Logging System (Jan 15, 2026)
+**Backend Infrastructure Improvements:**
+
+**1. Custom Exception Classes (`/backend/core/exceptions.py`):**
+- `AppException` - Base exception with standardized error response format
+- `NotFoundError` - 404 errors with resource details
+- `ResourceExistsError` - 409 conflict errors
+- `ValidationError` / `InvalidFieldError` - 400 validation errors
+- `AuthenticationError` / `AuthorizationError` - 401/403 auth errors
+- `BusinessLogicError` / `InvalidStateTransitionError` - 422 business rule violations
+- `DatabaseError` / `ExternalServiceError` - 500/502 system errors
+
+**2. Global Exception Handlers (`/backend/core/error_handlers.py`):**
+- Centralized handler registration for all exception types
+- Consistent JSON error response format:
+  ```json
+  {"error": {"code": "NOT_FOUND", "message": "...", "details": {...}}}
+  ```
+- Automatic logging of errors with request context
+- Pydantic validation error formatting
+
+**3. Structured Logging System (`/backend/core/logging_config.py`):**
+- JSON-formatted logs for production (machine-readable)
+- Human-readable colored output for development
+- Context variables for request-scoped data
+- Log levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+**4. Request Logging Middleware (`/backend/core/middleware.py`):**
+- Unique request ID (UUID) for each request
+- Request/response correlation via `X-Request-ID` header
+- Automatic timing and duration logging
+- Client IP extraction (supports reverse proxy)
+
+**Example Log Output (Development):**
+```
+2026-01-15 20:36:24 INFO     [ec9a522c] http: Request started | GET /api/issues/non-existent-id
+2026-01-15 20:36:24 WARNING  [ec9a522c] http: Request completed | status=404 duration=1.41ms
+```
+
+**Example Log Output (Production - JSON):**
+```json
+{"timestamp": "2026-01-15T20:36:41Z", "level": "INFO", "logger": "http", "message": "Request completed", "request_id": "ec9a522c", "status_code": 404, "duration_ms": 1.41}
+```
+
+**Routes Updated to Use New System:**
+- `/backend/routes/issues.py` - Using NotFoundError, logging
+- `/backend/routes/products.py` - Using NotFoundError, InvalidFieldError, ResourceExistsError
+- `/backend/routes/customers.py` - Using NotFoundError, ValidationError, ResourceExistsError
+

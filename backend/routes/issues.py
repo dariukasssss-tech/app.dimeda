@@ -40,10 +40,11 @@ async def generate_issue_code(product_id: str) -> str:
 async def create_issue(issue: IssueCreate):
     product = await db.products.find_one({"id": issue.product_id}, {"_id": 0})
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise NotFoundError("Product", issue.product_id)
     
     # Generate issue code
     issue_code = await generate_issue_code(issue.product_id)
+    logger.info(f"Creating issue with code {issue_code} for product {issue.product_id}")
     
     issue_obj = Issue(**issue.model_dump())
     issue_obj.issue_code = issue_code

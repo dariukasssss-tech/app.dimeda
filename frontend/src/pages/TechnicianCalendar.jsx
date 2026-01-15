@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, parseISO } from "date-fns";
 import ContactDetailsPopup from "@/components/ContactDetailsPopup";
+import { MaintenanceTaskCard } from "@/components/maintenance";
 
 const TechnicianCalendar = ({ selectedTechnician }) => {
   const { t } = useTranslation();

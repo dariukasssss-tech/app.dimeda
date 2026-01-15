@@ -237,3 +237,31 @@ estimated_cost, product_location, source, created_at, resolution}
    - "Complete Repair" button for in-progress repairs
    - Dropdown for multiple repair attempts if >2
 6. **Complete Repair:** Completing repair marks issue as resolved
+
+### Internationalization (i18n) Feature (Jan 15, 2026)
+**Backend:**
+- Created `/backend/translations/` directory with JSON files for each language
+- `en.json` - English translations (202 keys)
+- `lt.json` - Lithuanian translations (202 keys)
+- Added `/api/translations/{lang}` endpoint to serve translations
+- Added `/api/translations/languages` endpoint to list available languages
+- Added `/api/translations/{lang}/validate` endpoint to check for missing keys
+- Translations API is public (no authentication required)
+
+**Frontend:**
+- Created `TranslationContext.jsx` with React Context and `useTranslation` hook
+- Created `LanguageSwitcher.jsx` component with dropdown selector
+- Integrated language switcher in all navigation headers (Admin, Technician, Customer, Login)
+- Language preference persists in localStorage (`dimeda_language` key)
+- All major components updated to import and use `useTranslation` hook
+
+**Common Components Created:**
+- `/components/common/Badges.jsx` - StatusBadge, WarrantyBadge, SeverityBadge, SLAIndicator
+- `/components/common/UIElements.jsx` - LoadingState, EmptyState, StatCard, PageHeader
+- `/components/common/ProductUtils.jsx` - ProductInfo, ProductDisplay, helper functions
+
+**Test Results:**
+- Backend: 7/7 tests passed (`/app/tests/test_translations_api.py`)
+- Frontend: All UI features verified via Playwright
+- `/app/test_reports/iteration_6.json` - Full i18n feature test (100% pass)
+

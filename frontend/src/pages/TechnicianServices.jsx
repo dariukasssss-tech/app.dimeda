@@ -732,14 +732,20 @@ const TechnicianServices = ({ selectedTechnician }) => {
                 </div>
               )}
               
-              {/* Resolution Note */}
+              {/* Resolution Note / Service Works */}
               <div>
-                <Label htmlFor="resolution">Resolution Note *</Label>
+                <Label htmlFor="resolution">
+                  {selectedIssue?.status === "in_progress" && selectedIssue?.warranty_service_type === "warranty" 
+                    ? "Service Works *" 
+                    : "Resolution Note *"}
+                </Label>
                 <Textarea
                   id="resolution"
                   value={resolveData.resolution}
                   onChange={(e) => setResolveData({ ...resolveData, resolution: e.target.value })}
-                  placeholder="Describe the issue diagnosis and resolution..."
+                  placeholder={selectedIssue?.status === "in_progress" && selectedIssue?.warranty_service_type === "warranty"
+                    ? "Describe the service works performed..."
+                    : "Describe the issue diagnosis and resolution..."}
                   className="mt-1"
                   rows={4}
                   data-testid="resolution-textarea"

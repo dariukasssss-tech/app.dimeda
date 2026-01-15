@@ -256,6 +256,11 @@
     "customerUpdated": "Klientas sėkmingai atnaujintas",
     "customerDeleted": "Klientas sėkmingai ištrintas"
   },
+  "contacts": {
+    "contactDetails": "Kontaktinė informacija",
+    "noContactsInCity": "Kontaktų nerasta mieste",
+    "addCustomerFirst": "Pirmiausia pridėkite klientą šiam miestui"
+  },
   "time": {
     "hoursLeft": "Liko {hours}val. {minutes}min.",
     "minutesLeft": "Liko {minutes}min.",

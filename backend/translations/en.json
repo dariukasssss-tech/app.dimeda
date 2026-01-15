@@ -256,6 +256,11 @@
     "customerUpdated": "Customer updated successfully",
     "customerDeleted": "Customer deleted successfully"
   },
+  "contacts": {
+    "contactDetails": "Contact Details",
+    "noContactsInCity": "No contacts found in",
+    "addCustomerFirst": "Add a customer for this city first"
+  },
   "time": {
     "hoursLeft": "{hours}h {minutes}m left",
     "minutesLeft": "{minutes}m left",

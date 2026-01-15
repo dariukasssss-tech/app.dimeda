@@ -457,8 +457,9 @@ async def delete_issue(issue_id: str):
     # Delete the issue itself
     result = await db.issues.delete_one({"id": issue_id})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Issue not found")
+        raise NotFoundError("Issue", issue_id)
     
+    logger.info(f"Successfully deleted issue {issue_id}")
     return {"message": "Issue and related entries deleted successfully"}
 
 @router.post("/customer", response_model=Issue)

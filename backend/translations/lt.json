@@ -203,18 +203,6 @@
     "slaExpired": "SLA baigėsi",
     "deadline24h": "24 valandų terminas"
   },
-  "messages": {
-    "issueCreated": "Problema sėkmingai sukurta",
-    "issueUpdated": "Problema sėkmingai atnaujinta",
-    "issueDeleted": "Problema sėkmingai ištrinta",
-    "issueResolved": "Problema sėkmingai išspręsta",
-    "repairStarted": "Pradėtas remontas",
-    "repairCompleted": "Remontas užbaigtas - Problema išspręsta",
-    "movedToServiceRecords": "Problema perkelta į paslaugų įrašus",
-    "technicianAssigned": "Technikas sėkmingai priskirtas",
-    "taskMarkedInProgress": "Užduotis pažymėta kaip vykdoma",
-    "confirmDelete": "Ar tikrai norite ištrinti šį elementą?"
-  },
   "validation": {
     "required": "Šis laukas privalomas",
     "invalidEmail": "Neteisingas el. pašto adresas",

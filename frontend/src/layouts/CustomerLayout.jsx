@@ -3,7 +3,6 @@ import axios from "axios";
 import { API, clearAuthToken } from "@/App";
 import { toast } from "sonner";
 import { useTranslation } from "@/contexts/TranslationContext";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { LogOut } from "lucide-react";
 import CustomerDashboard from "@/pages/CustomerDashboard";
 

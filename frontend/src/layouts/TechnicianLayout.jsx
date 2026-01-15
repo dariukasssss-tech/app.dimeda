@@ -4,7 +4,6 @@ import axios from "axios";
 import { API, clearAuthToken, getSelectedTechnician, setSelectedTechnician } from "@/App";
 import { toast } from "sonner";
 import { useTranslation } from "@/contexts/TranslationContext";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { LayoutDashboard, CalendarDays, Wrench, LogOut, User } from "lucide-react";
 import TechnicianDashboard from "@/pages/TechnicianDashboard";
 import TechnicianCalendar from "@/pages/TechnicianCalendar";

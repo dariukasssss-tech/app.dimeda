@@ -152,7 +152,7 @@ const Products = () => {
   };
 
   const resetForm = () => {
-    setFormData({ serial_number: "", model_name: "", city: "", location_detail: "", notes: "" });
+    setFormData({ serial_number: "", model_name: "", model_type: "powered", city: "", location_detail: "", notes: "" });
     setSelectedDate(new Date());
   };
 
@@ -161,6 +161,7 @@ const Products = () => {
     setFormData({
       serial_number: product.serial_number,
       model_name: product.model_name,
+      model_type: product.model_type || "powered",
       city: product.city || "",
       location_detail: product.location_detail || "",
       notes: product.notes || "",
@@ -189,7 +190,8 @@ const Products = () => {
       p.serial_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.location_detail?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCity = cityFilter === "all" || p.city === cityFilter;
-    return matchesSearch && matchesCity;
+    const matchesModelType = modelTypeFilter === "all" || p.model_type === modelTypeFilter;
+    return matchesSearch && matchesCity && matchesModelType;
   });
 
   const productsByCity = CITIES.reduce((acc, city) => {

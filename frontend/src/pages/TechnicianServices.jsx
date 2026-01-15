@@ -198,6 +198,8 @@ const TechnicianServices = ({ selectedTechnician }) => {
         resolution: resolveData.resolution,
         warranty_service_type: resolveData.warranty_service_type,
         create_service_record: resolveData.warranty_service_type === "non_warranty" ? resolveData.create_service_record : false,
+        spare_parts_used: resolveData.spare_parts_used,
+        spare_parts: resolveData.spare_parts_used ? resolveData.spare_parts : "",
       });
       
       let successMsg = "Issue resolved successfully";

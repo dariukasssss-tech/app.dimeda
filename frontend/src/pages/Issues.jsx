@@ -800,6 +800,12 @@ const Issues = () => {
                           Customer Reported
                         </span>
                       )}
+                      {/* Roll-in Stretcher badge */}
+                      {getProductModelType(issue.product_id) === "roll_in" && (
+                        <span className="px-2 py-1 rounded text-xs font-medium bg-teal-100 text-teal-800">
+                          Roll-in
+                        </span>
+                      )}
                       {issue.issue_code && (
                         <span className="px-2 py-1 rounded bg-slate-200 text-slate-700 text-xs font-mono">
                           {issue.issue_code}

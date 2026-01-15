@@ -236,6 +236,26 @@
     "deviceInspectionReport": "Įrenginio patikros ataskaita",
     "generatePdfReport": "Generuoti PDF ataskaitą konkrečiam produktui"
   },
+  "customers": {
+    "title": "Klientai",
+    "addCustomer": "Pridėti klientą",
+    "editCustomer": "Redaguoti klientą",
+    "deleteCustomer": "Ištrinti klientą",
+    "manageCustomers": "Valdyti klientų informaciją pagal miestą",
+    "name": "Pavadinimas",
+    "companyName": "Įmonės ar įstaigos pavadinimas",
+    "address": "Adresas",
+    "fullAddress": "Pilnas adresas",
+    "contactPerson": "Kontaktinis asmuo",
+    "contactPersonName": "Kontaktinio asmens vardas",
+    "phone": "Telefonas",
+    "email": "El. paštas",
+    "noCustomers": "Klientų nerasta",
+    "addFirstCustomer": "Pridėkite pirmą klientą",
+    "customerCreated": "Klientas sėkmingai pridėtas",
+    "customerUpdated": "Klientas sėkmingai atnaujintas",
+    "customerDeleted": "Klientas sėkmingai ištrintas"
+  },
   "time": {
     "hoursLeft": "Liko {hours}val. {minutes}min.",
     "minutesLeft": "Liko {minutes}min.",

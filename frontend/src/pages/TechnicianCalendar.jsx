@@ -632,258 +632,27 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
               {filteredMaintenance.map((item) => {
                 const linkedIssue = getLinkedIssue(item);
                 const product = products.find(p => p.id === item.product_id);
-                const isRollIn = product?.model_type === "roll_in";
-                const isPendingSchedule = item.status === "pending_schedule";
-                const canStartWork = item.source === "customer_issue" && item.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved" && !isRollIn;
-                const canStartRollInWork = item.source === "customer_issue" && item.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved" && isRollIn;
-                const isWarrantyRepair = item.source === "warranty_service" || linkedIssue?.is_warranty_route;
-                const canContinueRepair = isWarrantyRepair && item.status === "scheduled" && linkedIssue && linkedIssue.status !== "resolved";
-                const repairTime = linkedIssue ? calculateRepairTimeRemaining(linkedIssue) : null;
                 
                 return (
-                  <div
-                    key={item.id}
-                    className={`p-4 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all ${
-                      linkedIssue?.status === "resolved" ? "border-slate-800 bg-slate-50" :
-                      item.status === "completed" ? "border-slate-800 bg-slate-50" :
-                      isWarrantyRepair ? "border-orange-500 bg-orange-50" :
-                      item.source === "customer_issue" && isRollIn ? "border-teal-500" :
-                      item.source === "customer_issue" ? "border-purple-500" :
-                      item.source === "auto_yearly" ? "border-emerald-500" :
-                      item.priority === "12h" ? "border-orange-500" :
-                      "border-blue-500"
-                    }`}
-                  >
-                    {/* Header with S/N and Status */}
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900">
-                          {product?.serial_number || "Unknown"}
-                        </span>
-                        {linkedIssue?.issue_code && (
-                          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-600 text-xs font-mono">
-                            {linkedIssue.issue_code}
-                          </span>
-                        )}
-                      </div>
-                      <Badge className={`text-xs ${
-                        linkedIssue?.status === "resolved" ? "bg-emerald-500 text-white" :
-                        item.status === "completed" ? "bg-slate-800 text-white" :
-                        item.status === "in_progress" ? "bg-blue-500 text-white" :
-                        isPendingSchedule ? "bg-amber-500 text-white" :
-                        "bg-slate-100 text-slate-700"
-                      }`}>
-                        {linkedIssue?.status === "resolved" ? "resolved" : 
-                         isPendingSchedule ? "Schedule" : item.status}
-                      </Badge>
-                    </div>
-                    
-                    {/* Warranty Repair indicator */}
-                    {isWarrantyRepair && item.status !== "completed" && (
-                      <div className="flex items-center gap-2 mb-2 p-2 bg-orange-100 rounded-lg">
-                        <Wrench size={14} className="text-orange-600" />
-                        <span className="text-sm font-medium text-orange-800">Warranty Repair Task</span>
-                        {repairTime && (
-                          <Badge className={`text-xs ml-auto ${repairTime.expired ? "bg-red-500 text-white animate-pulse" : repairTime.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
-                            <Timer size={10} className="mr-1" />
-                            {repairTime.text}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                    
-                    {/* City and Type - clickable for details */}
-                    <div 
-                      className="flex items-center gap-3 text-sm text-slate-600 mb-2 cursor-pointer hover:text-slate-800"
-                      onClick={(e) => handleTaskClick(item, e)}
-                    >
-                      <span className="flex items-center gap-1">
-                        <MapPin size={14} className="text-slate-400" />
-                        {product?.city || "Unknown"}
-                      </span>
-                      <span className="capitalize">
-                        {item.maintenance_type.replace("_", " ")}
-                      </span>
-                    </div>
-                    
-                    {/* Deadline - Only show for scheduled items with date (NOT for Roll-in Stretchers) */}
-                    {item.scheduled_date && !isPendingSchedule && !isRollIn && (
-                      <div 
-                        className={`text-sm font-medium cursor-pointer ${
-                          isWarrantyRepair ? "text-orange-700 hover:text-orange-900" :
-                          item.source === "customer_issue" ? "text-purple-700 hover:text-purple-900" : "text-slate-700 hover:text-slate-900"
-                        }`}
-                        onClick={(e) => handleTaskClick(item, e)}
-                      >
-                        <Clock size={14} className="inline mr-1" />
-                        {isWarrantyRepair ? "Repair by: " : item.source === "customer_issue" ? "Solve by: " : ""}
-                        {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
-                      </div>
-                    )}
-                    
-                    {/* Roll-in scheduled date - just informational, not SLA */}
-                    {item.scheduled_date && !isPendingSchedule && isRollIn && (
-                      <div 
-                        className="text-sm font-medium cursor-pointer text-teal-700 hover:text-teal-900"
-                        onClick={(e) => handleTaskClick(item, e)}
-                      >
-                        <Clock size={14} className="inline mr-1" />
-                        Scheduled: {format(parseISO(item.scheduled_date), "MMM d, yyyy HH:mm")}
-                      </div>
-                    )}
-                    
-                    {/* Pending Schedule message for Roll-in */}
-                    {isPendingSchedule && (
-                      <div className="text-sm text-amber-700 font-medium mb-2">
-                        <AlertTriangle size={14} className="inline mr-1" />
-                        Please schedule this task
-                      </div>
-                    )}
-                    
-                    {/* Tags and Action Button */}
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {isWarrantyRepair && (
-                          <Badge className="text-xs bg-orange-100 text-orange-800">
-                            <Shield size={10} className="mr-1" />
-                            Warranty
-                          </Badge>
-                        )}
-                        {/* Roll-in Stretcher badge */}
-                        {item.source === "customer_issue" && isRollIn && !isWarrantyRepair && (
-                          <Badge className="text-xs bg-teal-100 text-teal-800">
-                            Roll-in
-                          </Badge>
-                        )}
-                        {item.source === "customer_issue" && !isWarrantyRepair && !isRollIn && (
-                          <Badge className="text-xs bg-purple-100 text-purple-800">
-                            <Users size={10} className="mr-1" />
-                            Customer
-                          </Badge>
-                        )}
-                        {item.source === "auto_yearly" && (
-                          <Badge className="text-xs bg-emerald-100 text-emerald-800">Yearly</Badge>
-                        )}
-                        {/* SLA timer - NOT for Roll-in */}
-                        {item.source === "customer_issue" && item.status !== "completed" && linkedIssue?.status !== "resolved" && !isRollIn && (() => {
-                          const sla = calculateSLARemaining(item);
-                          if (!sla) return null;
-                          return (
-                            <Badge className={`text-xs ${sla.expired ? "bg-red-500 text-white" : sla.urgent ? "bg-orange-500 text-white" : "bg-amber-100 text-amber-800"}`}>
-                              <Timer size={10} className="mr-1" />
-                              {sla.text}
-                            </Badge>
-                          );
-                        })()}
-                        {/* Resolved badge */}
-                        {linkedIssue?.status === "resolved" && (
-                          <Badge className="text-xs bg-emerald-100 text-emerald-800">
-                            <CheckCircle size={10} className="mr-1" />
-                            Resolved
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {/* Schedule Button - for Roll-in pending schedule */}
-                      {isPendingSchedule && isRollIn && (
-                        <Button
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleTaskClick(item, e);
-                          }}
-                          className="bg-amber-600 hover:bg-amber-700 text-white"
-                          data-testid="schedule-btn"
-                        >
-                          <CalendarDays size={14} className="mr-1" />
-                          Schedule
-                        </Button>
-                      )}
-                      
-                      {/* Start Work Button - for Roll-in after scheduled */}
-                      {canStartRollInWork && (
-                        <Button
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleMarkInProgress(item);
-                          }}
-                          className="bg-teal-600 hover:bg-teal-700 text-white"
-                          data-testid="start-work-btn"
-                        >
-                          <Play size={14} className="mr-1" />
-                          Start Work
-                        </Button>
-                      )}
-                      
-                      {/* Start Work Button - visible on card for Powered customer issues */}
-                      {canStartWork && !isWarrantyRepair && (
-                        <Button
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleMarkInProgress(item);
-                          }}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                          data-testid="start-work-btn"
-                        >
-                          <Play size={14} className="mr-1" />
-                          Start Work
-                        </Button>
-                      )}
-                      
-                      {/* Continue Button - for warranty repair tasks */}
-                      {canContinueRepair && (
-                        <Button
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleContinueRepair(item);
-                          }}
-                          className="bg-orange-600 hover:bg-orange-700 text-white"
-                          data-testid="continue-repair-btn"
-                        >
-                          <Play size={14} className="mr-1" />
-                          Continue
-                        </Button>
-                      )}
-                      
-                      {/* Show status badges for in_progress/resolved */}
-                      {item.status === "in_progress" && linkedIssue && linkedIssue.status === "in_progress" && !isWarrantyRepair && (
-                        <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
-                          <Clock size={14} className="mr-1" />
-                          Working...
-                        </Badge>
-                      )}
-                      
-                      {/* In Progress badge for warranty repairs */}
-                      {item.status === "in_progress" && isWarrantyRepair && linkedIssue && linkedIssue.status === "in_progress" && (
-                        <Badge className="bg-orange-100 text-orange-800 px-3 py-1">
-                          <Wrench size={14} className="mr-1" />
-                          Repairing...
-                        </Badge>
-                      )}
-                      {item.status === "in_progress" && linkedIssue && linkedIssue.status === "resolved" && (
-                        <Badge className="bg-emerald-100 text-emerald-800 px-3 py-1">
-                          <CheckCircle size={14} className="mr-1" />
-                          Resolved
-                        </Badge>
-                      )}
-                    </div>
-                    
+                  <div key={item.id}>
+                    <MaintenanceTaskCard
+                      item={item}
+                      linkedIssue={linkedIssue}
+                      product={product}
+                      onTaskClick={handleTaskClick}
+                      onStartWork={handleMarkInProgress}
+                      onSchedule={(task) => handleTaskClick(task)}
+                      onContinueRepair={handleContinueRepair}
+                      showActions={true}
+                    />
                     {/* Contact Details Button - only for tasks with linked issues */}
                     {linkedIssue && (
-                      <div className="mt-2" onClick={(e) => e.stopPropagation()}>
+                      <div className="mt-2 ml-4" onClick={(e) => e.stopPropagation()}>
                         <ContactDetailsPopup 
                           issue={linkedIssue} 
                           products={products}
                         />
                       </div>
-                    )}
-                    
-                    {/* Click hint - only show if no action button */}
-                    {!canStartWork && item.status !== "in_progress" && (
-                      <p className="text-xs text-slate-400 mt-2 text-right cursor-pointer" onClick={(e) => handleTaskClick(item, e)}>Click for details</p>
                     )}
                   </div>
                 );

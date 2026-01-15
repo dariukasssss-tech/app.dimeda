@@ -305,6 +305,29 @@ async def update_issue(issue_id: str, update: IssueUpdate):
     await db.issues.update_one({"id": issue_id}, {"$set": update_data})
     updated = await db.issues.find_one({"id": issue_id}, {"_id": 0})
     
+    # AUTO-RESOLVE PARENT: When a child issue is resolved, check if all siblings are resolved
+    if update_data.get("status") == "resolved" and existing.get("parent_issue_id"):
+        parent_id = existing.get("parent_issue_id")
+        # Find all child issues of this parent
+        all_children = await db.issues.find({"parent_issue_id": parent_id}).to_list(length=1000)
+        # Check if all children are resolved
+        all_resolved = all(child.get("status") == "resolved" for child in all_children)
+        if all_resolved and len(all_children) > 0:
+            # Auto-resolve the parent issue
+            await db.issues.update_one(
+                {"id": parent_id},
+                {"$set": {
+                    "status": "resolved",
+                    "resolved_at": datetime.now(timezone.utc).isoformat(),
+                    "resolution": updated.get("resolution") or "All child issues resolved"
+                }}
+            )
+            # Also update the parent's maintenance item if exists
+            await db.scheduled_maintenance.update_many(
+                {"issue_id": parent_id},
+                {"$set": {"status": "completed"}}
+            )
+    
     # Auto-create service record for non-warranty resolved issues
     if should_create_service and update_data.get("status") == "resolved" and update_data.get("warranty_service_type") == "non_warranty":
         service_obj = ServiceRecord(

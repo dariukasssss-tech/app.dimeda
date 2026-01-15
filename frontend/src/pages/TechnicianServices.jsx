@@ -23,8 +23,9 @@ import {
 import { toast } from "sonner";
 import { 
   Wrench, CalendarIcon, Clock, CheckCircle, Shield, ShieldOff, Timer, 
-  FileText, Play, AlertTriangle, MapPin, User, ChevronDown, Eye
+  FileText, Play, AlertTriangle, MapPin, User, ChevronDown, Eye, Users
 } from "lucide-react";
+import ContactDetailsPopup from "@/components/ContactDetailsPopup";
 
 const TechnicianServices = ({ selectedTechnician }) => {
   const { t } = useTranslation();

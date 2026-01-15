@@ -837,8 +837,8 @@ const Services = () => {
               <Card>
                 <CardContent className="py-12 text-center">
                   <Wrench className="mx-auto text-slate-300" size={48} />
-                  <p className="text-slate-500 mt-4">No service records yet</p>
-                  <p className="text-sm text-slate-400 mt-1">Log your first service to get started</p>
+                  <p className="text-slate-500 mt-4">{t("services.noRecords") || "No service records yet"}</p>
+                  <p className="text-sm text-slate-400 mt-1">{t("services.logFirstService") || "Log your first service to get started"}</p>
                 </CardContent>
               </Card>
             ) : (

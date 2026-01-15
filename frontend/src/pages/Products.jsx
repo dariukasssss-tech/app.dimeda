@@ -57,11 +57,6 @@ import {
 import { format, addYears } from "date-fns";
 
 const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
-const MODEL_OPTIONS = ["Powered Stretchers", "Roll-in stretchers"];
-const MODEL_TYPES = [
-  { value: "powered", label: "Powered Stretcher" },
-  { value: "roll_in", label: "Roll-in Stretcher" }
-];
 
 const Products = () => {
   const { t } = useTranslation();

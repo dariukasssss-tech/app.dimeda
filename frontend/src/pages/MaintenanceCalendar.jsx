@@ -48,6 +48,7 @@ import {
   X,
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, isBefore, parseISO } from "date-fns";
+import { MaintenanceTaskCard } from "@/components/maintenance";
 
 // OPTIMIZATION 5: Technician list for "My Tasks" filter
 const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];

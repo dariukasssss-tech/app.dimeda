@@ -313,9 +313,9 @@ const Issues = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-            Issues
+            {t("issues.title")}
           </h1>
-          <p className="text-slate-500 mt-1">Track and resolve equipment problems</p>
+          <p className="text-slate-500 mt-1">{t("issues.trackAndResolve") || "Track and resolve equipment problems"}</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);
@@ -324,22 +324,22 @@ const Issues = () => {
           <DialogTrigger asChild>
             <Button className="bg-[#FA4616] hover:bg-[#D9380D]" data-testid="report-issue-btn">
               <Plus size={18} className="mr-2" />
-              Report Issue
+              {t("issues.addIssue")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto" data-testid="issue-dialog">
             <DialogHeader>
-              <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Report New Issue</DialogTitle>
+              <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>{t("issues.addIssue")}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               <div>
-                <Label>Product *</Label>
+                <Label>{t("products.title")} *</Label>
                 <Select
                   value={formData.product_id}
                   onValueChange={(value) => setFormData({ ...formData, product_id: value })}
                 >
                   <SelectTrigger className="mt-1" data-testid="issue-select-product">
-                    <SelectValue placeholder="Select a product" />
+                    <SelectValue placeholder={t("products.title")} />
                   </SelectTrigger>
                   <SelectContent>
                     {products.map((product) => (

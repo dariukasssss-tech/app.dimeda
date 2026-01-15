@@ -35,7 +35,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "sonner";
-import { Plus, AlertTriangle, Camera, X, MoreVertical, CheckCircle, Clock, Trash2, Eye, Settings, ChevronDown, ListFilter, User, Timer } from "lucide-react";
+import { Plus, AlertTriangle, Camera, X, MoreVertical, CheckCircle, Clock, Trash2, Eye, Settings, ChevronDown, ListFilter, User, Timer, Users } from "lucide-react";
+import ContactDetailsPopup from "@/components/ContactDetailsPopup";
 
 // Inspection checklist items (same as in Export.jsx)
 const VISUAL_INSPECTION = [

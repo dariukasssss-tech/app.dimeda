@@ -61,17 +61,30 @@ const CustomerDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [productsRes, issuesRes] = await Promise.all([
+      const [productsRes, issuesRes, maintenanceRes] = await Promise.all([
         axios.get(`${API}/products`),
         axios.get(`${API}/issues`),
+        axios.get(`${API}/scheduled-maintenance`),
       ]);
       setProducts(productsRes.data);
       setMyIssues(issuesRes.data.filter(i => i.source === "customer"));
+      setScheduledMaintenance(maintenanceRes.data);
     } catch (error) {
       toast.error(t("common.error"));
     } finally {
       setLoading(false);
     }
+  };
+
+  // Get product model type
+  const getProductModelType = (productId) => {
+    const product = products.find((p) => p.id === productId);
+    return product?.model_type || "powered";
+  };
+
+  // Get scheduled maintenance for an issue
+  const getMaintenanceForIssue = (issueId) => {
+    return scheduledMaintenance.find(m => m.issue_id === issueId);
   };
 
   // Filter products by selected city and model type

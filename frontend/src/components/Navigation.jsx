@@ -359,6 +359,21 @@ const Navigation = ({ onLogout }) => {
                 {item.label}
               </NavLink>
             ))}
+            {/* Mobile menu items for customers */}
+            <button
+              onClick={() => { setMobileMenuOpen(false); navigate('/customers'); }}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 w-full"
+            >
+              <Users size={20} />
+              {t("customers.title") || "Customers"}
+            </button>
+            <button
+              onClick={() => { setMobileMenuOpen(false); setAddCustomerOpen(true); }}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 w-full"
+            >
+              <UserPlus size={20} />
+              {t("customers.addCustomer") || "Add Customer"}
+            </button>
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full"
@@ -370,6 +385,118 @@ const Navigation = ({ onLogout }) => {
           </div>
         </div>
       )}
+
+      {/* Add Customer Dialog */}
+      <Dialog open={addCustomerOpen} onOpenChange={(open) => {
+        setAddCustomerOpen(open);
+        if (!open) resetCustomerForm();
+      }}>
+        <DialogContent className="max-w-lg" data-testid="add-customer-dialog">
+          <DialogHeader>
+            <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>
+              {t("customers.addCustomer") || "Add Customer"}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleAddCustomer} className="space-y-4 mt-4">
+            <div>
+              <Label htmlFor="nav-customer-name">{t("customers.name") || "Name"} *</Label>
+              <Input
+                id="nav-customer-name"
+                value={customerFormData.name}
+                onChange={(e) => setCustomerFormData({ ...customerFormData, name: e.target.value })}
+                placeholder={t("customers.companyName") || "Company or institution name"}
+                required
+                className="mt-1"
+                data-testid="nav-input-customer-name"
+              />
+            </div>
+            
+            <div>
+              <Label>{t("products.city") || "City"} *</Label>
+              <Select
+                value={customerFormData.city}
+                onValueChange={(value) => setCustomerFormData({ ...customerFormData, city: value })}
+              >
+                <SelectTrigger className="mt-1" data-testid="nav-select-customer-city">
+                  <SelectValue placeholder={t("products.city") || "Select city"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {CITIES.map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="nav-customer-address">{t("customers.address") || "Address"}</Label>
+              <Input
+                id="nav-customer-address"
+                value={customerFormData.address}
+                onChange={(e) => setCustomerFormData({ ...customerFormData, address: e.target.value })}
+                placeholder={t("customers.fullAddress") || "Full address"}
+                className="mt-1"
+                data-testid="nav-input-customer-address"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="nav-contact-person">{t("customers.contactPerson") || "Contact Person"}</Label>
+              <Input
+                id="nav-contact-person"
+                value={customerFormData.contact_person}
+                onChange={(e) => setCustomerFormData({ ...customerFormData, contact_person: e.target.value })}
+                placeholder={t("customers.contactPersonName") || "Contact person name"}
+                className="mt-1"
+                data-testid="nav-input-contact-person"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="nav-customer-phone">{t("customers.phone") || "Phone"}</Label>
+                <Input
+                  id="nav-customer-phone"
+                  type="tel"
+                  value={customerFormData.phone}
+                  onChange={(e) => setCustomerFormData({ ...customerFormData, phone: e.target.value })}
+                  placeholder="+370..."
+                  className="mt-1"
+                  data-testid="nav-input-customer-phone"
+                />
+              </div>
+              <div>
+                <Label htmlFor="nav-customer-email">{t("customers.email") || "Email"}</Label>
+                <Input
+                  id="nav-customer-email"
+                  type="email"
+                  value={customerFormData.email}
+                  onChange={(e) => setCustomerFormData({ ...customerFormData, email: e.target.value })}
+                  placeholder="email@example.com"
+                  className="mt-1"
+                  data-testid="nav-input-customer-email"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button type="button" variant="outline" onClick={() => setAddCustomerOpen(false)}>
+                {t("common.cancel")}
+              </Button>
+              <Button 
+                type="submit" 
+                className="bg-[#0066CC] hover:bg-[#0052A3]"
+                disabled={!customerFormData.name || !customerFormData.city}
+                data-testid="nav-submit-customer-btn"
+              >
+                {t("customers.addCustomer") || "Add Customer"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </nav>
   );
 };

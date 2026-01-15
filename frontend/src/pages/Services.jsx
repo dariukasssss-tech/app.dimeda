@@ -495,7 +495,7 @@ const Services = () => {
 
                 <div className="flex justify-end gap-3 pt-4">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                    Cancel
+                    {t("common.cancel") || "Cancel"}
                   </Button>
                   <Button
                     type="button"
@@ -504,7 +504,7 @@ const Services = () => {
                     disabled={!selectedNonWarrantyIssue || !fromIssueData.technician_name}
                     data-testid="create-from-issue-btn"
                   >
-                    Create Service Record
+                    {t("services.createServiceRecord") || "Create Service Record"}
                   </Button>
                 </div>
               </div>

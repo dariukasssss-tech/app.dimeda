@@ -533,7 +533,7 @@ const Services = () => {
               </div>
 
               <div>
-                <Label>Service Date *</Label>
+                <Label>{t("services.serviceDate") || "Service Date"} *</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button

@@ -432,7 +432,9 @@ async def delete_issue(issue_id: str):
     # First check if issue exists
     existing = await db.issues.find_one({"id": issue_id}, {"_id": 0})
     if not existing:
-        raise HTTPException(status_code=404, detail="Issue not found")
+        raise NotFoundError("Issue", issue_id)
+    
+    logger.info(f"Deleting issue {issue_id} and related entries")
     
     # Delete all related scheduled maintenance entries
     await db.scheduled_maintenance.delete_many({"issue_id": issue_id})

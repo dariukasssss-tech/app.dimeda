@@ -896,7 +896,13 @@ const MaintenanceCalendar = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredMaintenance.map((item) => (
+              {filteredMaintenance.map((item) => {
+                // Find linked issue for customer issues
+                const linkedIssue = item.source === "customer_issue" && item.issue_id 
+                  ? issues.find(i => i.id === item.issue_id) 
+                  : null;
+                
+                return (
                 <div
                   key={item.id}
                   className={`flex items-center justify-between p-4 rounded-lg border-l-4 bg-white border ${getTaskBorderColor(item)}`}

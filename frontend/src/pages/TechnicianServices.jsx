@@ -699,6 +699,37 @@ const TechnicianServices = ({ selectedTechnician }) => {
                 </div>
               )}
               
+              {/* Spare Parts Used Checkbox */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="spare_parts_used"
+                  checked={resolveData.spare_parts_used}
+                  onChange={(e) => setResolveData({ ...resolveData, spare_parts_used: e.target.checked, spare_parts: e.target.checked ? resolveData.spare_parts : "" })}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  data-testid="spare-parts-checkbox"
+                />
+                <label htmlFor="spare_parts_used" className="text-sm font-medium text-slate-700">
+                  Spare parts used
+                </label>
+              </div>
+              
+              {/* Spare Parts Input - shown when checkbox is checked */}
+              {resolveData.spare_parts_used && (
+                <div>
+                  <Label htmlFor="spare_parts">Spare Parts</Label>
+                  <Textarea
+                    id="spare_parts"
+                    value={resolveData.spare_parts}
+                    onChange={(e) => setResolveData({ ...resolveData, spare_parts: e.target.value })}
+                    placeholder="List the spare parts used for this service..."
+                    className="mt-1"
+                    rows={4}
+                    data-testid="spare-parts-textarea"
+                  />
+                </div>
+              )}
+              
               {/* Resolution Note */}
               <div>
                 <Label htmlFor="resolution">Resolution Note *</Label>

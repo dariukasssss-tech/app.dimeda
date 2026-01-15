@@ -718,6 +718,16 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                       )}
                     </div>
                     
+                    {/* Contact Details Button - only for tasks with linked issues */}
+                    {linkedIssue && (
+                      <div className="mt-2" onClick={(e) => e.stopPropagation()}>
+                        <ContactDetailsPopup 
+                          issue={linkedIssue} 
+                          products={products}
+                        />
+                      </div>
+                    )}
+                    
                     {/* Click hint - only show if no action button */}
                     {!canStartWork && item.status !== "in_progress" && (
                       <p className="text-xs text-slate-400 mt-2 text-right cursor-pointer" onClick={(e) => handleTaskClick(item, e)}>Click for details</p>

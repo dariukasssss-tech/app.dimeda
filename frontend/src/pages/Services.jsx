@@ -576,18 +576,18 @@ const Services = () => {
               </div>
 
               <div>
-                <Label>Service Type *</Label>
+                <Label>{t("services.serviceType") || "Service Type"} *</Label>
                 <Select
                   value={formData.service_type}
                   onValueChange={(value) => setFormData({ ...formData, service_type: value })}
                 >
                   <SelectTrigger className="mt-1" data-testid="select-service-type">
-                    <SelectValue placeholder="Select service type" />
+                    <SelectValue placeholder={t("services.selectServiceType") || "Select service type"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="maintenance">Maintenance</SelectItem>
-                    <SelectItem value="repair">Repair</SelectItem>
-                    <SelectItem value="inspection">Inspection</SelectItem>
+                    <SelectItem value="maintenance">{t("services.maintenance") || "Maintenance"}</SelectItem>
+                    <SelectItem value="repair">{t("services.repair") || "Repair"}</SelectItem>
+                    <SelectItem value="inspection">{t("services.inspection") || "Inspection"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -113,6 +113,20 @@ const Issues = () => {
   // Warranty options
   const WARRANTY_OPTIONS = ["Warranty", "Non Warranty"];
   
+  // Product filter states for issue form
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedModelType, setSelectedModelType] = useState("");
+  
+  // Get unique cities from products
+  const cities = [...new Set(products.map(p => p.city))].sort();
+  
+  // Filter products by city and model type
+  const filteredProducts = products.filter(p => {
+    if (selectedCity && p.city !== selectedCity) return false;
+    if (selectedModelType && p.model_type !== selectedModelType) return false;
+    return true;
+  });
+  
   // Multi-select states for "other" issue type
   const [selectedVisualIssues, setSelectedVisualIssues] = useState([]);
   const [selectedFunctionalityIssues, setSelectedFunctionalityIssues] = useState([]);

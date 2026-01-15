@@ -39,6 +39,7 @@ import {
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, parseISO } from "date-fns";
 
 const TechnicianCalendar = ({ selectedTechnician }) => {
+  const { t } = useTranslation();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [maintenanceItems, setMaintenanceItems] = useState([]);
   const [issues, setIssues] = useState([]); // Track issues for status updates

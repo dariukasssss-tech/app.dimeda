@@ -53,6 +53,7 @@ const FUNCTIONALITY_INSPECTION = [
 ];
 
 const Export = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState({});
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);

@@ -53,6 +53,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];
 
 const MaintenanceCalendar = () => {
+  const { t } = useTranslation();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [maintenanceItems, setMaintenanceItems] = useState([]);
   const [issues, setIssues] = useState([]);

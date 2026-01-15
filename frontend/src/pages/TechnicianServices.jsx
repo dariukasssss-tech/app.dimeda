@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 
 const TechnicianServices = ({ selectedTechnician }) => {
+  const { t } = useTranslation();
   const [issues, setIssues] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

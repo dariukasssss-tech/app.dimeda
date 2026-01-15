@@ -450,13 +450,13 @@ const Services = () => {
 
                 {/* Technician Selection */}
                 <div>
-                  <Label>Assign Technician *</Label>
+                  <Label>{t("services.assignTechnician") || "Assign Technician"} *</Label>
                   <Select
                     value={fromIssueData.technician_name}
                     onValueChange={(value) => setFromIssueData({ ...fromIssueData, technician_name: value })}
                   >
                     <SelectTrigger className="mt-1" data-testid="from-issue-technician">
-                      <SelectValue placeholder="Select technician" />
+                      <SelectValue placeholder={t("services.selectTechnician") || "Select technician"} />
                     </SelectTrigger>
                     <SelectContent>
                       {TECHNICIANS.map((tech) => (
@@ -470,7 +470,7 @@ const Services = () => {
 
                 {/* Scheduled Date */}
                 <div>
-                  <Label>Scheduled Date *</Label>
+                  <Label>{t("services.scheduledDate") || "Scheduled Date"} *</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button

@@ -466,10 +466,11 @@ async def delete_issue(issue_id: str):
 async def create_customer_issue(issue: CustomerIssueCreate):
     product = await db.products.find_one({"id": issue.product_id}, {"_id": 0})
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise NotFoundError("Product", issue.product_id)
     
     # Generate issue code
     issue_code = await generate_issue_code(issue.product_id)
+    logger.info(f"Creating customer issue with code {issue_code}")
     
     issue_data = issue.model_dump()
     issue_data["severity"] = "high"

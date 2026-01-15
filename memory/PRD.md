@@ -265,9 +265,15 @@ estimated_cost, product_location, source, created_at, resolution}
 **Frontend:**
 - Created `TranslationContext.jsx` with React Context and `useTranslation` hook
 - Created `LanguageSwitcher.jsx` component with dropdown selector
-- Integrated language switcher in all navigation headers (Admin, Technician, Customer, Login)
+- **Language switcher only on Login page** (removed from portal navigation)
 - Language preference persists in localStorage (`dimeda_language` key)
 - All major components updated to import and use `useTranslation` hook
+
+**Login Page UI Updates:**
+- Centered Dimeda logo (1.5x larger)
+- Added "Dimeda Service Pro System" title (always in English, not translatable)
+- Language switcher centered below title
+- Three login cards: Admin, Technician, Customer
 
 **Common Components Created:**
 - `/components/common/Badges.jsx` - StatusBadge, WarrantyBadge, SeverityBadge, SLAIndicator

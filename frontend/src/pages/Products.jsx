@@ -508,6 +508,7 @@ const Products = () => {
                   <TableRow>
                     <TableHead>Serial Number</TableHead>
                     <TableHead>Model</TableHead>
+                    <TableHead>Model Type</TableHead>
                     <TableHead>City</TableHead>
                     <TableHead>Location</TableHead>
                     <TableHead>Registered</TableHead>
@@ -524,6 +525,15 @@ const Products = () => {
                       <TableRow key={product.id} data-testid={`product-row-${product.id}`}>
                         <TableCell className="font-medium">{product.serial_number}</TableCell>
                         <TableCell>{product.model_name}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            product.model_type === "roll_in" 
+                              ? "bg-teal-100 text-teal-800" 
+                              : "bg-blue-100 text-blue-800"
+                          }`}>
+                            {product.model_type === "roll_in" ? "Roll-in" : "Powered"}
+                          </span>
+                        </TableCell>
                         <TableCell>
                           <span className="flex items-center gap-1">
                             <Building2 size={14} className="text-[#0066CC]" />

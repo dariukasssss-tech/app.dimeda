@@ -90,6 +90,7 @@ const FilterCard = ({ title, value, icon: Icon, color, isActive, onClick, testId
 );
 
 const Issues = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [issues, setIssues] = useState([]);
   const [products, setProducts] = useState([]);

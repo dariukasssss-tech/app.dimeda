@@ -224,6 +224,18 @@
     "issueReported": "Problema sėkmingai pranešta",
     "productLocation": "Produkto vieta"
   },
+  "export": {
+    "title": "Eksportuoti duomenis",
+    "description": "Atsisiųskite duomenis CSV formatu arba generuokite PDF ataskaitas",
+    "exportCSV": "Eksportuoti CSV",
+    "exporting": "Eksportuojama...",
+    "pdfGenerated": "PDF ataskaita sėkmingai sugeneruota",
+    "productsDescription": "Eksportuoti visus registruotus neštuvus su serijos numeriais, vietomis ir registracijos datomis.",
+    "servicesDescription": "Eksportuoti pilną paslaugų istoriją su technikų vardais, paslaugų tipais ir aprašymais.",
+    "issuesDescription": "Eksportuoti visas praneštas problemas su būsena, svarba ir sprendimo pastabomis.",
+    "deviceInspectionReport": "Įrenginio patikros ataskaita",
+    "generatePdfReport": "Generuoti PDF ataskaitą konkrečiam produktui"
+  },
   "time": {
     "hoursLeft": "Liko {hours}val. {minutes}min.",
     "minutesLeft": "Liko {minutes}min.",

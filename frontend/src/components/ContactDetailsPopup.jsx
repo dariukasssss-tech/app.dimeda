@@ -70,22 +70,7 @@ const ContactDetailsPopup = ({ issue, products, trigger }) => {
           </DialogTitle>
         </DialogHeader>
         
-        <div className="mt-4">
-          {/* Issue & Product Info */}
-          <div className="p-3 bg-slate-50 rounded-lg mb-4">
-            <p className="text-sm font-medium text-slate-700">{issue?.title}</p>
-            <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
-              <MapPin size={12} />
-              <span>{city || t("common.noData")}</span>
-              {product && (
-                <>
-                  <span>•</span>
-                  <span>S/N: {product.serial_number}</span>
-                </>
-              )}
-            </div>
-          </div>
-
+        <div className="mt-2">
           {/* Customers List */}
           {loading ? (
             <div className="text-center py-8 text-slate-500">

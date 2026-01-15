@@ -59,6 +59,41 @@ import ContactDetailsPopup from "@/components/ContactDetailsPopup";
 
 const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
 
+// Calculate SLA remaining time for customer issues
+const calculateSLARemaining = (issue) => {
+  // Only for customer issues with technician assigned and not resolved
+  if (issue.source !== "customer" || !issue.technician_name || !issue.technician_assigned_at) {
+    return null;
+  }
+  
+  // Parse SLA from issue or use default 12h
+  const slaHours = issue.sla_hours || 12;
+  const assignedAt = new Date(issue.technician_assigned_at);
+  const deadline = new Date(assignedAt.getTime() + slaHours * 60 * 60 * 1000);
+  const now = new Date();
+  const remaining = deadline - now;
+  
+  if (remaining <= 0) {
+    const overdue = Math.abs(remaining);
+    const hours = Math.floor(overdue / (1000 * 60 * 60));
+    const minutes = Math.floor((overdue % (1000 * 60 * 60)) / (1000 * 60));
+    return {
+      expired: true,
+      urgent: false,
+      text: `Overdue ${hours}h ${minutes}m`
+    };
+  }
+  
+  const hours = Math.floor(remaining / (1000 * 60 * 60));
+  const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+  
+  return {
+    expired: false,
+    urgent: hours < 2,
+    text: `${hours}h ${minutes}m left`
+  };
+};
+
 const Products = () => {
   const { t } = useTranslation();
   const [products, setProducts] = useState([]);

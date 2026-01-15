@@ -569,9 +569,9 @@ const Export = () => {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-          Export Data
+          {t("export.title") || "Export Data"}
         </h1>
-        <p className="text-slate-500 mt-1">Download your data as CSV files or generate PDF reports</p>
+        <p className="text-slate-500 mt-1">{t("export.description") || "Download your data as CSV files or generate PDF reports"}</p>
       </div>
 
       {/* Export Cards */}
@@ -593,11 +593,11 @@ const Export = () => {
                 data-testid={`export-btn-${option.id}`}
               >
                 {loading[option.id] ? (
-                  "Exporting..."
+                  t("export.exporting") || "Exporting..."
                 ) : (
                   <>
                     <Download size={18} className="mr-2" />
-                    Export CSV
+                    {t("export.exportCSV") || "Export CSV"}
                   </>
                 )}
               </Button>
@@ -614,8 +614,8 @@ const Export = () => {
               <FileText className="text-white" size={24} />
             </div>
             <div>
-              <CardTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Device Inspection Report</CardTitle>
-              <CardDescription>Generate a PDF report for a specific product</CardDescription>
+              <CardTitle style={{ fontFamily: 'Manrope, sans-serif' }}>{t("export.deviceInspectionReport") || "Device Inspection Report"}</CardTitle>
+              <CardDescription>{t("export.generatePdfReport") || "Generate a PDF report for a specific product"}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -623,10 +623,10 @@ const Export = () => {
           {/* Basic Info Row */}
           <div className="grid md:grid-cols-4 gap-4">
             <div>
-              <Label>Select Product *</Label>
+              <Label>{t("common.selectProduct") || "Select Product"} *</Label>
               <Select value={selectedProduct || ""} onValueChange={handleProductSelect}>
                 <SelectTrigger className="mt-1" data-testid="report-select-product">
-                  <SelectValue placeholder="Choose a product" />
+                  <SelectValue placeholder={t("common.chooseProduct") || "Choose a product"} />
                 </SelectTrigger>
                 <SelectContent>
                   {products.map((product) => (

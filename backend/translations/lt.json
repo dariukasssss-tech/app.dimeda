@@ -113,6 +113,7 @@
     "issueType": "Problemos tipas",
     "severity": "Svarba",
     "description": "Aprašymas",
+    "trackAndResolve": "Sekti ir spręsti įrangos problemas",
     "status": {
       "open": "Atvira",
       "inProgress": "Vykdoma",

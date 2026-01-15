@@ -536,16 +536,42 @@ const CustomerDashboard = () => {
                         <p className="text-sm text-slate-600 mt-2">{issue.description}</p>
                         
                         {/* Technician assignment info for registered/in_progress issues */}
-                        {issue.technician_name && displayStatus !== "resolved" && (
-                          <div className="mt-2 p-2 bg-blue-50 rounded text-sm text-blue-800">
-                            <strong>{t("technician.assignedTo")}:</strong> {issue.technician_name}
-                            {issue.technician_assigned_at && (
-                              <span className="ml-2 text-blue-600">
-                                ({t("calendar.scheduled")}: {new Date(issue.technician_assigned_at).toLocaleString()})
-                              </span>
-                            )}
-                          </div>
-                        )}
+                        {issue.technician_name && displayStatus !== "resolved" && (() => {
+                          const isRollIn = getProductModelType(issue.product_id) === "roll_in";
+                          const maintenance = getMaintenanceForIssue(issue.id);
+                          const isPendingSchedule = maintenance?.status === "pending_schedule";
+                          const scheduledDate = maintenance?.scheduled_date;
+                          
+                          return (
+                            <div className={`mt-2 p-2 rounded text-sm ${isRollIn ? "bg-teal-50 text-teal-800" : "bg-blue-50 text-blue-800"}`}>
+                              <strong>{t("technician.assignedTo")}:</strong> {issue.technician_name}
+                              {isRollIn ? (
+                                // Roll-in Stretcher: Show scheduled date or "Pending Schedule"
+                                isPendingSchedule || !scheduledDate ? (
+                                  <span className="ml-2 text-amber-600 font-medium">
+                                    (Awaiting Schedule)
+                                  </span>
+                                ) : (
+                                  <span className="ml-2 text-teal-600">
+                                    (Scheduled: {new Date(scheduledDate).toLocaleString()})
+                                  </span>
+                                )
+                              ) : (
+                                // Powered Stretcher: Show SLA deadline
+                                issue.technician_assigned_at && (
+                                  <span className="ml-2 text-blue-600">
+                                    (Solve by: {new Date(new Date(issue.created_at).getTime() + 12 * 60 * 60 * 1000).toLocaleString()})
+                                  </span>
+                                )
+                              )}
+                              {isRollIn && (
+                                <span className="ml-2 px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800">
+                                  Roll-in
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                         
                         {/* Resolution info for resolved issues */}
                         {displayStatus === "resolved" && (

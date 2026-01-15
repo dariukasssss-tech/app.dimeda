@@ -22,4 +22,4 @@ VALID_CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"]
 VALID_MODELS = ["Powered Stretchers", "Roll-in stretchers"]
 
 # Frontend URL for CORS
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://stretcher-pro.preview.emergentagent.com')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://techflow-14.preview.emergentagent.com')

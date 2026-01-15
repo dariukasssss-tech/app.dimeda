@@ -1,171 +1,128 @@
-<analysis>**original_problem_statement:** The user wants a full-stack application for Dimeda.lt, a service partner for www.medirol.cz. The app is for technicians to manage service and maintenance of Medirol Vivera Monobloc stretchers. The application has evolved to include three portals: Admin (Service Pro), Technician, and Customer (Customer Pro).
+<analysis>**original_problem_statement:** The user wants a full-stack application for Dimeda.lt, a service partner for www.medirol.cz. The app is for technicians to manage service and maintenance of Medirol Vivera Monobloc stretchers. The application has evolved to include three portals: Admin (Service Pro), Technician, and Customer (Customer Pro). The latest request is for a centralized text configuration system to manage all UI labels from a single file and support multiple languages.
 
 **PRODUCT REQUIREMENTS:**
--   **Role-Based Access:**
-    -   **Admin Portal:** Full access to all features (CRUD on products, issues, services, calendar, dashboard, reporting).
-    -   **Technician Portal:** A restricted, interactive view of assigned tasks. Technicians can start, manage, and resolve their tasks.
-    -   **Customer Pro Portal:** A simple portal for customers to register and track their issues.
--   **Issue Management:**
-    -   Customers and Technicians can report issues.
-    -   Issues must have a unique, system-generated code ().
-    -   The code must be visible across all portals.
-    -   Customer portal must show issue dates (reported, registered, resolved) and allow filtering by status.
--   **Warranty Workflow:**
-    -   When an issue is resolved as Warranty Service, it should not be marked Resolved immediately. Instead, its status should change to In Service.
-    -   A new, routed Make Service child issue should be created automatically.
-    -   The original parent issue is only marked Resolved when the child Make Service issue is completed.
-    -   The Services page must show issues grouped by status (In Progress, In Service, Resolved) and by warranty type.
-    -   A View Track popup must show the full history of the parent-child issue relationship.
--   **Maintenance & Scheduling:**
-    -   An interactive calendar for admins and technicians.
-    -   Admin calendar should have interactive stat cards (Upcoming, Overdue) that open a popup with details.
-    -   Technician calendar should allow clicking on a date to see a summary of tasks and clicking on a task to see full details.
--   **UI/UX:**
-    -   Clean, professional look (white, black, gray, blue #0066CC).
-    -   Technician calendar task list should be eye-friendly (card-based grid).
-    -   Action buttons (Start Work, Complete Service) should be clearly visible and accessible.
+-   **Role-Based Access:** Admin, Technician, and Customer portals with specific permissions.
+-   **Issue Management:** A complete lifecycle for reporting, tracking, and resolving issues with a unique coding system.
+-   **Warranty Workflow:** A simplified flow where resolving an issue as Warranty keeps the original issue active (status: ) and tracks repair attempts within the same issue record, rather than creating new child issues.
+-   **Maintenance & Scheduling:** Interactive calendars for Admins and Technicians.
+-   **Internationalization (i18n):** All frontend text must be loaded from a central file to allow for easy UI label changes and multi-language support (English and Lithuanian). No hardcoded strings should exist in the components.
 
 **User's preferred language**: English
 
 **what currently exists?**
-A full-stack application (FastAPI + React) with a modular architecture and three distinct portals based on role-based access control (RBAC):
-1.  **Admin Portal:** Fully-featured portal with CRUD operations, a dashboard, an interactive maintenance calendar, and a comprehensive services page managing a new warranty workflow.
-2.  **Technician Portal:** A refined, interactive portal for technicians to manage their assigned tasks via a dashboard, a highly interactive calendar, and a services page.
-3.  **Customer Pro Portal:** A simple interface for customers to log issues and track their status with enhanced filtering and date visibility.
-
-The backend and frontend codebases have been significantly refactored from monolithic files (, ) into a modular structure (, , ). A system-wide unique issue code generator has been implemented and integrated across all portals. The complex warranty service workflow is mostly implemented but has pending fixes.
+A full-stack application (FastAPI + React) with three distinct, role-based portals. The codebase is modular, having been refactored from monolithic files. Core features like issue management, a unique issue code generator, and a multi-iteration refined warranty service workflow are implemented and tested. A bug causing orphaned calendar entries upon issue deletion was also fixed. The agent has just begun implementing a new internationalization (i18n) feature by creating the backend translation files (, ).
 
 **Last working item**:
--   Last item agent was working: The agent was implementing user-requested fixes for the In Service tab on the Admin Portal's Services page. The requests were:
-    1.  Remove the duplicate listing of an issue in both Awaiting Warranty Service and Make Service Issues. The issue should only appear once.
-    2.  Replace the static In Service status badge with two active buttons: Complete Service and View Track.
-    3.  Add the ability to assign/re-assign a technician from within the View Track popup.
-    4.  Ensure that when a technician is assigned via this popup, the task correctly appears in their personal calendar and task lists.
+-   Last item agent was working: The agent was starting the implementation of a centralized text configuration system (i18n) to manage all UI text from a single source and support multiple languages.
 -   Status: IN PROGRESS
 -   Agent Testing Done: N
--   Which testing method agent to use? Frontend testing agent. This requires an end-to-end test of the entire warranty flow: 1. Log in as Admin. 2. Resolve an issue as Warranty. 3. Navigate to the In Service tab and verify the UI changes (no duplicates, action buttons present). 4. Click View Track, assign a technician. 5. Log out, log in as the assigned technician and verify the new Make Service task appears on their calendar and service page.
+-   Which testing method agent to use? Both. First, the backend testing agent to verify the new translation endpoint. After frontend integration, the frontend testing agent should be used to confirm that text is loaded dynamically, language switching works, and no hardcoded strings remain in key components.
 -   User Testing Done: N
 
 **All Pending/In progress Issue list**:
--   Issue 1: (P0) Untested fixes on the Admin In Service page.
-
-  Issues Detail:
-  - Issue 1: **Admin In Service Page Functionality and UI Untested**
-     - Attempted fixes: The agent has written code in  to address the user's requests but has not performed any verification.
-     - Next debug checklist:
-        1.  Log in as Admin ().
-        2.  Navigate to . If no issue is , create one and assign it to a technician.
-        3.  Resolve an issue, selecting Warranty Service in the dialog.
-        4.  Navigate to the In Service tab. Verify the original issue appears only ONCE in the Awaiting Warranty Service list.
-        5.  Verify the card for this issue shows Complete Service and View Track buttons instead of a status badge.
-        6.  Click View Track. In the popup, verify there is a dropdown to select a technician.
-        7.  Assign a technician (e.g., Technician 3) and close the popup.
-        8.  Log out. Log in as Technician () and select the assigned technician from the dashboard.
-        9.  Navigate to the Technician Calendar and Services page. Verify the new Make Service task is now assigned to them and visible.
-     - Why fix this issue and what will be achieved with the fix? This will complete the user-requested warranty service workflow, providing admins with the necessary controls to manage and re-assign routed warranty tasks.
-     - Status: NOT STARTED
-     - Is recurring issue? N
-     - Should Test frontend/backend/both after fix? Both.
-     - Blocked on other issue: None.
+There are no pending bugs. The agent is working on a new feature request.
 
 **In progress Task List**:
--   Task 1: **Finalize and Verify Warranty Service Workflow**
-     - Where to resume: Begin testing the latest changes made to  as outlined in the Pending Issues section.
-     - What will be achieved with this? A complete, tested, and user-approved workflow for handling warranty services, which is a core business logic requirement.
+-   Task 1: (P0) **Implement Centralized Text Configuration System**
+     - Where to resume: The agent has created the translation files in . The next step is to create the backend API endpoint (e.g., in ) to serve the content of these JSON files based on a language parameter (e.g., ).
+     - What will be achieved with this? A backend API that delivers all UI text, enabling dynamic content and language switching on the frontend.
      - Status: IN PROGRESS
-     - Should Test frontend/backend/both after fix? Both.
-     - Blocked on something: None.
+     - Should Test frontend/backend/both after fix? Both
+     - Blocked on something: None
 
 **Upcoming and Future Tasks**
--   Future Tasks:
-    -   (P1) Implement email notifications for upcoming maintenance (e.g., 7 days in advance).
+-   **Upcoming Tasks:**
+    -   (P0) **Frontend Integration for i18n:**
+        -   Create a React Context and a custom  hook to manage and provide translations throughout the app.
+        -   Refactor all frontend components to replace hardcoded strings with calls to the  hook.
+        -   Implement a UI element (e.g., a dropdown) for language switching.
+        -   Implement logic to auto-create a default  file on the backend if it's missing.
+    -   (P1) **Refactor Large Components:** Break down large files like  and  into smaller, reusable components.
+-   **Future Tasks:**
+    -   (P1) Implement email notifications for upcoming maintenance.
     -   (P2) Develop a feature to bulk import products from a CSV file.
-    -   (P3) Create a Progressive Web App (PWA) for technicians to have offline access in the field.
+    -   (P3) Create a Progressive Web App (PWA) for offline technician access.
 
 **Completed work in this session**
--   **Major Code Refactoring:** Split monolithic  and  into a modular architecture (, , ), reducing file sizes by over 70% and improving maintainability.
--   **System-Wide Issue Code:** Implemented a unique issue code generator () and integrated it across all Admin, Technician, and Customer portals.
--   **Warranty Service Workflow:** Built the core logic where resolving an issue as Warranty changes its status to in_service and creates a new routed Make Service child issue. The Services page was updated with new tabs (In Service, Resolved) and an Issue Track popup to show the parent-child history.
--   **Admin Portal Enhancements:**
-    -   **Dashboard:** Revamped the Recent Services table to show more records and detailed information.
-    -   **Maintenance Calendar:** Made statistic cards (Upcoming, Overdue) interactive, opening a detailed popup on click.
--   **Technician Portal UI/UX Overhaul:**
-    -   **Calendar:** Made calendar days and the task list interactive. Clicking a day shows a summary, and clicking a task card shows a full-detail popup. The task list was redesigned into an eye-friendly card grid.
-    -   **Task Cards:** Added the Start Work button directly onto the cards for easier access and removed redundant UI elements.
--   **Customer Portal Updates:** Implemented filtering by issue status and added the display of three key dates (Reported, Registered, Resolved) for resolved issues.
--   **Testing and Verification:** Used the testing agent to successfully verify the initial Technician Portal interactivity and the Customer Portal updates.
+-   **Warranty Workflow V1 Fixes:** Successfully implemented and tested technician assignment from the Admin View Track popup and ensured tasks appear on the technician's calendar.
+-   **Bug Fix (Cascading Deletes):** Fixed a critical bug where deleting an issue left orphaned calendar entries. The  endpoint now correctly cleans up associated  records.
+-   **Technician Portal Workflow V2 & V3 (Major Refactor):** Overhauled the technician warranty workflow based on user feedback. The final, simplified version tracks repair attempts on the original issue record instead of creating new child issues. This is managed via a detailed, popup-driven UI on both the Services and Calendar pages.
+-   **Bug Fix (Status Logic):** Corrected the backend logic so that assigning an issue to a technician sets its status to  (scheduled). The status only changes to  after the technician clicks Start Work, ensuring the Services page only shows active tasks.
+-   **UI/UX Improvements:**
+    -   Updated the Technician Dashboard to correctly count  issues as In Progress.
+    -   Enhanced the visibility of Resolution Notes in all technician-facing popups with a larger font and distinct styling.
+
+**Earlier issues found/mentioned but not fixed**
+   - None.
+
+**Known issue recurrence from previous fork**
+  - None.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Backend:** FastAPI with a modular route and model structure.
--   **Frontend:** React, Tailwind CSS, Shadcn UI, using a layout-based approach for different roles.
+-   **Backend:** FastAPI
+-   **Frontend:** React, Tailwind CSS, Shadcn UI
 -   **Database:** MongoDB
--   **Authentication:** Multi-level, token-based (JWT) with a  claim ('admin', 'technician', 'customer').
+-   **Authentication:** JWT-based RBAC ('admin', 'technician', 'customer')
+-   **Internationalization (i18n):** The new system being implemented.
 
 **key DB schema**
-  - : {serial_number, model_name, city, ...}
-  - : {..., **issue_code**, **parent_issue_id**, **is_warranty_service_issue**, **status_history**, status, technician_name, ...}
-  - : {product_id, scheduled_date, status, ...}
-  - : {product_id, service_date, description, ...}
+-   : The schema was updated to include:
+    -    to track warranty repair history on the parent issue.
+    -    to manage the 24-hour repair timer.
 
 **changes in tech stack**
-  - None.
+-   None.
 
 **All files of reference**
--   **Refactored Backend:** The entire  directory, especially the new , , and  subdirectories.  is now just the entry point.
--   **Refactored Frontend:** , and the new  directory and .
--   **Warranty & UI Logic:**  (heavily modified),  (heavily modified).
--   **Issue Code Logic:**  (new code generation),  (schema update).
+-   **Created:**
+    -   : To store English UI text.
+    -   : To store Lithuanian UI text.
+-   **Heavily Modified:**
+    -   : Major refactoring of warranty and status logic.
+    -   : Updated schema to support the simplified warranty flow.
+    -   : Rewritten to implement a popup-driven workflow for service records.
+    -   : Updated to use the new detailed task popup.
+    -   : Logic updated to correctly count active tasks.
 
 **Areas that need refactoring**:
--   Frontend pages like  (nearly 1000 lines) and  (over 650 lines) have become very large and complex. They should be broken down into smaller, reusable components to improve readability and maintainability.
+-   A major refactoring of all frontend components is required to remove hardcoded strings and integrate the new i18n system.
+-   The large component files  and  should be broken down into smaller components.
 
 **key api endpoints**
--    (POST): Authenticates users based on role.
--    (POST): Creates an issue, now with issue code generation.
--    (PUT): Handles status updates, including the new warranty service routing logic.
--    (GET): New endpoint to fetch the history of a parent issue and its routed children.
--    (GET): New endpoint to fetch data for the interactive calendar stat cards.
+-   **To be created:**  (GET): To fetch UI text for the specified language.
+-   The logic for the  (PUT) endpoint has been significantly modified to handle the new warranty and status flows.
 
 **Critical Info for New Agent**
--   **Code Has Been Refactored:** The backend is no longer a single  file, and the frontend no longer has all logic in . Familiarize yourself with the new modular structure in the  section before making changes.
--   **Warranty Service Workflow is Complex:** When a user resolves an issue as Warranty, it does **not** get resolved. Its status becomes in_service and a new Make Service child issue is created. The original issue is only truly Resolved when this child issue is completed. This logic is primarily in  and visualized in .
--   **Three-Role System:** The application is built around 'admin', 'technician', and 'customer' roles. The role is determined at login and stored in  as .
+-   **i18n Implementation:** The immediate priority is to complete the internationalization feature. This involves creating the backend endpoint and then refactoring the entire frontend to consume text from it.
+-   **Warranty Workflow:** The current warranty logic is the result of multiple user-driven iterations. It **does not create child issues**. Instead, it adds repair attempts to an array on the original issue document. This is a critical piece of business logic; do not change it.
+-   **Issue Status Flow:** An issue assigned to a technician has an  status and appears only on the Calendar. It moves to the In Progress section of the Services page (status ) only after the technician clicks Start Work.
 
 **documents and test reports created in this job**
-  - 
-  - 
+-    (updated)
+-   
+-   
+-   
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **Request:** Fix two UI issues in the Technician portal: simplify the resolve form and fix a Working... button that was stuck on resolved issues.
-2.  **Agent Action:** Implemented and verified the fixes.
-3.  **Request:** Implement four major features in the Admin portal: enhance the dashboard's Recent Services, make calendar stats interactive, and create a unique issue code system.
-4.  **Agent Action:** Implemented all four features, including backend and frontend changes, and verified them.
-5.  **Request:** Correct the issue code to use the full product serial number.
-6.  **Agent Action:** Fixed the backend logic and verified the new code format.
-7.  **Request:** Improve the Technician calendar UI to be more interactive and eye-friendly.
-8.  **Agent Action:** Implemented interactive popups for calendar days and a new card-based grid for the task list, then verified the changes.
-9.  **Request:** Add the Start Work button directly to the new task cards on the technician calendar.
-10. **Agent Action:** Implemented and verified the UI change.
-11. **Request:** Implement a complex warranty service workflow where resolving as warranty creates a new routed Make Service issue.
-12. **Agent Action:** Implemented the backend and frontend logic for the new workflow and verified the core path.
-13. **Request:** Fix several UI/UX issues on the new In Service page (remove duplicates, add action buttons, allow technician assignment from the track popup).
-14. **Agent Action:** Implemented the code changes but has not yet tested them. **This is the current pending task.**
+1.  **Request:** Fix an issue where a task assigned from the Admin portal was incorrectly showing as in_progress instead of scheduled in the Technician portal. (COMPLETED)
+2.  **Request:** Fix the Technician Dashboard to count issues with  status as In Progress and make Resolution notes more visible in popups. (COMPLETED)
+3.  **Request:** Create a centralized text configuration system (i18n) for the project to manage all UI text, support multiple languages, and eliminate hardcoded strings. (IN PROGRESS)
+4.  **Agent Action:** Acknowledged the request and began implementation by creating backend translation files (, ). The next step is to create the API endpoint.
 
 **Project Health Check:**
--   **Broken:** The In Service tab on the Admin Services page is in an untested state and likely has functional or UI bugs related to the latest user requests.
+-   **Broken:** None
 -   **Mocked:** None
 
 **3rd Party Integrations**
--    & : Used for client-side PDF generation in the reporting feature.
+-    &  for PDF generation.
 
 **Testing status**
-  - Testing agent used after significant changes: YES
-  - Troubleshoot agent used after agent stuck in loop: NO
-  - Test files created: []
-  - Known regressions: []
+-   Testing agent used after significant changes: YES. All major workflow changes and bug fixes in this session were verified with the testing agent.
+-   Test files created: None.
+-   Known regressions: None.
 
 **Credentials to test flow:**
 -   **Admin Password:** 
@@ -173,4 +130,4 @@ The backend and frontend codebases have been significantly refactored from monol
 -   **Customer Pro Password:** 
 
 **What agent forgot to execute**
--   The agent did not test the final set of UI and functionality changes requested for the Admin portal's In Service page. Testing this new workflow end-to-end is the immediate next step.</analysis>
+-   The agent was in the middle of implementing a new feature as requested by the user. No steps were forgotten.</analysis>

@@ -141,7 +141,7 @@ const Products = () => {
       resetForm();
       fetchProducts();
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Failed to save product");
+      toast.error(error.response?.data?.detail || t("common.error"));
     }
   };
 
@@ -168,13 +168,13 @@ const Products = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product? This will also delete all scheduled maintenance for this unit.")) return;
+    if (!window.confirm(t("messages.confirmDelete"))) return;
     try {
       await axios.delete(`${API}/products/${id}`);
-      toast.success("Product deleted successfully");
+      toast.success(t("messages.productDeleted") || "Product deleted");
       fetchProducts();
     } catch (error) {
-      toast.error("Failed to delete product");
+      toast.error(t("common.error"));
     }
   };
 

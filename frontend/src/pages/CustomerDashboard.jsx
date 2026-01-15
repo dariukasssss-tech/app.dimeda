@@ -98,6 +98,8 @@ const CustomerDashboard = () => {
   // Get display status for customer - "Registered" when technician assigned
   const getDisplayStatus = (issue) => {
     if (issue.status === "resolved") return "resolved";
+    // in_service = technician is working on warranty repair (show as in_progress)
+    if (issue.status === "in_service") return "in_progress";
     if (issue.status === "in_progress") return "in_progress";
     if (issue.technician_name && issue.status === "open") return "registered";
     return "reported"; // open without technician = reported

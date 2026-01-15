@@ -37,6 +37,7 @@ import {
   Shield,
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, parseISO } from "date-fns";
+import ContactDetailsPopup from "@/components/ContactDetailsPopup";
 
 const TechnicianCalendar = ({ selectedTechnician }) => {
   const { t } = useTranslation();

@@ -1,56 +1,63 @@
-<analysis>**original_problem_statement:** The user wants a full-stack application for Dimeda.lt, a service partner for www.medirol.cz. The app is for technicians to manage service and maintenance of Medirol Vivera Monobloc stretchers. The application has evolved to include three portals: Admin (Service Pro), Technician, and Customer (Customer Pro). The latest request is for a centralized text configuration system to manage all UI labels from a single file and support multiple languages.
+<analysis>**original_problem_statement:** The user wants a full-stack application for Dimeda.lt, a service partner for www.medirol.cz. The app is for technicians to manage service and maintenance of Medirol Vivera Monobloc stretchers. The application has evolved to include three portals: Admin (Service Pro), Technician, and Customer (Customer Pro).
 
 **PRODUCT REQUIREMENTS:**
 -   **Role-Based Access:** Admin, Technician, and Customer portals with specific permissions.
 -   **Issue Management:** A complete lifecycle for reporting, tracking, and resolving issues with a unique coding system.
--   **Warranty Workflow:** A simplified flow where resolving an issue as Warranty keeps the original issue active (status: ) and tracks repair attempts within the same issue record, rather than creating new child issues.
--   **Maintenance & Scheduling:** Interactive calendars for Admins and Technicians.
--   **Internationalization (i18n):** All frontend text must be loaded from a central file to allow for easy UI label changes and multi-language support (English and Lithuanian). No hardcoded strings should exist in the components.
+-   **Warranty Workflow:** A simplified flow where resolving an issue as Warranty keeps the original issue active (status: ) and tracks repair attempts within the same issue record.
+-   **Customer Management:** An admin feature to add, view, and manage customer information, which is linked to issues via the city.
+-   **Contact Details Popup:** A popup on issue items in the Admin and Technician portals to quickly show the contact details of the associated customer.
+-   **Internationalization (i18n):** All frontend text must be loaded from a central file to support multiple languages (English and Lithuanian). The language is selected on the login page and persists throughout the session.
 
 **User's preferred language**: English
 
 **what currently exists?**
-A full-stack application (FastAPI + React) with three distinct, role-based portals. The codebase is modular, having been refactored from monolithic files. Core features like issue management, a unique issue code generator, and a multi-iteration refined warranty service workflow are implemented and tested. A bug causing orphaned calendar entries upon issue deletion was also fixed. The agent has just begun implementing a new internationalization (i18n) feature by creating the backend translation files (, ).
+A full-stack application (FastAPI + React) with three role-based portals (Admin, Technician, Customer). Core features like issue management, a refined warranty workflow, and a full-fledged customer management system are implemented. The entire frontend has been refactored to support internationalization (i18n) for English and Lithuanian, with a language switcher exclusively on the login page. The UI for the login page has also been redesigned. The agent just began implementing a Contact Details popup for issues.
 
 **Last working item**:
--   Last item agent was working: The agent was starting the implementation of a centralized text configuration system (i18n) to manage all UI text from a single source and support multiple languages.
+-   Last item agent was working: Implementing a Contact Details popup that appears on issues in the Admin and Technician portals. The popup should show customer contact information (Name, Phone, Email) based on the city associated with the issue's product.
 -   Status: IN PROGRESS
 -   Agent Testing Done: N
--   Which testing method agent to use? Both. First, the backend testing agent to verify the new translation endpoint. After frontend integration, the frontend testing agent should be used to confirm that text is loaded dynamically, language switching works, and no hardcoded strings remain in key components.
+-   Which testing method agent to use? both. Use the backend agent to verify the customer data is fetched correctly for an issue. Use the frontend agent to test the popup's functionality and display on the Admin (, ) and Technician (, ) pages.
 -   User Testing Done: N
 
 **All Pending/In progress Issue list**:
-There are no pending bugs. The agent is working on a new feature request.
+There are no pending bugs.
 
 **In progress Task List**:
--   Task 1: (P0) **Implement Centralized Text Configuration System**
-     - Where to resume: The agent has created the translation files in . The next step is to create the backend API endpoint (e.g., in ) to serve the content of these JSON files based on a language parameter (e.g., ).
-     - What will be achieved with this? A backend API that delivers all UI text, enabling dynamic content and language switching on the frontend.
+-   Task 1: (P0) **Complete Contact Details Popup Feature**
+     - Where to resume: The agent has created the  component and added the button to the main  page for Admins. The next steps are:
+        1. Add the Contact Details button and popup logic to the in-progress, in-service, and resolved tabs within the Admin  page.
+        2. Add the Contact Details button and popup logic to the Technician portal pages:  and .
+        3. Ensure the popup correctly fetches and displays the contact information of the first customer matching the issue's product's city.
+     - What will be achieved with this? Admins and Technicians will be able to quickly view customer contact details directly from an issue card without navigating away.
      - Status: IN PROGRESS
      - Should Test frontend/backend/both after fix? Both
      - Blocked on something: None
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
-    -   (P0) **Frontend Integration for i18n:**
-        -   Create a React Context and a custom  hook to manage and provide translations throughout the app.
-        -   Refactor all frontend components to replace hardcoded strings with calls to the  hook.
-        -   Implement a UI element (e.g., a dropdown) for language switching.
-        -   Implement logic to auto-create a default  file on the backend if it's missing.
-    -   (P1) **Refactor Large Components:** Break down large files like  and  into smaller, reusable components.
+    -   (P1) **Refactor Large Components:** Break down large files like  (1500+ lines),  (1000+ lines), and  (1200+ lines) into smaller, reusable components.
 -   **Future Tasks:**
     -   (P1) Implement email notifications for upcoming maintenance.
     -   (P2) Develop a feature to bulk import products from a CSV file.
     -   (P3) Create a Progressive Web App (PWA) for offline technician access.
 
 **Completed work in this session**
--   **Warranty Workflow V1 Fixes:** Successfully implemented and tested technician assignment from the Admin View Track popup and ensured tasks appear on the technician's calendar.
--   **Bug Fix (Cascading Deletes):** Fixed a critical bug where deleting an issue left orphaned calendar entries. The  endpoint now correctly cleans up associated  records.
--   **Technician Portal Workflow V2 & V3 (Major Refactor):** Overhauled the technician warranty workflow based on user feedback. The final, simplified version tracks repair attempts on the original issue record instead of creating new child issues. This is managed via a detailed, popup-driven UI on both the Services and Calendar pages.
--   **Bug Fix (Status Logic):** Corrected the backend logic so that assigning an issue to a technician sets its status to  (scheduled). The status only changes to  after the technician clicks Start Work, ensuring the Services page only shows active tasks.
+-   **Internationalization (i18n) Feature (Fully Implemented):**
+    -   Created a backend API () to serve translation files.
+    -   Created a React Context () and  hook.
+    -   Refactored **all** frontend pages and components to use the translation hook, eliminating hardcoded strings.
+    -   Added a language switcher to the  page, which persists the selected language across the entire application using localStorage.
+-   **Customer Management Feature (Fully Implemented):**
+    -   Created backend models and API endpoints for CRUD operations on customers.
+    -   Added a 3-dot dropdown menu in the Admin navigation with links to Customers and Add Customer.
+    -   Created a new  page to display all customers in a table with filtering and search.
+    -   Implemented an Add Customer popup dialog with form validation.
 -   **UI/UX Improvements:**
-    -   Updated the Technician Dashboard to correctly count  issues as In Progress.
-    -   Enhanced the visibility of Resolution Notes in all technician-facing popups with a larger font and distinct styling.
+    -   Redesigned the  page, centering the logo, increasing its size to , and adding a static Dimeda Service Pro System title.
+    -   Removed the language switcher from all authenticated portal navigation bars, restricting it to the login page only.
+-   **Code Refactoring:**
+    -   Created several reusable common components in  (, , ).
 
 **Earlier issues found/mentioned but not fixed**
    - None.
@@ -66,51 +73,55 @@ There are no pending bugs. The agent is working on a new feature request.
 -   **Frontend:** React, Tailwind CSS, Shadcn UI
 -   **Database:** MongoDB
 -   **Authentication:** JWT-based RBAC ('admin', 'technician', 'customer')
--   **Internationalization (i18n):** The new system being implemented.
+-   **Internationalization (i18n):** Fully integrated using a React Context and a backend API. Language preference is stored in .
 
 **key DB schema**
--   : The schema was updated to include:
-    -    to track warranty repair history on the parent issue.
-    -    to manage the 24-hour repair timer.
+-   : Contains issue details, including  for the warranty flow.
+-   : **(NEW)**
+    -   
 
 **changes in tech stack**
 -   None.
 
 **All files of reference**
 -   **Created:**
-    -   : To store English UI text.
-    -   : To store Lithuanian UI text.
+    -   
+    -   
+    -   
+    -   
+    -   
+    -   
+    -   
+    -   
 -   **Heavily Modified:**
-    -   : Major refactoring of warranty and status logic.
-    -   : Updated schema to support the simplified warranty flow.
-    -   : Rewritten to implement a popup-driven workflow for service records.
-    -   : Updated to use the new detailed task popup.
-    -   : Logic updated to correctly count active tasks.
+    -   : Registered new customer and translation routers.
+    -   : Excluded translations API from auth middleware.
+    -   : Populated with all UI text.
+    -   : Added the 3-dot customer menu.
+    -   : Major UI overhaul.
+    -   **All frontend pages** in  were refactored to use the  hook.
+    -   **All layouts** in  were updated.
 
 **Areas that need refactoring**:
--   A major refactoring of all frontend components is required to remove hardcoded strings and integrate the new i18n system.
--   The large component files  and  should be broken down into smaller components.
+-   The large component files , , and  are still monolithic and should be broken down into smaller components.
 
 **key api endpoints**
--   **To be created:**  (GET): To fetch UI text for the specified language.
--   The logic for the  (PUT) endpoint has been significantly modified to handle the new warranty and status flows.
+-    (GET, POST): For managing customer data.
+-    (GET): To fetch UI text for the specified language.
 
 **Critical Info for New Agent**
--   **i18n Implementation:** The immediate priority is to complete the internationalization feature. This involves creating the backend endpoint and then refactoring the entire frontend to consume text from it.
--   **Warranty Workflow:** The current warranty logic is the result of multiple user-driven iterations. It **does not create child issues**. Instead, it adds repair attempts to an array on the original issue document. This is a critical piece of business logic; do not change it.
--   **Issue Status Flow:** An issue assigned to a technician has an  status and appears only on the Calendar. It moves to the In Progress section of the Services page (status ) only after the technician clicks Start Work.
+-   **Contact Details Logic:** The new Contact Details popup should find the relevant customer by matching the  of the product associated with the issue to the  of a customer in the  collection.
+-   **i18n is Complete:** Do not add language switchers to any pages other than . All new UI text must be added to both  and  files and accessed via the  hook.
+-   **Warranty Workflow:** Reminder: This workflow **does not create child issues**. It adds  to the original issue document. This is critical business logic.
 
 **documents and test reports created in this job**
--    (updated)
--   
--   
--   
+-    (updated with i18n and customer management features)
+-    (successful test report for the i18n feature)
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **Request:** Fix an issue where a task assigned from the Admin portal was incorrectly showing as in_progress instead of scheduled in the Technician portal. (COMPLETED)
-2.  **Request:** Fix the Technician Dashboard to count issues with  status as In Progress and make Resolution notes more visible in popups. (COMPLETED)
-3.  **Request:** Create a centralized text configuration system (i18n) for the project to manage all UI text, support multiple languages, and eliminate hardcoded strings. (IN PROGRESS)
-4.  **Agent Action:** Acknowledged the request and began implementation by creating backend translation files (, ). The next step is to create the API endpoint.
+1.  **Request:** Complete i18n for remaining pages (Services, Calendar, Export). (COMPLETED)
+2.  **Request:** Add a 3-dot menu in the Admin portal for customer management (View all, Add new). The City should be a key field. (COMPLETED)
+3.  **Request:** Add a Contact Details popup (showing Name, phone, email) to issues in the Admin and Technician portals. (IN PROGRESS)
 
 **Project Health Check:**
 -   **Broken:** None
@@ -120,8 +131,9 @@ There are no pending bugs. The agent is working on a new feature request.
 -    &  for PDF generation.
 
 **Testing status**
--   Testing agent used after significant changes: YES. All major workflow changes and bug fixes in this session were verified with the testing agent.
--   Test files created: None.
+-   Testing agent used after significant changes: YES. The testing agent was used to validate the entire i18n implementation.
+-   Troubleshoot agent used after agent stuck in loop: NO
+-   Test files created: A temporary test file was created by the testing agent at .
 -   Known regressions: None.
 
 **Credentials to test flow:**
@@ -130,4 +142,8 @@ There are no pending bugs. The agent is working on a new feature request.
 -   **Customer Pro Password:** 
 
 **What agent forgot to execute**
--   The agent was in the middle of implementing a new feature as requested by the user. No steps were forgotten.</analysis>
+The agent was in the middle of implementing the Contact Details feature. While the button was added to the main Admin Issues page (), it still needs to be added to:
+- The Admin Services page ().
+- The Technician Calendar page ().
+- The Technician Services page ().
+The core logic inside  to fetch customer data based on the issue's product city also needs to be fully implemented and tested.</analysis>

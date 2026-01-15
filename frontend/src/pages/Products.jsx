@@ -52,9 +52,10 @@ import {
 import { toast } from "sonner";
 import { 
   Plus, Search, Package, MapPin, Calendar as CalendarIcon, Trash2, Edit, Building2, 
-  Eye, AlertTriangle, Wrench, Clock, CheckCircle, XCircle, ChevronRight
+  Eye, AlertTriangle, Wrench, Clock, CheckCircle, XCircle, ChevronRight, Timer, User
 } from "lucide-react";
 import { format, addYears } from "date-fns";
+import ContactDetailsPopup from "@/components/ContactDetailsPopup";
 
 const CITIES = ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"];
 

@@ -142,7 +142,10 @@
     "resolution": "Sprendimas",
     "resolutionNotes": "Sprendimo pastabos",
     "resolveIssue": "Išspręsti problemą",
-    "noIssues": "Problemų nerasta"
+    "noIssues": "Problemų nerasta",
+    "noInService": "Aptarnaujamų problemų nėra",
+    "warrantyServiceDescription": "Garantinio aptarnavimo problemos bus rodomos čia",
+    "viewTrack": "Peržiūrėti istoriją"
   },
   "services": {
     "title": "Paslaugos",

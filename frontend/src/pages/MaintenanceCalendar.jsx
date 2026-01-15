@@ -1235,7 +1235,7 @@ const MaintenanceCalendar = () => {
                           <span className={`font-medium ${
                             statsPopupType === "overdue" ? "text-red-600" : "text-slate-900"
                           }`}>
-                            {new Date(item.scheduled_date).toLocaleDateString()}
+                            {item.scheduled_date ? new Date(item.scheduled_date).toLocaleDateString() : "Pending"}
                           </span>
                         </td>
                         <td className="py-3 px-3 font-mono text-xs">

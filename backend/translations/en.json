@@ -70,7 +70,39 @@
     "status": "Status",
     "active": "Active",
     "inactive": "Inactive",
-    "noProducts": "No products found"
+    "noProducts": "No products found",
+    "manageProducts": "Manage registered stretchers",
+    "notes": "Notes",
+    "viewDetails": "View Details",
+    "productHistory": "Product History"
+  },
+  "maintenance": {
+    "title": "Maintenance",
+    "scheduleMaintenance": "Schedule Maintenance",
+    "maintenanceType": "Maintenance Type",
+    "routine": "Routine",
+    "inspection": "Inspection",
+    "repair": "Repair",
+    "customerIssue": "Customer Issue",
+    "warrantyService": "Warranty Service",
+    "yearlySchedule": "Yearly Maintenance Schedule",
+    "year": "Year",
+    "recalculateNote": "Changing the date will recalculate all yearly maintenance"
+  },
+  "messages": {
+    "issueCreated": "Issue created successfully",
+    "issueUpdated": "Issue updated successfully",
+    "issueDeleted": "Issue deleted successfully",
+    "issueResolved": "Issue resolved successfully",
+    "repairStarted": "Started working on repair",
+    "repairCompleted": "Repair completed - Issue resolved",
+    "movedToServiceRecords": "Issue moved to Service Records",
+    "technicianAssigned": "Technician assigned successfully",
+    "taskMarkedInProgress": "Task marked as In Progress",
+    "confirmDelete": "Are you sure you want to delete this item?",
+    "productCreated": "Product registered successfully",
+    "productUpdated": "Product updated successfully",
+    "productDeleted": "Product deleted successfully"
   },
   "issues": {
     "title": "Issues",

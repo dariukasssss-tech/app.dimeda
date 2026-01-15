@@ -687,8 +687,8 @@ const Services = () => {
               <Card>
                 <CardContent className="py-12 text-center">
                   <Clock className="mx-auto text-slate-300" size={48} />
-                  <p className="text-slate-500 mt-4">No issues in progress</p>
-                  <p className="text-sm text-slate-400 mt-1">Issues marked as "In Progress" will appear here</p>
+                  <p className="text-slate-500 mt-4">{t("issues.noInProgress") || "No issues in progress"}</p>
+                  <p className="text-sm text-slate-400 mt-1">{t("issues.inProgressDescription") || 'Issues marked as "In Progress" will appear here'}</p>
                 </CardContent>
               </Card>
             ) : (

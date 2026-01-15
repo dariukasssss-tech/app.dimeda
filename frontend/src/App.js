@@ -120,71 +120,73 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Login Route */}
-        <Route 
-          path="/login" 
-          element={
-            isAuthenticated ? (
-              authType === "customer" ? (
-                <Navigate to="/customer" replace />
-              ) : authType === "technician" ? (
-                <Navigate to="/technician" replace />
+    <TranslationProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Login Route */}
+          <Route 
+            path="/login" 
+            element={
+              isAuthenticated ? (
+                authType === "customer" ? (
+                  <Navigate to="/customer" replace />
+                ) : authType === "technician" ? (
+                  <Navigate to="/technician" replace />
+                ) : (
+                  <Navigate to="/" replace />
+                )
               ) : (
-                <Navigate to="/" replace />
+                <Login 
+                  onLoginSuccess={handleAdminLoginSuccess}
+                  onTechnicianLoginSuccess={handleTechnicianLoginSuccess}
+                  onCustomerLoginSuccess={handleCustomerLoginSuccess}
+                />
               )
-            ) : (
-              <Login 
-                onLoginSuccess={handleAdminLoginSuccess}
-                onTechnicianLoginSuccess={handleTechnicianLoginSuccess}
-                onCustomerLoginSuccess={handleCustomerLoginSuccess}
-              />
-            )
-          } 
-        />
-        
-        {/* Customer Portal Routes */}
-        <Route 
-          path="/customer/*" 
-          element={
-            isAuthenticated && authType === "customer" ? (
-              <CustomerLayout onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          } 
-        />
-        
-        {/* Technician Portal Routes */}
-        <Route 
-          path="/technician/*" 
-          element={
-            isAuthenticated && authType === "technician" ? (
-              <TechnicianLayout onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          } 
-        />
-        
-        {/* Admin Portal Routes */}
-        <Route 
-          path="/*" 
-          element={
-            isAuthenticated && authType === "admin" ? (
-              <AdminLayout 
-                isAuthenticated={isAuthenticated} 
-                onLogout={handleLogout} 
-              />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          } 
-        />
-      </Routes>
-      <Toaster position="top-right" richColors />
-    </BrowserRouter>
+            } 
+          />
+          
+          {/* Customer Portal Routes */}
+          <Route 
+            path="/customer/*" 
+            element={
+              isAuthenticated && authType === "customer" ? (
+                <CustomerLayout onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          {/* Technician Portal Routes */}
+          <Route 
+            path="/technician/*" 
+            element={
+              isAuthenticated && authType === "technician" ? (
+                <TechnicianLayout onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          {/* Admin Portal Routes */}
+          <Route 
+            path="/*" 
+            element={
+              isAuthenticated && authType === "admin" ? (
+                <AdminLayout 
+                  isAuthenticated={isAuthenticated} 
+                  onLogout={handleLogout} 
+                />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+        </Routes>
+        <Toaster position="top-right" richColors />
+      </BrowserRouter>
+    </TranslationProvider>
   );
 }
 

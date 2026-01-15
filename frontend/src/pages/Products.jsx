@@ -272,22 +272,15 @@ const Products = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="model_name">{t("products.modelName")} *</Label>
-                <Select
+                <Label htmlFor="model_name">{t("products.modelName")}</Label>
+                <Input
+                  id="model_name"
                   value={formData.model_name}
-                  onValueChange={(value) => setFormData({ ...formData, model_name: value })}
-                >
-                  <SelectTrigger className="mt-1" data-testid="select-model-name">
-                    <SelectValue placeholder={t("products.modelName")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MODEL_OPTIONS.map((model) => (
-                      <SelectItem key={model} value={model}>
-                        {model}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(e) => setFormData({ ...formData, model_name: e.target.value })}
+                  placeholder={t("products.modelName")}
+                  data-testid="input-model-name"
+                  className="mt-1"
+                />
               </div>
               <div>
                 <Label>{t("products.modelType")} *</Label>

@@ -162,6 +162,10 @@ async def update_issue(issue_id: str, update: IssueUpdate):
                 "source": "customer_issue"
             })
     
+    # Get product to check model_type for Roll-in Stretchers
+    product = await db.products.find_one({"id": existing.get("product_id")}, {"_id": 0})
+    is_roll_in = product.get("model_type") == "roll_in" if product else False
+    
     # Track when technician was assigned
     if update_data.get("technician_name") and not existing.get("technician_name"):
         update_data["technician_assigned_at"] = datetime.now(timezone.utc).isoformat()
@@ -171,19 +175,34 @@ async def update_issue(issue_id: str, update: IssueUpdate):
         
         # Create calendar entry for customer issues
         if existing.get("source") == "customer":
-            created_at = datetime.fromisoformat(existing["created_at"].replace("Z", "+00:00"))
-            sla_deadline = created_at + timedelta(hours=12)
-            
-            maintenance_obj = ScheduledMaintenance(
-                product_id=existing["product_id"],
-                scheduled_date=sla_deadline.isoformat(),
-                maintenance_type="customer_issue",
-                technician_name=update_data["technician_name"],
-                notes=f"Customer Issue: {existing.get('title', 'N/A')} - SLA: 12h from registration",
-                source="customer_issue",
-                issue_id=issue_id,
-                priority="12h"
-            )
+            if is_roll_in:
+                # Roll-in Stretcher: No auto-schedule, technician schedules manually
+                maintenance_obj = ScheduledMaintenance(
+                    product_id=existing["product_id"],
+                    scheduled_date=None,  # No auto-scheduled date
+                    maintenance_type="customer_issue",
+                    technician_name=update_data["technician_name"],
+                    notes=f"Customer Issue: {existing.get('title', 'N/A')} - Roll-in Stretcher (No SLA)",
+                    source="customer_issue",
+                    issue_id=issue_id,
+                    priority=None,  # No priority/SLA for Roll-in
+                    status="pending_schedule"  # Technician needs to schedule
+                )
+            else:
+                # Powered Stretcher: Auto-schedule with 12h SLA
+                created_at = datetime.fromisoformat(existing["created_at"].replace("Z", "+00:00"))
+                sla_deadline = created_at + timedelta(hours=12)
+                
+                maintenance_obj = ScheduledMaintenance(
+                    product_id=existing["product_id"],
+                    scheduled_date=sla_deadline.isoformat(),
+                    maintenance_type="customer_issue",
+                    technician_name=update_data["technician_name"],
+                    notes=f"Customer Issue: {existing.get('title', 'N/A')} - SLA: 12h from registration",
+                    source="customer_issue",
+                    issue_id=issue_id,
+                    priority="12h"
+                )
             await db.scheduled_maintenance.insert_one(maintenance_obj.model_dump())
         
         # Create calendar entry for warranty service (routed) issues

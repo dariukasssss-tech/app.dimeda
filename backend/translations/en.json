@@ -1,0 +1,202 @@
+{
+  "common": {
+    "appName": "Dimeda Service Pro",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "search": "Search",
+    "filter": "Filter",
+    "noData": "No data available",
+    "error": "An error occurred",
+    "success": "Success",
+    "warning": "Warning",
+    "actions": "Actions"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "password": "Password",
+    "enterPassword": "Enter password",
+    "adminLogin": "Login as Admin",
+    "technicianLogin": "Login as Technician",
+    "customerLogin": "Login as Customer",
+    "adminPassword": "Enter admin password",
+    "technicianPassword": "Enter technician password",
+    "customerPassword": "Enter customer password",
+    "loginSuccess": "Login successful",
+    "loginFailed": "Login failed",
+    "unauthorized": "Unauthorized access"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "issues": "Issues",
+    "services": "Services",
+    "calendar": "Calendar",
+    "maintenance": "Maintenance",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome",
+    "stats": {
+      "totalProducts": "Total Products",
+      "scheduledTasks": "Scheduled Tasks",
+      "inProgress": "In Progress",
+      "servicesThisMonth": "Services This Month",
+      "openIssues": "Open Issues",
+      "resolvedIssues": "Resolved Issues"
+    },
+    "recentServices": "Recent Services",
+    "issuesSummary": "Issues Summary",
+    "upcomingMaintenance": "Upcoming Maintenance"
+  },
+  "products": {
+    "title": "Products",
+    "addProduct": "Add Product",
+    "editProduct": "Edit Product",
+    "deleteProduct": "Delete Product",
+    "serialNumber": "Serial Number",
+    "modelName": "Model Name",
+    "city": "City",
+    "location": "Location",
+    "installDate": "Installation Date",
+    "warrantyExpiry": "Warranty Expiry",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noProducts": "No products found"
+  },
+  "issues": {
+    "title": "Issues",
+    "addIssue": "Report Issue",
+    "editIssue": "Edit Issue",
+    "deleteIssue": "Delete Issue",
+    "issueCode": "Issue Code",
+    "issueType": "Issue Type",
+    "severity": "Severity",
+    "description": "Description",
+    "status": {
+      "open": "Open",
+      "inProgress": "In Progress",
+      "inService": "In Service",
+      "resolved": "Resolved"
+    },
+    "severityLevels": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
+    "types": {
+      "mechanical": "Mechanical",
+      "electrical": "Electrical",
+      "software": "Software",
+      "other": "Other"
+    },
+    "assignTechnician": "Assign Technician",
+    "resolution": "Resolution",
+    "resolutionNotes": "Resolution Notes",
+    "resolveIssue": "Resolve Issue",
+    "noIssues": "No issues found"
+  },
+  "services": {
+    "title": "Services",
+    "inProgressIssues": "In Progress Issues",
+    "serviceRecords": "Service Records",
+    "serviceType": "Service Type",
+    "warranty": "Warranty",
+    "nonWarranty": "Non-Warranty",
+    "warrantyService": "Warranty Service",
+    "nonWarrantyService": "Non-Warranty Service",
+    "awaitingRepair": "Awaiting Repair",
+    "repairing": "Repairing",
+    "repairTask": "Repair Task",
+    "repairAttempts": "Repair Attempts",
+    "completeRepair": "Complete Repair",
+    "startWork": "Start Work",
+    "continue": "Continue",
+    "clickForDetails": "Click for details",
+    "noInProgress": "No issues in progress",
+    "noServiceRecords": "No service records",
+    "clickStartWork": "Click 'Start Work' on Calendar tasks to begin working",
+    "resolveWithServiceType": "Resolve issues with a service type to create records"
+  },
+  "calendar": {
+    "title": "Calendar",
+    "today": "Today",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "scheduled": "Scheduled",
+    "completed": "Completed",
+    "overdue": "Overdue",
+    "upcoming": "Upcoming",
+    "noTasks": "No scheduled tasks",
+    "taskDetails": "Task Details",
+    "scheduledDate": "Scheduled Date",
+    "priority": "Priority",
+    "monthlySummary": "Monthly Summary",
+    "totalTasks": "Total Tasks",
+    "customerIssues": "Customer Issues",
+    "yearlyMaintenance": "Yearly Maintenance",
+    "legend": "Legend",
+    "solveBy": "Solve by"
+  },
+  "maintenance": {
+    "title": "Maintenance",
+    "scheduleMaintenance": "Schedule Maintenance",
+    "maintenanceType": "Maintenance Type",
+    "routine": "Routine",
+    "inspection": "Inspection",
+    "repair": "Repair",
+    "customerIssue": "Customer Issue",
+    "warrantyService": "Warranty Service"
+  },
+  "technician": {
+    "title": "Technician Portal",
+    "selectTechnician": "Select Technician",
+    "noTechnicianSelected": "No Technician Selected",
+    "selectFromDashboard": "Please select a technician from the Dashboard",
+    "assignedTo": "Assigned to",
+    "technician": "Technician"
+  },
+  "customer": {
+    "title": "Customer Portal",
+    "reportIssue": "Report Issue",
+    "myIssues": "My Issues",
+    "trackIssue": "Track Issue",
+    "issueReported": "Issue reported successfully",
+    "productLocation": "Product Location"
+  },
+  "time": {
+    "hoursLeft": "{hours}h {minutes}m left",
+    "minutesLeft": "{minutes}m left",
+    "timeExpired": "Time Expired",
+    "slaExpired": "SLA Expired",
+    "deadline24h": "24-hour deadline"
+  },
+  "messages": {
+    "issueCreated": "Issue created successfully",
+    "issueUpdated": "Issue updated successfully",
+    "issueDeleted": "Issue deleted successfully",
+    "issueResolved": "Issue resolved successfully",
+    "repairStarted": "Started working on repair",
+    "repairCompleted": "Repair completed - Issue resolved",
+    "movedToServiceRecords": "Issue moved to Service Records",
+    "technicianAssigned": "Technician assigned successfully",
+    "taskMarkedInProgress": "Task marked as In Progress",
+    "confirmDelete": "Are you sure you want to delete this item?"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "minLength": "Minimum {min} characters required",
+    "maxLength": "Maximum {max} characters allowed"
+  }
+}

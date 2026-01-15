@@ -27,11 +27,14 @@ const severityColors = {
  * Calculate SLA time remaining for customer issues
  * @param {Object} issue - The issue object
  * @param {Function} t - Translation function
+ * @param {string} modelType - Product model type ('powered' or 'roll_in')
  * @returns {Object|null} - SLA info or null
  */
-const calculateSLARemaining = (issue, t) => {
+const calculateSLARemaining = (issue, t, modelType = 'powered') => {
   if (issue.warranty_service_type === "non_warranty") return null;
   if (issue.source !== "customer" || issue.status === "resolved") return null;
+  // Skip SLA for Roll-in stretchers
+  if (modelType === "roll_in") return null;
   
   const createdAt = new Date(issue.created_at);
   const slaDeadline = new Date(createdAt.getTime() + 12 * 60 * 60 * 1000);
@@ -82,7 +85,14 @@ const IssueCard = ({
     return product?.city || "Unknown";
   };
 
-  const sla = calculateSLARemaining(issue, t);
+  const getProductModelType = (productId) => {
+    const product = products?.find((p) => p.id === productId);
+    return product?.model_type || "powered";
+  };
+
+  const modelType = getProductModelType(issue.product_id);
+  const isRollIn = modelType === "roll_in";
+  const sla = calculateSLARemaining(issue, t, modelType);
   const isCustomer = issue.source === "customer";
 
   return (
@@ -98,6 +108,12 @@ const IssueCard = ({
               {isCustomer && (
                 <Badge className="bg-purple-100 text-purple-800">
                   Customer Reported
+                </Badge>
+              )}
+              {/* Roll-in Stretcher badge */}
+              {isRollIn && (
+                <Badge className="bg-teal-100 text-teal-800">
+                  Roll-in
                 </Badge>
               )}
               {issue.issue_code && (

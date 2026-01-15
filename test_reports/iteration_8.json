@@ -1,0 +1,106 @@
+{
+  "summary": "Tested Model Type feature for Dimeda Service Pro. All features working correctly: Products have model_type field (powered/roll_in), Products page has Model Type filter, Admin/Customer Issue forms have City and Model Type filters, SLA timer correctly skips Roll-in Stretcher issues.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/tests/test_model_type_feature.py",
+    "/app/test_reports/pytest/pytest_results_model_type.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/tests/test_model_type_feature.py"
+  ],
+  "success_rate": {
+    "backend": "100% (14/14 tests passed)",
+    "frontend": "100% (All Model Type features verified via Playwright)"
+  },
+  "seed_data_creation": "Updated VLN-005 product to have model_type='roll_in' (was 'powered')",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Model Type feature is fully functional. VLN-005 is the only Roll-in Stretcher product. SLA timer logic correctly skips roll_in products in Issues.jsx, Services.jsx, TechnicianCalendar.jsx, TechnicianServices.jsx, and MaintenanceCalendar.jsx.",
+  "features_tested": {
+    "product_model_type_field": {
+      "tested": true,
+      "working": true,
+      "notes": "Products API returns model_type field with values 'powered' or 'roll_in'. Default is 'powered'."
+    },
+    "products_page_model_type_filter": {
+      "tested": true,
+      "working": true,
+      "notes": "Products page has Model Type filter dropdown with 'All Types', 'Powered Stretcher', 'Roll-in Stretcher' options"
+    },
+    "product_form_model_name_free_text": {
+      "tested": true,
+      "working": true,
+      "notes": "Model Name is a free text input field in Add/Edit Product form"
+    },
+    "product_form_model_type_dropdown": {
+      "tested": true,
+      "working": true,
+      "notes": "Model Type is a dropdown with 'Powered Stretcher' and 'Roll-in Stretcher' options"
+    },
+    "admin_issue_form_city_filter": {
+      "tested": true,
+      "working": true,
+      "notes": "Admin Issue form has City dropdown filter for product selection"
+    },
+    "admin_issue_form_model_type_filter": {
+      "tested": true,
+      "working": true,
+      "notes": "Admin Issue form has Model Type dropdown filter with 'All Types', 'Powered Stretcher', 'Roll-in Stretcher' options"
+    },
+    "customer_issue_form_city_filter": {
+      "tested": true,
+      "working": true,
+      "notes": "Customer Dashboard issue form has City dropdown filter"
+    },
+    "customer_issue_form_model_type_filter": {
+      "tested": true,
+      "working": true,
+      "notes": "Customer Dashboard issue form has Model Type dropdown filter"
+    },
+    "sla_timer_powered_stretcher": {
+      "tested": true,
+      "working": true,
+      "notes": "SLA timer IS shown for Powered Stretcher customer issues with technician assigned (e.g., 'Ratukas' issue shows '9h 3m left')"
+    },
+    "sla_timer_roll_in_stretcher": {
+      "tested": true,
+      "working": true,
+      "notes": "SLA timer is NOT shown for Roll-in Stretcher customer issues (verified with test issue for VLN-005)"
+    },
+    "model_type_info_hidden_in_issue_display": {
+      "tested": true,
+      "working": true,
+      "notes": "Model Type info is not displayed in issue cards - only serial number, city, and location are shown"
+    }
+  },
+  "test_credentials": {
+    "admin": "admin2025",
+    "technician": "service2025",
+    "customer": "customer2025"
+  },
+  "test_data": {
+    "roll_in_stretcher_product": "VLN-005 (Vilnius, Nemencine) - model_type='roll_in'",
+    "powered_stretcher_products": ["VLN-001", "VLN-002", "VLN-003", "KN-001", "KN-002", "KL-001", "SL-001", "PNV-001"],
+    "products_by_model_type": {
+      "powered": 8,
+      "roll_in": 1
+    }
+  },
+  "sla_logic_verification": {
+    "issues_jsx": "Line 269-293: calculateSLARemaining skips roll_in",
+    "services_jsx": "Line 324-349: calculateSLARemaining skips roll_in",
+    "technician_calendar_jsx": "Line 291-313: calculateSLARemaining skips roll_in",
+    "technician_services_jsx": "Line 119: calculateSLARemaining skips roll_in",
+    "maintenance_calendar_jsx": "Line 376: calculateSLARemaining skips roll_in"
+  }
+}

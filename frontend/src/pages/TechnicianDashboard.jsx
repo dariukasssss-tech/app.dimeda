@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { API } from "@/App";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,7 @@ import {
 const TECHNICIANS = ["Technician 1", "Technician 2", "Technician 3"];
 
 const TechnicianDashboard = ({ selectedTechnician, onTechnicianChange }) => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalIssues: 0,
@@ -82,7 +84,7 @@ const TechnicianDashboard = ({ selectedTechnician, onTechnicianChange }) => {
         servicesThisMonth,
       });
     } catch (error) {
-      toast.error("Failed to fetch statistics");
+      toast.error(t("common.error"));
     } finally {
       setLoading(false);
     }
@@ -115,10 +117,10 @@ const TechnicianDashboard = ({ selectedTechnician, onTechnicianChange }) => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
-            Technician Dashboard
+            {t("dashboard.title")}
           </h1>
           <p className="text-slate-500 mt-1">
-            {selectedTechnician ? `Viewing data for ${selectedTechnician}` : "Select a technician to view their data"}
+            {selectedTechnician ? `${t("dashboard.welcome")}, ${selectedTechnician}` : t("technician.selectFromDashboard")}
           </p>
         </div>
         
@@ -127,7 +129,7 @@ const TechnicianDashboard = ({ selectedTechnician, onTechnicianChange }) => {
           <User size={20} className="text-slate-400" />
           <Select value={selectedTechnician || ""} onValueChange={onTechnicianChange}>
             <SelectTrigger className="w-56" data-testid="technician-picker">
-              <SelectValue placeholder="Select Technician" />
+              <SelectValue placeholder={t("technician.selectTechnician")} />
             </SelectTrigger>
             <SelectContent>
               {TECHNICIANS.map((tech) => (
@@ -145,25 +147,25 @@ const TechnicianDashboard = ({ selectedTechnician, onTechnicianChange }) => {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
-              title="Total Products"
+              title={t("dashboard.stats.totalProducts")}
               value={stats.totalProducts}
               icon={Package}
               color="bg-[#0066CC]"
             />
             <StatCard
-              title="Scheduled Tasks"
+              title={t("dashboard.stats.scheduledTasks")}
               value={stats.scheduledMaintenance}
               icon={CalendarDays}
               color="bg-purple-500"
             />
             <StatCard
-              title="In Progress"
+              title={t("dashboard.stats.inProgress")}
               value={stats.inProgressIssues}
               icon={Clock}
               color="bg-amber-500"
             />
             <StatCard
-              title="Services This Month"
+              title={t("dashboard.stats.servicesThisMonth")}
               value={stats.servicesThisMonth}
               icon={Wrench}
               color="bg-emerald-500"
@@ -174,7 +176,7 @@ const TechnicianDashboard = ({ selectedTechnician, onTechnicianChange }) => {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                Issues Summary for {selectedTechnician}
+                {t("dashboard.issuesSummary")} - {selectedTechnician}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -182,17 +184,17 @@ const TechnicianDashboard = ({ selectedTechnician, onTechnicianChange }) => {
                 <div className="text-center p-4 bg-amber-50 rounded-lg">
                   <AlertTriangle className="mx-auto text-amber-500 mb-2" size={32} />
                   <p className="text-2xl font-bold text-amber-600">{stats.openIssues}</p>
-                  <p className="text-sm text-slate-500">Open Issues</p>
+                  <p className="text-sm text-slate-500">{t("dashboard.stats.openIssues")}</p>
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <Clock className="mx-auto text-blue-500 mb-2" size={32} />
                   <p className="text-2xl font-bold text-blue-600">{stats.inProgressIssues}</p>
-                  <p className="text-sm text-slate-500">In Progress</p>
+                  <p className="text-sm text-slate-500">{t("dashboard.stats.inProgress")}</p>
                 </div>
                 <div className="text-center p-4 bg-emerald-50 rounded-lg">
                   <CheckCircle className="mx-auto text-emerald-500 mb-2" size={32} />
                   <p className="text-2xl font-bold text-emerald-600">{stats.resolvedIssues}</p>
-                  <p className="text-sm text-slate-500">Resolved</p>
+                  <p className="text-sm text-slate-500">{t("dashboard.stats.resolvedIssues")}</p>
                 </div>
               </div>
             </CardContent>
@@ -203,7 +205,7 @@ const TechnicianDashboard = ({ selectedTechnician, onTechnicianChange }) => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-center gap-2 text-slate-500">
                 <CalendarDays size={18} />
-                <span>Use the navigation above to view Calendar and Services</span>
+                <span>{t("navigation.calendar")} & {t("navigation.services")}</span>
               </div>
             </CardContent>
           </Card>
@@ -213,10 +215,10 @@ const TechnicianDashboard = ({ selectedTechnician, onTechnicianChange }) => {
           <CardContent className="py-16 text-center">
             <User className="mx-auto text-slate-300 mb-4" size={64} />
             <h2 className="text-xl font-semibold text-slate-600" style={{ fontFamily: 'Manrope, sans-serif' }}>
-              Select a Technician
+              {t("technician.noTechnicianSelected")}
             </h2>
             <p className="text-slate-400 mt-2">
-              Choose a technician from the dropdown above to view their dashboard, calendar, and services.
+              {t("technician.selectFromDashboard")}
             </p>
           </CardContent>
         </Card>

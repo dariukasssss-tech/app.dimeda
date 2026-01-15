@@ -76,6 +76,22 @@ Three-portal system with role-based access:
    - Clean display with "Routine", "scheduled", and "Yearly" badges
 
 ### Contact Details Popup Feature (Jan 15, 2026)
+- Added ContactDetailsPopup component for quick customer contact info display
+- Available on issue cards in Admin and Technician portals
+
+### Roll-in vs Powered Stretcher Business Logic (Jan 15, 2026)
+**Model Types:**
+- "Powered Stretchers" - Have SLA timers, auto-scheduled maintenance
+- "Roll-in Stretchers" - No SLA, manual scheduling by technician
+
+**Business Rules:**
+- SLA timers only apply to Powered Stretchers
+- SLA timers hidden for resolved issues
+- Roll-in issues create maintenance tasks with `pending_schedule` status
+- Technicians manually schedule Roll-in maintenance tasks
+- Distinct UI: Roll-in has teal badge/border, Powered has blue badge
+
+### Customer Management Feature (Jan 15, 2026)
 **Backend:**
 - Created `/backend/models/customer.py` - Customer data model
 - Created `/backend/routes/customers.py` - CRUD API endpoints

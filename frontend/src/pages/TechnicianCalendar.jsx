@@ -680,7 +680,13 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                             Warranty
                           </Badge>
                         )}
-                        {item.source === "customer_issue" && !isWarrantyRepair && (
+                        {/* Roll-in Stretcher badge */}
+                        {item.source === "customer_issue" && isRollIn && !isWarrantyRepair && (
+                          <Badge className="text-xs bg-teal-100 text-teal-800">
+                            Roll-in
+                          </Badge>
+                        )}
+                        {item.source === "customer_issue" && !isWarrantyRepair && !isRollIn && (
                           <Badge className="text-xs bg-purple-100 text-purple-800">
                             <Users size={10} className="mr-1" />
                             Customer
@@ -689,7 +695,8 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                         {item.source === "auto_yearly" && (
                           <Badge className="text-xs bg-emerald-100 text-emerald-800">Yearly</Badge>
                         )}
-                        {item.source === "customer_issue" && item.status !== "completed" && linkedIssue?.status !== "resolved" && (() => {
+                        {/* SLA timer - NOT for Roll-in */}
+                        {item.source === "customer_issue" && item.status !== "completed" && linkedIssue?.status !== "resolved" && !isRollIn && (() => {
                           const sla = calculateSLARemaining(item);
                           if (!sla) return null;
                           return (
@@ -699,9 +706,48 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
                             </Badge>
                           );
                         })()}
+                        {/* Resolved badge */}
+                        {linkedIssue?.status === "resolved" && (
+                          <Badge className="text-xs bg-emerald-100 text-emerald-800">
+                            <CheckCircle size={10} className="mr-1" />
+                            Resolved
+                          </Badge>
+                        )}
                       </div>
                       
-                      {/* Start Work Button - visible on card for customer issues */}
+                      {/* Schedule Button - for Roll-in pending schedule */}
+                      {isPendingSchedule && isRollIn && (
+                        <Button
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTaskClick(item, e);
+                          }}
+                          className="bg-amber-600 hover:bg-amber-700 text-white"
+                          data-testid="schedule-btn"
+                        >
+                          <CalendarDays size={14} className="mr-1" />
+                          Schedule
+                        </Button>
+                      )}
+                      
+                      {/* Start Work Button - for Roll-in after scheduled */}
+                      {canStartRollInWork && (
+                        <Button
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMarkInProgress(item);
+                          }}
+                          className="bg-teal-600 hover:bg-teal-700 text-white"
+                          data-testid="start-work-btn"
+                        >
+                          <Play size={14} className="mr-1" />
+                          Start Work
+                        </Button>
+                      )}
+                      
+                      {/* Start Work Button - visible on card for Powered customer issues */}
                       {canStartWork && !isWarrantyRepair && (
                         <Button
                           size="sm"

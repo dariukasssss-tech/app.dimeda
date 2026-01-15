@@ -619,7 +619,11 @@ const TechnicianServices = ({ selectedTechnician }) => {
                   
                   {isRepairing && (
                     <Button 
-                      onClick={() => handleCompleteRepair(selectedIssue.resolution)}
+                      onClick={() => {
+                        // Close detail dialog and open resolve dialog
+                        setDetailDialogOpen(false);
+                        openResolveDialog(selectedIssue);
+                      }}
                       className="bg-emerald-600 hover:bg-emerald-700 text-white px-6"
                       data-testid="complete-repair-btn"
                     >

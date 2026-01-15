@@ -49,7 +49,33 @@ Three-portal system with role-based access:
 
 ## Recent Updates (January 2026)
 
-### Customer Management Feature (Jan 15, 2026)
+### Product Details Restructure & Model Type Enhancement (Jan 15, 2026)
+
+**Product Table Updates:**
+- Added "Model Type" column with colored badges (Blue "Powered", Teal "Roll-in")
+- Table now shows: Serial Number, Model (Name), Model Type, City, Location, Registered, Next Maintenance, Status, Actions
+
+**Product Details Sheet (EYE button) Updates:**
+- Now shows "Model Name" and "Model Type" separately
+- Model Type displayed with colored badge (blue for Powered, teal for Roll-in)
+- Shows: Model Name, Model Type, City, Location, Registered date
+
+**Product Details Tabs Restructured:**
+1. **Issues Tab** → Only shows **active issues** (open, in_progress)
+   - When resolved, issues move to Services tab
+   - Rich display: badges, issue code, technician, contact details, SLA timer
+
+2. **Services Tab** → Now shows **resolved issues** with detailed resolution
+   - Previously showed service records
+   - Now shows: all badges, issue code, technician, contact details
+   - Resolution prominently displayed in green box
+   - Timestamps for Reported and Resolved dates
+
+3. **Maintenance Tab** → Only shows **yearly/routine maintenance**
+   - Removed customer issues and issue-related maintenance items
+   - Clean display with "Routine", "scheduled", and "Yearly" badges
+
+### Contact Details Popup Feature (Jan 15, 2026)
 **Backend:**
 - Created `/backend/models/customer.py` - Customer data model
 - Created `/backend/routes/customers.py` - CRUD API endpoints

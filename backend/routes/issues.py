@@ -146,14 +146,14 @@ async def get_issues(product_id: Optional[str] = None, status: Optional[str] = N
 async def get_issue(issue_id: str):
     issue = await db.issues.find_one({"id": issue_id}, {"_id": 0})
     if not issue:
-        raise HTTPException(status_code=404, detail="Issue not found")
+        raise NotFoundError("Issue", issue_id)
     return issue
 
 @router.put("/{issue_id}", response_model=Issue)
 async def update_issue(issue_id: str, update: IssueUpdate):
     existing = await db.issues.find_one({"id": issue_id}, {"_id": 0})
     if not existing:
-        raise HTTPException(status_code=404, detail="Issue not found")
+        raise NotFoundError("Issue", issue_id)
     
     update_data = {k: v for k, v in update.model_dump().items() if v is not None}
     

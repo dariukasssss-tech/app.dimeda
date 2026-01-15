@@ -41,6 +41,9 @@ class Issue(IssueBase):
     source: Optional[str] = None  # "customer" for customer-reported issues
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     resolved_at: Optional[str] = None
+    # Spare parts tracking
+    spare_parts_used: bool = False
+    spare_parts: Optional[str] = None  # List of spare parts used
     # Warranty repair tracking (no child issues)
     warranty_repair_started_at: Optional[str] = None  # When warranty repair was initiated
     repair_attempts: List[RepairAttempt] = []  # Track multiple repair attempts

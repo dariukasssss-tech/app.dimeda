@@ -74,13 +74,26 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
       <div className="flex flex-col items-center gap-6 w-full max-w-5xl">
-        {/* Logo and Language Switcher */}
-        <div className="flex items-center justify-between w-full mb-4">
+        {/* Centered Logo - 1.5x bigger */}
+        <div className="flex flex-col items-center mb-2">
           <img 
             src="https://customer-assets.emergentagent.com/job_842f69d6-21b8-4f70-96b2-758e2fcffc47/artifacts/3rpmm3ao_Dimeda_logo-01.png" 
             alt="Dimeda Logo" 
-            className="h-16 w-auto"
+            className="h-24 w-auto"
+            style={{ transform: 'scale(1.5)', transformOrigin: 'center' }}
           />
+        </div>
+        
+        {/* Dimeda Service Pro System - Always in English */}
+        <h1 
+          className="text-2xl font-bold text-slate-800 mb-2" 
+          style={{ fontFamily: 'Manrope, sans-serif' }}
+        >
+          Dimeda Service Pro System
+        </h1>
+        
+        {/* Language Switcher - Centered below title */}
+        <div className="mb-4">
           <LanguageSwitcher />
         </div>
 
@@ -243,7 +256,7 @@ const Login = ({ onLoginSuccess, onTechnicianLoginSuccess, onCustomerLoginSucces
         </div>
         
         <p className="text-xs text-slate-400 text-center mt-4">
-          {t("common.appName")} - Medirol Service Partner
+          Medirol Service Partner
         </p>
       </div>
     </div>

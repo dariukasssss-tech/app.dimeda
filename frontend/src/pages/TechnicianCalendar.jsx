@@ -245,7 +245,14 @@ const TechnicianCalendar = ({ selectedTechnician }) => {
       total: monthItems.length,
       completed: monthItems.filter(i => i.status === "completed").length,
       scheduled: monthItems.filter(i => i.status === "scheduled").length,
-      inProgress: monthItems.filter(i => i.status === "in_progress").length,
+      inProgress: monthItems.filter(i => {
+        // Check if the linked issue is resolved - if so, don't count as in_progress
+        if (i.status === "in_progress" && i.issue_id) {
+          const linkedIssue = issues.find(issue => issue.id === i.issue_id);
+          if (linkedIssue?.status === "resolved") return false;
+        }
+        return i.status === "in_progress";
+      }).length,
       customerIssues: monthItems.filter(i => i.source === "customer_issue").length,
       yearlyMaintenance: monthItems.filter(i => i.source === "auto_yearly").length,
     });

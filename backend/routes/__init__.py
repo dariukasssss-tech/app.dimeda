@@ -8,3 +8,4 @@ from .export import router as export_router
 from .stats import router as stats_router
 from .technician import router as technician_router
 from .translations import router as translations_router
+from .customers import router as customers_router

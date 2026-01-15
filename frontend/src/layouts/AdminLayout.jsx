@@ -6,6 +6,7 @@ import Services from "@/pages/Services";
 import Issues from "@/pages/Issues";
 import Export from "@/pages/Export";
 import MaintenanceCalendar from "@/pages/MaintenanceCalendar";
+import Customers from "@/pages/Customers";
 
 const AdminLayout = ({ isAuthenticated, onLogout }) => {
   if (!isAuthenticated) {
@@ -23,6 +24,7 @@ const AdminLayout = ({ isAuthenticated, onLogout }) => {
           <Route path="/services" element={<Services />} />
           <Route path="/issues" element={<Issues />} />
           <Route path="/export" element={<Export />} />
+          <Route path="/customers" element={<Customers />} />
         </Routes>
       </main>
     </div>

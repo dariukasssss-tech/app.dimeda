@@ -572,7 +572,7 @@ const MaintenanceCalendar = () => {
                 <div className="grid grid-cols-3 gap-4 mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-blue-600">{todayTasks.length}</p>
-                    <p className="text-xs text-slate-600">Today's Tasks</p>
+                    <p className="text-xs text-slate-600">Today&apos;s Tasks</p>
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-orange-600">{urgentTasks.length}</p>

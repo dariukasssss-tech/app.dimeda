@@ -271,7 +271,7 @@ const CustomerDashboard = () => {
                     <SelectValue placeholder={t("products.allTypes")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">{t("products.allTypes")}</SelectItem>
+                    <SelectItem value="all">{t("products.allTypes")}</SelectItem>
                     <SelectItem value="powered">{t("products.poweredStretcher")}</SelectItem>
                     <SelectItem value="roll_in">{t("products.rollInStretcher")}</SelectItem>
                   </SelectContent>

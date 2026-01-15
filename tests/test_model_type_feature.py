@@ -10,13 +10,32 @@ import requests
 import os
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
+ADMIN_PASSWORD = "admin2025"
+
+@pytest.fixture(scope="module")
+def auth_token():
+    """Get admin authentication token"""
+    response = requests.post(f"{BASE_URL}/api/auth/login", json={
+        "password": ADMIN_PASSWORD,
+        "role": "admin"
+    })
+    if response.status_code == 200:
+        data = response.json()
+        return data.get("token")
+    pytest.fail(f"Failed to authenticate: {response.status_code} - {response.text}")
+
+@pytest.fixture(scope="module")
+def auth_headers(auth_token):
+    """Get headers with auth token"""
+    return {"X-Auth-Token": auth_token}
+
 
 class TestProductModelType:
     """Test Product model_type field functionality"""
     
-    def test_get_products_returns_model_type(self):
+    def test_get_products_returns_model_type(self, auth_headers):
         """Verify products API returns model_type field"""
-        response = requests.get(f"{BASE_URL}/api/products")
+        response = requests.get(f"{BASE_URL}/api/products", headers=auth_headers)
         assert response.status_code == 200
         
         products = response.json()
@@ -27,9 +46,9 @@ class TestProductModelType:
             assert "model_type" in product, f"Product {product.get('serial_number')} missing model_type"
             assert product["model_type"] in ["powered", "roll_in"], f"Invalid model_type: {product['model_type']}"
     
-    def test_find_roll_in_stretcher_product(self):
+    def test_find_roll_in_stretcher_product(self, auth_headers):
         """Verify at least one Roll-in Stretcher (VLN-005) exists"""
-        response = requests.get(f"{BASE_URL}/api/products")
+        response = requests.get(f"{BASE_URL}/api/products", headers=auth_headers)
         assert response.status_code == 200
         
         products = response.json()
@@ -43,9 +62,9 @@ class TestProductModelType:
             assert vln005["model_type"] == "roll_in", "VLN-005 should be roll_in type"
             print(f"Found VLN-005 with model_type: {vln005['model_type']}")
     
-    def test_find_powered_stretcher_products(self):
+    def test_find_powered_stretcher_products(self, auth_headers):
         """Verify powered stretcher products exist"""
-        response = requests.get(f"{BASE_URL}/api/products")
+        response = requests.get(f"{BASE_URL}/api/products", headers=auth_headers)
         assert response.status_code == 200
         
         products = response.json()
@@ -54,7 +73,7 @@ class TestProductModelType:
         assert len(powered_products) > 0, "Should have at least one powered stretcher product"
         print(f"Found {len(powered_products)} powered stretcher products")
     
-    def test_create_product_with_model_type_powered(self):
+    def test_create_product_with_model_type_powered(self, auth_headers):
         """Test creating a product with model_type=powered"""
         payload = {
             "serial_number": "TEST-POWERED-001",
@@ -65,7 +84,7 @@ class TestProductModelType:
             "notes": "Test product for model_type feature"
         }
         
-        response = requests.post(f"{BASE_URL}/api/products", json=payload)
+        response = requests.post(f"{BASE_URL}/api/products", json=payload, headers=auth_headers)
         assert response.status_code == 200
         
         product = response.json()
@@ -74,9 +93,9 @@ class TestProductModelType:
         
         # Cleanup
         product_id = product["id"]
-        requests.delete(f"{BASE_URL}/api/products/{product_id}")
+        requests.delete(f"{BASE_URL}/api/products/{product_id}", headers=auth_headers)
     
-    def test_create_product_with_model_type_roll_in(self):
+    def test_create_product_with_model_type_roll_in(self, auth_headers):
         """Test creating a product with model_type=roll_in"""
         payload = {
             "serial_number": "TEST-ROLLIN-001",
@@ -87,7 +106,7 @@ class TestProductModelType:
             "notes": "Test roll-in stretcher"
         }
         
-        response = requests.post(f"{BASE_URL}/api/products", json=payload)
+        response = requests.post(f"{BASE_URL}/api/products", json=payload, headers=auth_headers)
         assert response.status_code == 200
         
         product = response.json()
@@ -96,9 +115,9 @@ class TestProductModelType:
         
         # Cleanup
         product_id = product["id"]
-        requests.delete(f"{BASE_URL}/api/products/{product_id}")
+        requests.delete(f"{BASE_URL}/api/products/{product_id}", headers=auth_headers)
     
-    def test_create_product_default_model_type(self):
+    def test_create_product_default_model_type(self, auth_headers):
         """Test that default model_type is 'powered' when not specified"""
         payload = {
             "serial_number": "TEST-DEFAULT-001",
@@ -107,7 +126,7 @@ class TestProductModelType:
             "location_detail": "Test Location"
         }
         
-        response = requests.post(f"{BASE_URL}/api/products", json=payload)
+        response = requests.post(f"{BASE_URL}/api/products", json=payload, headers=auth_headers)
         assert response.status_code == 200
         
         product = response.json()
@@ -116,9 +135,9 @@ class TestProductModelType:
         
         # Cleanup
         product_id = product["id"]
-        requests.delete(f"{BASE_URL}/api/products/{product_id}")
+        requests.delete(f"{BASE_URL}/api/products/{product_id}", headers=auth_headers)
     
-    def test_update_product_model_type(self):
+    def test_update_product_model_type(self, auth_headers):
         """Test updating a product's model_type"""
         # Create a product
         payload = {
@@ -128,7 +147,7 @@ class TestProductModelType:
             "city": "Vilnius"
         }
         
-        create_response = requests.post(f"{BASE_URL}/api/products", json=payload)
+        create_response = requests.post(f"{BASE_URL}/api/products", json=payload, headers=auth_headers)
         assert create_response.status_code == 200
         product = create_response.json()
         product_id = product["id"]
@@ -141,23 +160,23 @@ class TestProductModelType:
             "city": "Vilnius"
         }
         
-        update_response = requests.put(f"{BASE_URL}/api/products/{product_id}", json=update_payload)
+        update_response = requests.put(f"{BASE_URL}/api/products/{product_id}", json=update_payload, headers=auth_headers)
         assert update_response.status_code == 200
         
         updated_product = update_response.json()
         assert updated_product["model_type"] == "roll_in"
         
         # Cleanup
-        requests.delete(f"{BASE_URL}/api/products/{product_id}")
+        requests.delete(f"{BASE_URL}/api/products/{product_id}", headers=auth_headers)
 
 
 class TestIssueWithModelType:
     """Test Issue creation with products of different model types"""
     
-    def test_create_issue_for_powered_stretcher(self):
+    def test_create_issue_for_powered_stretcher(self, auth_headers):
         """Test creating an issue for a powered stretcher product"""
         # First get a powered stretcher product
-        products_response = requests.get(f"{BASE_URL}/api/products")
+        products_response = requests.get(f"{BASE_URL}/api/products", headers=auth_headers)
         products = products_response.json()
         powered_product = next((p for p in products if p.get("model_type") == "powered"), None)
         
@@ -174,7 +193,7 @@ class TestIssueWithModelType:
             "source": "customer"
         }
         
-        response = requests.post(f"{BASE_URL}/api/issues", json=issue_payload)
+        response = requests.post(f"{BASE_URL}/api/issues", json=issue_payload, headers=auth_headers)
         assert response.status_code == 200
         
         issue = response.json()
@@ -184,12 +203,12 @@ class TestIssueWithModelType:
         print(f"Created issue {issue['id']} for powered stretcher {powered_product['serial_number']}")
         
         # Cleanup
-        requests.delete(f"{BASE_URL}/api/issues/{issue['id']}")
+        requests.delete(f"{BASE_URL}/api/issues/{issue['id']}", headers=auth_headers)
     
-    def test_create_issue_for_roll_in_stretcher(self):
+    def test_create_issue_for_roll_in_stretcher(self, auth_headers):
         """Test creating an issue for a roll-in stretcher product"""
         # First get a roll-in stretcher product
-        products_response = requests.get(f"{BASE_URL}/api/products")
+        products_response = requests.get(f"{BASE_URL}/api/products", headers=auth_headers)
         products = products_response.json()
         roll_in_product = next((p for p in products if p.get("model_type") == "roll_in"), None)
         
@@ -206,7 +225,7 @@ class TestIssueWithModelType:
             "source": "customer"
         }
         
-        response = requests.post(f"{BASE_URL}/api/issues", json=issue_payload)
+        response = requests.post(f"{BASE_URL}/api/issues", json=issue_payload, headers=auth_headers)
         assert response.status_code == 200
         
         issue = response.json()
@@ -216,17 +235,17 @@ class TestIssueWithModelType:
         print(f"Created issue {issue['id']} for roll-in stretcher {roll_in_product['serial_number']}")
         
         # Cleanup
-        requests.delete(f"{BASE_URL}/api/issues/{issue['id']}")
+        requests.delete(f"{BASE_URL}/api/issues/{issue['id']}", headers=auth_headers)
     
-    def test_get_issues_with_product_model_type(self):
+    def test_get_issues_with_product_model_type(self, auth_headers):
         """Test that issues can be retrieved and linked to products with model_type"""
         # Get all issues
-        issues_response = requests.get(f"{BASE_URL}/api/issues")
+        issues_response = requests.get(f"{BASE_URL}/api/issues", headers=auth_headers)
         assert issues_response.status_code == 200
         issues = issues_response.json()
         
         # Get all products
-        products_response = requests.get(f"{BASE_URL}/api/products")
+        products_response = requests.get(f"{BASE_URL}/api/products", headers=auth_headers)
         products = products_response.json()
         products_dict = {p["id"]: p for p in products}
         
@@ -242,9 +261,9 @@ class TestIssueWithModelType:
 class TestProductFiltering:
     """Test product filtering by city and model_type"""
     
-    def test_products_have_city_field(self):
+    def test_products_have_city_field(self, auth_headers):
         """Verify all products have city field"""
-        response = requests.get(f"{BASE_URL}/api/products")
+        response = requests.get(f"{BASE_URL}/api/products", headers=auth_headers)
         assert response.status_code == 200
         
         products = response.json()
@@ -252,9 +271,9 @@ class TestProductFiltering:
             assert "city" in product, f"Product {product.get('serial_number')} missing city"
             assert product["city"] in ["Vilnius", "Kaunas", "Klaipėda", "Šiauliai", "Panevėžys"], f"Invalid city: {product['city']}"
     
-    def test_products_by_city_distribution(self):
+    def test_products_by_city_distribution(self, auth_headers):
         """Check distribution of products by city"""
-        response = requests.get(f"{BASE_URL}/api/products")
+        response = requests.get(f"{BASE_URL}/api/products", headers=auth_headers)
         assert response.status_code == 200
         
         products = response.json()
@@ -266,9 +285,9 @@ class TestProductFiltering:
         print(f"Products by city: {city_counts}")
         assert len(city_counts) > 0
     
-    def test_products_by_model_type_distribution(self):
+    def test_products_by_model_type_distribution(self, auth_headers):
         """Check distribution of products by model_type"""
-        response = requests.get(f"{BASE_URL}/api/products")
+        response = requests.get(f"{BASE_URL}/api/products", headers=auth_headers)
         assert response.status_code == 200
         
         products = response.json()
@@ -284,10 +303,10 @@ class TestProductFiltering:
 class TestCustomerIssueEndpoint:
     """Test customer issue creation endpoint"""
     
-    def test_create_customer_issue(self):
+    def test_create_customer_issue(self, auth_headers):
         """Test creating a customer issue"""
         # Get a product
-        products_response = requests.get(f"{BASE_URL}/api/products")
+        products_response = requests.get(f"{BASE_URL}/api/products", headers=auth_headers)
         products = products_response.json()
         
         if not products:
@@ -303,7 +322,7 @@ class TestCustomerIssueEndpoint:
             "description": "Test customer issue creation"
         }
         
-        response = requests.post(f"{BASE_URL}/api/issues/customer", json=issue_payload)
+        response = requests.post(f"{BASE_URL}/api/issues/customer", json=issue_payload, headers=auth_headers)
         assert response.status_code == 200
         
         issue = response.json()
@@ -311,26 +330,28 @@ class TestCustomerIssueEndpoint:
         assert issue["severity"] == "high"  # Customer issues default to high severity
         
         # Cleanup
-        requests.delete(f"{BASE_URL}/api/issues/{issue['id']}")
+        requests.delete(f"{BASE_URL}/api/issues/{issue['id']}", headers=auth_headers)
 
 
 @pytest.fixture(autouse=True)
-def setup_teardown():
-    """Setup and teardown for tests"""
-    # Setup: Nothing needed
+def cleanup_test_data(auth_headers):
+    """Cleanup test data after tests"""
     yield
     # Teardown: Clean up any test products that might have been left behind
-    response = requests.get(f"{BASE_URL}/api/products")
-    if response.status_code == 200:
-        products = response.json()
-        for product in products:
-            if product.get("serial_number", "").startswith("TEST-"):
-                requests.delete(f"{BASE_URL}/api/products/{product['id']}")
-    
-    # Clean up test issues
-    response = requests.get(f"{BASE_URL}/api/issues")
-    if response.status_code == 200:
-        issues = response.json()
-        for issue in issues:
-            if issue.get("title", "").startswith("TEST"):
-                requests.delete(f"{BASE_URL}/api/issues/{issue['id']}")
+    try:
+        response = requests.get(f"{BASE_URL}/api/products", headers=auth_headers)
+        if response.status_code == 200:
+            products = response.json()
+            for product in products:
+                if product.get("serial_number", "").startswith("TEST-"):
+                    requests.delete(f"{BASE_URL}/api/products/{product['id']}", headers=auth_headers)
+        
+        # Clean up test issues
+        response = requests.get(f"{BASE_URL}/api/issues", headers=auth_headers)
+        if response.status_code == 200:
+            issues = response.json()
+            for issue in issues:
+                if issue.get("title", "").startswith("TEST"):
+                    requests.delete(f"{BASE_URL}/api/issues/{issue['id']}", headers=auth_headers)
+    except:
+        pass

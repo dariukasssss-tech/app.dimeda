@@ -366,7 +366,7 @@ const Issues = () => {
                 <Select
                   value={selectedCity}
                   onValueChange={(value) => {
-                    setSelectedCity(value);
+                    setSelectedCity(value === "all" ? "" : value);
                     setFormData({ ...formData, product_id: "" }); // Reset product when city changes
                   }}
                 >
@@ -374,7 +374,7 @@ const Issues = () => {
                     <SelectValue placeholder={t("products.city")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Cities</SelectItem>
+                    <SelectItem value="all">All Cities</SelectItem>
                     {cities.map((city) => (
                       <SelectItem key={city} value={city}>{city}</SelectItem>
                     ))}
@@ -386,9 +386,9 @@ const Issues = () => {
               <div>
                 <Label>{t("products.modelType")}</Label>
                 <Select
-                  value={selectedModelType}
+                  value={selectedModelType || "all"}
                   onValueChange={(value) => {
-                    setSelectedModelType(value);
+                    setSelectedModelType(value === "all" ? "" : value);
                     setFormData({ ...formData, product_id: "" }); // Reset product when model type changes
                   }}
                 >
@@ -396,7 +396,7 @@ const Issues = () => {
                     <SelectValue placeholder={t("products.allTypes")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">{t("products.allTypes")}</SelectItem>
+                    <SelectItem value="all">{t("products.allTypes")}</SelectItem>
                     <SelectItem value="powered">{t("products.poweredStretcher")}</SelectItem>
                     <SelectItem value="roll_in">{t("products.rollInStretcher")}</SelectItem>
                   </SelectContent>
